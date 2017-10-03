@@ -10,11 +10,13 @@ Polymer('g-spectrogram', {
   ticks: 5,
   speed: 2,
   // FFT bin size,
-  fftsize: 2048,
+  fftsize: 16384,
   oscillator: false,
   color: false,
   pause: false,
-  resolution: 20000,
+  resolutionMax: 20000,
+  resolutionMin: 100,
+  gain: 6,
 
   attachedCallback: function() {
     this.tempCanvas = document.createElement('canvas'),
@@ -64,6 +66,10 @@ Polymer('g-spectrogram', {
       this.instantaneousFPS = now - this.lastRenderTime_;
     }
     this.lastRenderTime_ = now;
+
+
+    this.gainNode.gain.value = this.setGain(this.gain);
+
   },
 
   renderTimeDomain: function() {
@@ -84,7 +90,6 @@ Polymer('g-spectrogram', {
   renderFreqDomain: function() {
     var freq = new Uint8Array(this.analyser.frequencyBinCount);
     this.analyser.getByteFrequencyData(freq);
-
     var ctx = this.ctx;
     // Copy the current canvas onto the temp canvas.
     this.tempCanvas.width = this.width;
@@ -92,14 +97,32 @@ Polymer('g-spectrogram', {
     //console.log(this.$.canvas.height, this.tempCanvas.height);
     var tempCtx = this.tempCanvas.getContext('2d');
     tempCtx.drawImage(this.$.canvas, 0, 0, this.width, this.height);
-
     // Iterate over the frequencies.
-    for (var i = 0; i < freq.length; i++) {
+    var resolutionMaxPercent = this.resolutionMax/(context.sampleRate/2);
+    var resolutionMinPercent = Number(this.resolutionMin)/(context.sampleRate/2);
+    // console.log(resolutionMinPercent*8192);
+    var maxSample = Math.round(freq.length * resolutionMaxPercent);
+    var minSample = Math.round(freq.length * resolutionMinPercent);
+    // console.log(minSample)
+    // console.log(freq.length);
+
+    for (var i = 0; i < maxSample-minSample; i++) {
       var value;
       // Draw each pixel with the specific color.
+      // var theVal = Math.round(2*(maxSample-minSample)/6);
+      // console.log(theVal)
+      // if(i==theVal) console.log("MY INDEX: "+logIndex)
+
+
+
       if (this.log) {
-        logIndex = this.logScale(i, freq.length);
-        value = freq[logIndex];
+        logIndex = this.logScale(i, (maxSample));
+
+        // console.log("ARRAY");
+        // console.log(myArr);
+        // var newX = (Math.log2(i)-Math.log2(minSample)) / (Math.log2(maxSample)-Math.log2(minSample));
+        // if(i==minSample)console.log(newX)
+        value = freq[logIndex+minSample];
 
       } else {
         value = freq[i];
@@ -107,7 +130,7 @@ Polymer('g-spectrogram', {
 
       ctx.fillStyle = (this.color ? this.getFullColor(value) : this.getGrayColor(value));
 
-      var percent = i / freq.length;
+      var percent = i / (maxSample-minSample);
       var y = Math.round(percent * this.height);
 
 
@@ -126,6 +149,14 @@ Polymer('g-spectrogram', {
     ctx.setTransform(1, 0, 0, 1, 0, 0);
   },
 
+  setGain: function(position){
+        var minp = 1;
+        var maxp = 10;
+        var minVal = Math.log(0.1);
+        var maxVal = Math.log(10);
+        var scale = (maxVal-minVal) / (maxp-minp);
+        return Math.exp(minVal + scale*(position-minp));
+  },
   /**
    * Given an index and the total number of entries, return the
    * log-scaled value.
@@ -147,34 +178,88 @@ Polymer('g-spectrogram', {
     canvas.height = this.height;
     var ctx = canvas.getContext('2d');
     var startFreq = 440;
+    startFreq = this.resolutionMin;
     var nyquist = context.sampleRate/2;
-    // nyquist = this.resolution;
-    var endFreq = nyquist - startFreq;
-    // endFreq = 22000;
-    startFreq = 10;
-
+    var endFreq = this.resolutionMax - startFreq;
     var step = (endFreq - startFreq) / this.ticks;
-    // step=3000;
     var yLabelOffset = 5;
+
+    var resolutionMaxPercent = this.resolutionMax/(context.sampleRate/2);
+    var resolutionMinPercent = Number(this.resolutionMin)/(context.sampleRate/2);
+    // console.log(resolutionMinPercent*8192);
+    var maxSample = Math.round(this.getFFTBinCount() * resolutionMaxPercent);
+    var minSample = Math.round(this.getFFTBinCount() * resolutionMinPercent);
     // Render the vertical frequency axis.
+    // console.log("START")
+
+        var  myArr = [];
     for (var i = 0; i <= this.ticks; i++) {
+
+
+      //100, 161, 403, 1366, 4967, 19000
       var freq = startFreq + (step * i);
       // Get the y coordinate from the current label.
       var index = this.freqToIndex(freq);
 
-      var percent = index / this.getFFTBinCount();
-      // var y = (1-percent) * this.height;
-      var y = (1-percent) * 591;
+      // var percent = index / this.getFFTBinCount();
+      // console.log(this.getFFTBinCount());
+      // var percent = index / (maxSample-minSample);
+      var percent  = i/(this.ticks);
+      if(i==2){
+      // console.log("FREQ: "+freq);
+      // console.log("INDEX: "+index);
+      // console.log("STEP: "+step);
 
+      }
+      console.log("PERCENT: "+percent)
+      var y = (1-percent) * this.height;
+      console.log("Y: "+(1-percent));
       var x = this.width - 60;
       // Get the value for the current y coordinate.
       var label;
       if (this.log) {
+        // index = 2350;
+        // index = 3600;
+        // index = 4650;
         // Handle a logarithmic scale.
-        var logIndex = this.logScale(index, this.getFFTBinCount());
-        // Never show 0 Hz.
-        freq = Math.max(1, this.indexToFreq(logIndex));
+        var logIndex = this.logScale(index, maxSample)+minSample;
 
+
+        // Never show 0 Hz.
+        if(i==2){
+        // console.log("LOGINDEX: "+logIndex)
+      }
+        freq = Math.max(1, this.indexToFreq(logIndex));
+        // if(myArr.length <=6){
+          // (20000-100) = 19900
+          // 100 to 20000
+          // height= 590
+          //
+          var position = i;
+          var minp = 0;
+          var maxp = 5;
+          var minVal = Math.log2(this.resolutionMin);
+          var maxVal = Math.log2(this.resolutionMax);
+          //2 2048
+          //
+        var scale = (maxVal-minVal) / (maxp-minp);
+        var result = Math.round(Math.pow(2,(minVal + scale*(position-minp))));
+        // freq = result;
+        myArr.push(result);
+          // var myIndex = i * (this.resolutionMax-this.resolutionMin) / 6;
+          // myArr.push(Math.round(this.logScale(myIndex, (this.resolutionMax-this.resolutionMin))))
+          // for (var j = 0; j < (this.resolutionMax-this.resolutionMin); i++) {
+            // var myFreq = this.logScale(j, (this.resolutionMax-this.resolutionMin))+this.resolutionMin;
+            // myArr.push(myFreq)
+          // }
+          // }
+
+          // console.log(this.height)
+        // myArr.push(Math.round(freq));
+
+        // if(i==2)
+
+        // console.log(freq)
       }
       var label = this.formatFreq(freq);
       var units = this.formatUnits(freq);
@@ -188,6 +273,8 @@ Polymer('g-spectrogram', {
       // Draw a tick mark.
       ctx.fillRect(x + 40, y, 30, 2);
     }
+    console.log(myArr)
+
   },
 
   clearAxesLabels: function() {
@@ -206,12 +293,13 @@ Polymer('g-spectrogram', {
 
   indexToFreq: function(index) {
     var nyquist = context.sampleRate/2;
-    nyquist = this.resolution;
+    // var nyquist = (this.resolutionMax-this.resolutionMin);
     return nyquist/this.getFFTBinCount() * index;
   },
 
   freqToIndex: function(frequency) {
     var nyquist = context.sampleRate/2;
+    // var nyquist = this.resolutionMax;
     return Math.round(frequency/nyquist * this.getFFTBinCount());
   },
 
@@ -221,19 +309,25 @@ Polymer('g-spectrogram', {
 
   onStream: function(stream) {
     var input = context.createMediaStreamSource(stream);
+    var gainNode = context.createGain();
     var analyser = context.createAnalyser();
 
-    analyser.minDecibels = -90;
-    analyser.maxDecibels = -10;
+    analyser.minDecibels = -100;
+    analyser.maxDecibels = -20;
     analyser.smoothingTimeConstant = 0;
     // analyser.fftSize = this.fftsize;
-    var fftSize = 8192;
+    var fftSize = 16384;
     analyser.fftSize = fftSize;
 
     // Connect graph.
-    input.connect(analyser);
-
+    input.connect(gainNode);
+    gainNode.connect(analyser);
+    // input.connect(analyser);
+    this.gainNode = gainNode;
     this.analyser = analyser;
+
+    gainNode.gain.value = 1;
+
     // Setup a timer to visualize some stuff.
     this.render();
   },
@@ -277,7 +371,7 @@ Polymer('g-spectrogram', {
     // if(value > 265) {
     //   return 'hs1(310, 100%, 50%)';
     // } else {
-    return 'hsl(H, 100%, 50%)'.replace(/H/g, 275-value);
+    return 'hsl(H, 100%, 50%)'.replace(/H/g, 255-value);
     // }
 
   },
@@ -305,7 +399,13 @@ Polymer('g-spectrogram', {
     }
   },
 
-  resolutionChanged: function() {
+  resolutionMaxChanged: function() {
+    if(this.labels){
+      this.renderAxesLabels();
+    }
+  },
+
+  resolutionMinChanged: function() {
     if(this.labels){
       this.renderAxesLabels();
     }

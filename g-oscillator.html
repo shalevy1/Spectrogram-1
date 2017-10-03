@@ -1,7 +1,7 @@
 <link rel="import" href="./bower_components/polymer/polymer.html">
 <link href='https://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
 
-<polymer-element name="g-oscillator" attributes="log speed resolution">
+<polymer-element name="g-oscillator" attributes="log speed resolutionMax resolutionMin">
   <template>
   <style>
     canvas {
@@ -28,7 +28,8 @@ Polymer('g-oscillator', {
   speed: 2,
 
   fadeTime: 0.01,
-  resolution: 20000,
+  resolutionMax: 20000,
+  resolutionMin: 100,
 
   attachedCallback: function() {
     this.loop();
@@ -173,11 +174,13 @@ Polymer('g-oscillator', {
     var percent = 1 - (y / this.height);
     // console.log("Percent: "+percent);
     var nyquist = context.sampleRate/2;
-    nyquist = this.resolution;
+    // nyquist = this.resolution;
     if (this.log) {
       percent = this.logScale_(percent * 1000, 1000) / 1000;
     }
-    return percent * nyquist;
+    // console.log(Number(this.resolutionMin));
+    // console.log(percent);
+    return (percent * (this.resolutionMax - Number(this.resolutionMin)) + Number(this.resolutionMin));
   },
 
   createOscillator_: function() {

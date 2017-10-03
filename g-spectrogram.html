@@ -3,7 +3,7 @@
 <link rel="import" href="./g-oscillator.html">
 <link href='https://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
 
-<polymer-element name="g-spectrogram" attributes="controls log fftsize labels ticks oscillator speed color resolution">
+<polymer-element name="g-spectrogram" attributes="controls log fftsize labels ticks oscillator speed color resolutionMax resolutionMin gain">
   <template>
   <style>
     canvas {
@@ -24,12 +24,14 @@
           speed="{{speed}}"
           ticks="{{ticks}}"
           color="{{color}}"
-          resolution="{{resolution}}"
-          pause="{{pause}}">
+          resolutionMax="{{resolutionMax}}"
+          resolutionMin="{{resolutionMin}}"
+          pause="{{pause}}"
+          gain="{{gain}}">
       </g-spectrogram-controls>
     </template>
     <template if="{{oscillator}}">
-      <g-oscillator log={{log}} speed={{speed}} resolution={{resolution}} pause="{{pause}}"></g-oscillator>
+      <g-oscillator log={{log}} speed={{speed}} resolutionMax={{resolutionMax}} resolutionMin={{resolutionMin}} pause="{{pause}}"></g-oscillator>
     </template>
   </template>
   <script src="g-spectrogram.js"></script>
