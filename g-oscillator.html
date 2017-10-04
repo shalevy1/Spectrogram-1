@@ -167,19 +167,12 @@ Polymer('g-oscillator', {
   getLastFrequency: function() {
     var x = this.lastX;
     var y = this.lastY;
-      // console.log("Freq: "+y)
-    // Linearly divide the Y axis and assign frequency.
-    // this.height = 1000;
-    // console.log("Y/he "+ y/this.height)
+
     var percent = 1 - (y / this.height);
-    // console.log("Percent: "+percent);
     var nyquist = context.sampleRate/2;
-    // nyquist = this.resolution;
     if (this.log) {
       percent = this.logScale_(percent * 1000, 1000) / 1000;
     }
-    // console.log(Number(this.resolutionMin));
-    // console.log(percent);
     return (percent * (this.resolutionMax - Number(this.resolutionMin)) + Number(this.resolutionMin));
   },
 
@@ -218,12 +211,6 @@ Polymer('g-oscillator', {
   logScale_: function(index, total, opt_base) {
     var base = opt_base || 2;
     var logmax = this.logBase(total + 1, base);
-    //10
-    //3330
-    //3.33
-    //2^3.33 -1
-    //
-    // console.log("LOGMAX: "+logmax);
     var exp = logmax * index / total;
     return Math.pow(base, exp) - 1;
   },

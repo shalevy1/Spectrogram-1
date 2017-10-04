@@ -100,28 +100,18 @@ Polymer('g-spectrogram', {
     // Iterate over the frequencies.
     var resolutionMaxPercent = this.resolutionMax/(context.sampleRate/2);
     var resolutionMinPercent = Number(this.resolutionMin)/(context.sampleRate/2);
-    // console.log(resolutionMinPercent*8192);
     var maxSample = Math.round(freq.length * resolutionMaxPercent);
     var minSample = Math.round(freq.length * resolutionMinPercent);
-    // console.log(minSample)
-    // console.log(freq.length);
+
 
     for (var i = 0; i < maxSample-minSample; i++) {
       var value;
       // Draw each pixel with the specific color.
-      // var theVal = Math.round(2*(maxSample-minSample)/6);
-      // console.log(theVal)
-      // if(i==theVal) console.log("MY INDEX: "+logIndex)
 
 
 
       if (this.log) {
         logIndex = this.logScale(i, (maxSample));
-
-        // console.log("ARRAY");
-        // console.log(myArr);
-        // var newX = (Math.log2(i)-Math.log2(minSample)) / (Math.log2(maxSample)-Math.log2(minSample));
-        // if(i==minSample)console.log(newX)
         value = freq[logIndex+minSample];
 
       } else {
@@ -148,7 +138,9 @@ Polymer('g-spectrogram', {
     // Reset the transformation matrix.
     ctx.setTransform(1, 0, 0, 1, 0, 0);
   },
-
+/**
+* Takes the linear gain slider position and converts it to a logarithmic scale
+*/
   setGain: function(position){
         var minp = 1;
         var maxp = 10;
@@ -186,80 +178,36 @@ Polymer('g-spectrogram', {
 
     var resolutionMaxPercent = this.resolutionMax/(context.sampleRate/2);
     var resolutionMinPercent = Number(this.resolutionMin)/(context.sampleRate/2);
-    // console.log(resolutionMinPercent*8192);
     var maxSample = Math.round(this.getFFTBinCount() * resolutionMaxPercent);
     var minSample = Math.round(this.getFFTBinCount() * resolutionMinPercent);
     // Render the vertical frequency axis.
-    // console.log("START")
 
-        var  myArr = [];
     for (var i = 0; i <= this.ticks; i++) {
 
-
-      //100, 161, 403, 1366, 4967, 19000
+      //Inital Vals = 100, 161, 403, 1366, 4967, 19000
       var freq = startFreq + (step * i);
       // Get the y coordinate from the current label.
       var index = this.freqToIndex(freq);
 
-      // var percent = index / this.getFFTBinCount();
-      // console.log(this.getFFTBinCount());
-      // var percent = index / (maxSample-minSample);
-      var percent  = i/(this.ticks);
-      if(i==2){
-      // console.log("FREQ: "+freq);
-      // console.log("INDEX: "+index);
-      // console.log("STEP: "+step);
 
-      }
-      console.log("PERCENT: "+percent)
+      var percent  = i/(this.ticks);
       var y = (1-percent) * this.height;
-      console.log("Y: "+(1-percent));
+
       var x = this.width - 60;
       // Get the value for the current y coordinate.
       var label;
       if (this.log) {
-        // index = 2350;
-        // index = 3600;
-        // index = 4650;
+
         // Handle a logarithmic scale.
-        var logIndex = this.logScale(index, maxSample)+minSample;
+        // var logIndex = this.logScale(index, maxSample)+minSample;
 
 
         // Never show 0 Hz.
-        if(i==2){
-        // console.log("LOGINDEX: "+logIndex)
-      }
-        freq = Math.max(1, this.indexToFreq(logIndex));
-        // if(myArr.length <=6){
-          // (20000-100) = 19900
-          // 100 to 20000
-          // height= 590
-          //
-          var position = i;
-          var minp = 0;
-          var maxp = 5;
-          var minVal = Math.log2(this.resolutionMin);
-          var maxVal = Math.log2(this.resolutionMax);
-          //2 2048
-          //
-        var scale = (maxVal-minVal) / (maxp-minp);
-        var result = Math.round(Math.pow(2,(minVal + scale*(position-minp))));
-        // freq = result;
-        myArr.push(result);
-          // var myIndex = i * (this.resolutionMax-this.resolutionMin) / 6;
-          // myArr.push(Math.round(this.logScale(myIndex, (this.resolutionMax-this.resolutionMin))))
-          // for (var j = 0; j < (this.resolutionMax-this.resolutionMin); i++) {
-            // var myFreq = this.logScale(j, (this.resolutionMax-this.resolutionMin))+this.resolutionMin;
-            // myArr.push(myFreq)
-          // }
-          // }
 
-          // console.log(this.height)
-        // myArr.push(Math.round(freq));
+        // freq = Math.max(1, this.indexToFreq(logIndex));
 
-        // if(i==2)
+        freq = Math.max(1,this.getFrequencies(i));
 
-        // console.log(freq)
       }
       var label = this.formatFreq(freq);
       var units = this.formatUnits(freq);
@@ -273,8 +221,17 @@ Polymer('g-spectrogram', {
       // Draw a tick mark.
       ctx.fillRect(x + 40, y, 30, 2);
     }
-    console.log(myArr)
 
+  },
+
+/**
+* For each tick, grab the log-scaled frequency value
+*/
+  getFrequencies(index){
+    var percent = ((index/this.ticks));
+      percent = this.logScale_(percent * 1000, 1000) / 1000;
+
+    return Math.round(percent * (this.resolutionMax - Number(this.resolutionMin)) + Number(this.resolutionMin));
   },
 
   clearAxesLabels: function() {
@@ -293,13 +250,11 @@ Polymer('g-spectrogram', {
 
   indexToFreq: function(index) {
     var nyquist = context.sampleRate/2;
-    // var nyquist = (this.resolutionMax-this.resolutionMin);
     return nyquist/this.getFFTBinCount() * index;
   },
 
   freqToIndex: function(frequency) {
     var nyquist = context.sampleRate/2;
-    // var nyquist = this.resolutionMax;
     return Math.round(frequency/nyquist * this.getFFTBinCount());
   },
 
@@ -344,35 +299,14 @@ Polymer('g-spectrogram', {
     var hue = fromH + delta;
 
 
-
-    // if(hue<50) {
-      // hue = 1;
-    // }
-    // var hue = value/100;
-    // console.log(value);
-    // var x = value / 100;
-    // x = x * 235;
-
-
-    // if(hue < 100 && hue > 500) {
-      // console.log("HUE: "+hue);
-    // }
-    // console.log("VALUE: "+value);
-    // return 'rgb(255, 255, 0)';
-    // var x = this.logScale_(hue, 235);
-    // return 'rgb(V, V, V)'.replace(/V/g, 255 - value);
-    //
-
     // Test Max
     if(value ==255) {
       console.log("MAX!");
     }
 
-    // if(value > 265) {
-    //   return 'hs1(310, 100%, 50%)';
-    // } else {
+
     return 'hsl(H, 100%, 50%)'.replace(/H/g, 255-value);
-    // }
+
 
   },
 
@@ -388,7 +322,6 @@ Polymer('g-spectrogram', {
   logScale_: function(index, total, opt_base) {
     var base = opt_base || 2;
     var logmax = this.logBase(total + 1, base);
-    // console.log("LOGMAX: "+logmax);
     var exp = logmax * index / total;
     return Math.pow(base, exp) - 1;
   },
