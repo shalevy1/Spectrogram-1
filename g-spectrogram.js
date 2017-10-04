@@ -211,7 +211,7 @@ Polymer('g-spectrogram', {
       }
       var label = this.formatFreq(freq);
       var units = this.formatUnits(freq);
-      ctx.font = '16px Inconsolata';
+      ctx.font = '18px Inconsolata';
       // Draw the value.
       ctx.textAlign = 'right';
       ctx.fillText(label, x, y + yLabelOffset);
