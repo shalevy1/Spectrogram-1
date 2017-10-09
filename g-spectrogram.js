@@ -124,7 +124,6 @@ Polymer('g-spectrogram', {
         var myPercent = (i / this.height);
         myPercent = this.logScale_(myPercent * 1000, 1000) / 1000;
         var xx= Math.floor(myPercent * (this.resolutionMax - Number(this.resolutionMin)) + Number(this.resolutionMin))+1;
-        if(i==10)console.log(xx);
         logIndex = Math.round(xx*freq.length/(context.sampleRate/2));
 
 
