@@ -29,7 +29,7 @@ Polymer('g-oscillator', {
 
   fadeTime: 0.01,
   resolutionMax: 20000,
-  resolutionMin: 100,
+  resolutionMin: 10,
 
   attachedCallback: function() {
     this.loop();
@@ -64,7 +64,8 @@ Polymer('g-oscillator', {
       // Label the point.
       var label = this.formatFrequency_(this.lastFreq);
 
-      ctx.font = '20px Inconsolata'
+      ctx.font = '20px Inconsolata';
+      ctx.fillStyle = 'white'
       ctx.fillText(label, this.lastX, this.lastY);
     }
     requestAnimationFrame(this.loop.bind(this));
@@ -173,7 +174,7 @@ Polymer('g-oscillator', {
     if (this.log) {
       percent = this.logScale_(percent * 1000, 1000) / 1000;
     }
-    return (percent * (this.resolutionMax - Number(this.resolutionMin)) + Number(this.resolutionMin));
+    return Math.floor(percent * (this.resolutionMax - Number(this.resolutionMin)) + Number(this.resolutionMin))+1;
   },
 
   createOscillator_: function() {

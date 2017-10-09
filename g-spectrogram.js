@@ -15,7 +15,7 @@ Polymer('g-spectrogram', {
   color: false,
   pause: false,
   resolutionMax: 20000,
-  resolutionMin: 100,
+  resolutionMin: 10,
   gain: 6,
 
   attachedCallback: function() {
@@ -98,21 +98,37 @@ Polymer('g-spectrogram', {
     var tempCtx = this.tempCanvas.getContext('2d');
     tempCtx.drawImage(this.$.canvas, 0, 0, this.width, this.height);
     // Iterate over the frequencies.
+
     var resolutionMaxPercent = this.resolutionMax/(context.sampleRate/2);
     var resolutionMinPercent = Number(this.resolutionMin)/(context.sampleRate/2);
     var maxSample = Math.round(freq.length * resolutionMaxPercent);
     var minSample = Math.round(freq.length * resolutionMinPercent);
 
 
-    for (var i = 0; i < maxSample-minSample; i++) {
+// console.log(maxSample - minSample);
+    for (var i = 0; i < this.height; i++) {
       var value;
       // Draw each pixel with the specific color.
 
 
 
       if (this.log) {
-        logIndex = this.logScale(i, (maxSample));
-        value = freq[logIndex+minSample];
+        // logIndex = this.logScale(i, maxSample);
+
+        // var minp = 0;
+        // var maxp = maxSample-minSample;
+        // var minVal = Math.log2(minSample);
+        // var maxVal = Math.log2(maxSample);
+        // var scale = (maxVal-minVal) / (maxp-minp);
+        // logIndex =  Math.round(Math.pow(2,minVal + scale*(i-minp)));
+        var myPercent = (i / this.height);
+        myPercent = this.logScale_(myPercent * 1000, 1000) / 1000;
+        var xx= Math.floor(myPercent * (this.resolutionMax - Number(this.resolutionMin)) + Number(this.resolutionMin))+1;
+        if(i==10)console.log(xx);
+        logIndex = Math.round(xx*freq.length/(context.sampleRate/2));
+
+
+        value = freq[logIndex];
 
       } else {
         value = freq[i];
@@ -120,8 +136,9 @@ Polymer('g-spectrogram', {
 
       ctx.fillStyle = (this.color ? this.getFullColor(value) : this.getGrayColor(value));
 
-      var percent = i / (maxSample-minSample);
-      var y = Math.round(percent * this.height);
+      var percent = i / this.height;
+      var y = Math.round(percent *this.height);
+
 
 
       // draw the line at the right side of the canvas
@@ -176,10 +193,6 @@ Polymer('g-spectrogram', {
     var step = (endFreq - startFreq) / this.ticks;
     var yLabelOffset = 5;
 
-    var resolutionMaxPercent = this.resolutionMax/(context.sampleRate/2);
-    var resolutionMinPercent = Number(this.resolutionMin)/(context.sampleRate/2);
-    var maxSample = Math.round(this.getFFTBinCount() * resolutionMaxPercent);
-    var minSample = Math.round(this.getFFTBinCount() * resolutionMinPercent);
     // Render the vertical frequency axis.
 
     for (var i = 0; i <= this.ticks; i++) {
@@ -214,9 +227,11 @@ Polymer('g-spectrogram', {
       ctx.font = '18px Inconsolata';
       // Draw the value.
       ctx.textAlign = 'right';
+      ctx.fillStyle = 'white';
       ctx.fillText(label, x, y + yLabelOffset);
       // Draw the units.
       ctx.textAlign = 'left';
+      ctx.fillStyle = 'white';
       ctx.fillText(units, x + 10, y + yLabelOffset);
       // Draw a tick mark.
       ctx.fillRect(x + 40, y, 30, 2);

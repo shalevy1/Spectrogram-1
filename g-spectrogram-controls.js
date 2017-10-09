@@ -5,7 +5,7 @@ Polymer('g-spectrogram-controls', {
   pause: false,
   gain: 3,
   resolutionMax: 20000,
-  resolutionMin: 100,
+  resolutionMin: 10,
 
   created: function() {
     console.log('Created spectrogram controls');
