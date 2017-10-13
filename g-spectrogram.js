@@ -10,7 +10,7 @@ Polymer('g-spectrogram', {
   ticks: 5,
   speed: 2,
   // FFT bin size,
-  fftsize: 16384,
+  fftsize: 4096,
   oscillator: false,
   color: false,
   pause: false,
@@ -285,7 +285,7 @@ Polymer('g-spectrogram', {
     analyser.maxDecibels = -20;
     analyser.smoothingTimeConstant = 0;
     // analyser.fftSize = this.fftsize;
-    var fftSize = 16384;
+    var fftSize = 4096;
     analyser.fftSize = fftSize;
 
     // Connect graph.
@@ -306,20 +306,35 @@ Polymer('g-spectrogram', {
   },
 
   getGrayColor: function(value) {
-    var fromH = 235;
+    var fromH = 200;
     var toH = 1;
     var percent = value / 255;
     var delta = percent * (toH - fromH);
     var hue = fromH + delta;
 
 
+
+//value 1, 255 (255 is max volume)
+
+
     // Test Max
     if(value ==255) {
       console.log("MAX!");
     }
-
-
-    return 'hsl(H, 100%, 50%)'.replace(/H/g, 255-value);
+    //
+    // if(value < 160){
+    //   value = 0;
+    // }
+    //
+    // if(value < 175 && value > 69 ){
+    //   value = value - 30;
+    // }
+    // if(value < 100) {
+    //   value = 0
+    // }
+    var percent = (value) / 255 * 50;
+// return 'rgb(V, V, V)'.replace(/V/g, 255 - value);
+   return 'hsl(H, 100%, P%)'.replace(/H/g, 255-value).replace(/P/g, percent);
 
 
   },
