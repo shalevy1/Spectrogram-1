@@ -130,7 +130,10 @@ Polymer('g-spectrogram', {
         value = freq[logIndex];
 
       } else {
-        value = freq[i];
+        var myPercent = (i / this.height);
+        var xx= Math.floor(myPercent * (this.resolutionMax - Number(this.resolutionMin)) + Number(this.resolutionMin))+1;
+        logIndex = Math.round(xx*freq.length/(context.sampleRate/2));
+        value = freq[logIndex];
       }
 
       ctx.fillStyle = (this.color ? this.getFullColor(value) : this.getGrayColor(value));
