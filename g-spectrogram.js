@@ -17,6 +17,8 @@ Polymer('g-spectrogram', {
   resolutionMax: 20000,
   resolutionMin: 10,
   gain: 6,
+  spectrum: null,
+  tester: 1,
 
   attachedCallback: function() {
     this.tempCanvas = document.createElement('canvas'),
@@ -88,8 +90,20 @@ Polymer('g-spectrogram', {
   },
 
   renderFreqDomain: function() {
-    var freq = new Uint8Array(this.analyser.frequencyBinCount);
-    this.analyser.getByteFrequencyData(freq);
+    var freq = new Uint8Array(2048);
+    // this.analyser.getByteFrequencyData(freq);
+
+    if(this.tester<200){
+      // console.log(this.spectrum)
+      var max = this.spectrum.reduce(function(a, b) {
+        return Math.max(a, b);
+      });
+      console.log(max)
+      this.tester++;
+    }
+    freq = this.spectrum;
+    // console.log(freq)
+    // console.log(this.spectrum);
     var ctx = this.ctx;
     // Copy the current canvas onto the temp canvas.
     this.tempCanvas.width = this.width;
@@ -250,7 +264,7 @@ Polymer('g-spectrogram', {
         percent = this.logScale_(percent * 1000, 1000) / 1000;
         return Math.round(percent * (this.resolutionMax - Number(this.resolutionMin)) + Number(this.resolutionMin));
     }
-    return Math.round(percent * (this.resolutionMax - Number(this.resolutionMin)) + Number(this.resolutionMin));    
+    return Math.round(percent * (this.resolutionMax - Number(this.resolutionMin)) + Number(this.resolutionMin));
   },
 
   clearAxesLabels: function() {
@@ -285,6 +299,41 @@ Polymer('g-spectrogram', {
     var input = context.createMediaStreamSource(stream);
     var gainNode = context.createGain();
     var analyser = context.createAnalyser();
+    var bufferSize = 2048;
+    var peak = new Float32Array(2048);
+    this.spectrum = new Float32Array(2048);
+
+    script_processor_node = context.createScriptProcessor(4096, 1, 1);
+    fft_processor_node = context.createScriptProcessor(4096, 1, 1);
+    script_processor_node.onaudioprocess=(event)=>{
+    this.microphone_output_buffer = event.inputBuffer.getChannelData(0);
+    var fft = new FFT(4096, 44100);
+        fft.forward(this.microphone_output_buffer);
+        for ( var i = 0; i < bufferSize; i++ ) {
+          fft.spectrum[i] *= -1 * Math.log((fft.bufferSize/2 - i) * (0.5/fft.bufferSize/2)) * fft.bufferSize; // equalize, attenuates low freqs and boosts highs
+
+        }
+
+        this.spectrum = fft.spectrum.map((value)=>{
+
+           return Math.max(0, Math.min(value, 256));
+        });
+      // this.spectrum = fft.spectrum;
+
+        // fft.spectrum.forEach((value, index)=>{
+        //   this.spectrum[index] =(255*(value/2000));
+        // });
+
+    }
+    // console.log(this.microphone_output_buffer);
+    input.connect(gainNode);
+    gainNode.connect(script_processor_node);
+    script_processor_node.connect(analyser)
+  this.gainNode = gainNode;
+gainNode.gain.value = 1;
+// var fft = new FFT(4096, 44100);
+//     fft.forward(signal);
+//     var spectrum = fft.spectrum;
 
     analyser.minDecibels = -100;
     analyser.maxDecibels = -20;
@@ -293,14 +342,14 @@ Polymer('g-spectrogram', {
     var fftSize = 4096;
     analyser.fftSize = fftSize;
 
-    // Connect graph.
-    input.connect(gainNode);
-    gainNode.connect(analyser);
-    // input.connect(analyser);
-    this.gainNode = gainNode;
     this.analyser = analyser;
 
-    gainNode.gain.value = 1;
+
+    // Connect graph.
+    // input.connect(gainNode);
+    // gainNode.connect(analyser);
+    // input.connect(analyser);
+
 
     // Setup a timer to visualize some stuff.
     this.render();
