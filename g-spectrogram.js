@@ -211,7 +211,7 @@ Polymer('g-spectrogram', {
       var x = this.width - 60;
       // Get the value for the current y coordinate.
       var label;
-      if (this.log) {
+      // if (this.log) {
 
         // Handle a logarithmic scale.
         // var logIndex = this.logScale(index, maxSample)+minSample;
@@ -223,7 +223,7 @@ Polymer('g-spectrogram', {
 
         freq = Math.max(1,this.getFrequencies(i));
 
-      }
+      // }
       var label = this.formatFreq(freq);
       var units = this.formatUnits(freq);
       ctx.font = '18px Inconsolata';
@@ -246,9 +246,11 @@ Polymer('g-spectrogram', {
 */
   getFrequencies(index){
     var percent = ((index/this.ticks));
-      percent = this.logScale_(percent * 1000, 1000) / 1000;
-
-    return Math.round(percent * (this.resolutionMax - Number(this.resolutionMin)) + Number(this.resolutionMin));
+    if(this.log){
+        percent = this.logScale_(percent * 1000, 1000) / 1000;
+        return Math.round(percent * (this.resolutionMax - Number(this.resolutionMin)) + Number(this.resolutionMin));
+    }
+    return Math.round(percent * (this.resolutionMax - Number(this.resolutionMin)) + Number(this.resolutionMin));    
   },
 
   clearAxesLabels: function() {

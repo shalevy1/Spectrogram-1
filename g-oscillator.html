@@ -1,7 +1,7 @@
 <link rel="import" href="./bower_components/polymer/polymer.html">
 <link href='https://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
 
-<polymer-element name="g-oscillator" attributes="log speed resolutionMax resolutionMin">
+<polymer-element name="g-oscillator" attributes="log speed resolutionMax resolutionMin square">
   <template>
   <style>
     canvas {
@@ -30,6 +30,7 @@ Polymer('g-oscillator', {
   fadeTime: 0.01,
   resolutionMax: 20000,
   resolutionMin: 10,
+  square: false,
 
   attachedCallback: function() {
     this.loop();
@@ -83,9 +84,28 @@ Polymer('g-oscillator', {
     }
     this.updatePointer(event);
     // Create an oscillator.
-    this.osc_ = this.createOscillator_();
+    this.osc_ = this.createOscillator_("1");
     this.lastFreq = this.getLastFrequency();
     this.osc_.frequency.value = this.lastFreq;
+    if(this.square){
+      if(this.osc2_){
+        return;
+      }
+      this.osc2_ = this.createOscillator_("2");
+      this.osc2_.frequency.value = this.lastFreq*3;
+
+      this.osc3_ = this.createOscillator_("3");
+      this.osc3_.frequency.value = this.lastFreq*5;
+
+      this.osc4_ = this.createOscillator_("4");
+      this.osc4_.frequency.value = this.lastFreq*7;
+
+      this.osc5_ = this.createOscillator_("5");
+      this.osc5_.frequency.value = this.lastFreq*9;
+
+      this.osc6_ = this.createOscillator_("6");
+      this.osc6_.frequency.value = this.lastFreq*11;
+    }
   },
 
   onMouseUp: function() {
@@ -101,6 +121,17 @@ Polymer('g-oscillator', {
       this.updatePointer(event);
       this.lastFreq = this.getLastFrequency();
       this.osc_.frequency.value = this.lastFreq;
+      if(this.square){
+        if(this.osc2_){
+          this.updatePointer(event);
+          this.osc2_.frequency.value = this.lastFreq*3;
+          this.osc3_.frequency.value = this.lastFreq*5;
+          this.osc4_.frequency.value = this.lastFreq*7;
+          this.osc5_.frequency.value = this.lastFreq*9;
+          this.osc6_.frequency.value = this.lastFreq*11;
+        }
+
+      }
     }
   },
 
@@ -177,20 +208,45 @@ Polymer('g-oscillator', {
     return Math.floor(percent * (this.resolutionMax - Number(this.resolutionMin)) + Number(this.resolutionMin))+1;
   },
 
-  createOscillator_: function() {
+  createOscillator_: function(num) {
     // Create a gain node.
     var gain = context.createGain();
+    var harmonicMultiplier = 1;
     gain.gain.value = 0;
     gain.connect(context.destination);
     // TODO(smus): Clean this up!
-    this.gain_ = gain;
+    switch (num) {
+      case "1":
+        this.gain1_ = gain;
+        harmonicMultiplier = 1;
+      case "2":
+        this.gain2_ = gain;
+        harmonicMultiplier = 0.333;
+      case "3":
+        this.gain3_ = gain;
+        harmonicMultiplier = 0.2;
+      case "4":
+        this.gain4_ = gain;
+        harmonicMultiplier = 0.143;
+      case "5":
+        this.gain5_ = gain;
+        harmonicMultiplier = 0.111;
+      case "6":
+        this.gain6_ = gain;
+        harmonicMultiplier = 0.09;
 
+        break;
+      default:
+
+    }
+  //   this.gain_ = gain;
+  // console.log(this.gain_+num);
     // Create an oscillator and connect it through the gain.
     var osc = context.createOscillator();
     osc.connect(gain);
 
     // Start it with a fade-in.
-    gain.gain.linearRampToValueAtTime(this.gainAmount,
+    gain.gain.linearRampToValueAtTime(this.gainAmount*harmonicMultiplier,
         context.currentTime + this.fadeTime);
     osc.start(0);
     return osc;
@@ -199,9 +255,33 @@ Polymer('g-oscillator', {
   deleteOscillator_: function() {
     if (this.osc_) {
       var endTime = context.currentTime + this.fadeTime;
-      this.gain_.gain.linearRampToValueAtTime(0, endTime);
+      this.gain1_.gain.linearRampToValueAtTime(0, endTime);
       this.osc_.stop(endTime);
       this.osc_ = null;
+      if(this.square){
+        if (this.osc2_) {
+          this.gain2_.gain.linearRampToValueAtTime(0, endTime);
+          this.osc2_.stop(endTime);
+          this.osc2_ = null;
+
+          this.gain3_.gain.linearRampToValueAtTime(0, endTime);
+          this.osc3_.stop(endTime);
+          this.osc3_ = null;
+
+          this.gain4_.gain.linearRampToValueAtTime(0, endTime);
+          this.osc4_.stop(endTime);
+          this.osc4_ = null;
+
+          this.gain5_.gain.linearRampToValueAtTime(0, endTime);
+          this.osc5_.stop(endTime);
+          this.osc5_ = null;
+
+          this.gain6_.gain.linearRampToValueAtTime(0, endTime);
+          this.osc6_.stop(endTime);
+          this.osc6_ = null;
+
+          }
+        }
     }
   },
 

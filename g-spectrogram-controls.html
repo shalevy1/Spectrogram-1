@@ -1,7 +1,7 @@
 <link rel="import" href="./bower_components/polymer/polymer.html">
 
 
-<polymer-element name="g-spectrogram-controls" attributes="log labels ticks speed color resolutionMax resolutionMin pause gain">
+<polymer-element name="g-spectrogram-controls" attributes="log labels ticks speed color resolutionMax resolutionMin pause gain square">
   <template>
     <style>
       :host {
@@ -68,6 +68,10 @@
       <label for="speed">Microphone Sensitivity</label>
       <input type="range" id="speed" value="{{gain}}" min="1" max="10" />
 
+    </div>
+    <div class="config">
+      <label for="speed">Square Wave</label>
+      <input type="checkbox" id="labels" checked="{{square}}">
     </div>
 
     <!-- <div class="config">
