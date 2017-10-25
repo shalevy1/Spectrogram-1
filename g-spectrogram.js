@@ -17,6 +17,9 @@ Polymer('g-spectrogram', {
   resolutionMax: 20000,
   resolutionMin: 10,
   gain: 6,
+  scale: false,
+  scaleVal: [16.35, 18.35, 20.60, 21.83, 24.50, 27.50, 30.87],
+  scaleNames: ['C', 'D', 'E', 'F', 'G', 'A', 'B', 'C'],
 
   attachedCallback: function() {
     this.tempCanvas = document.createElement('canvas'),
@@ -198,7 +201,6 @@ Polymer('g-spectrogram', {
     // Render the vertical frequency axis.
 
     for (var i = 0; i <= this.ticks; i++) {
-
       //Inital Vals = 100, 161, 403, 1366, 4967, 19000
       var freq = startFreq + (step * i);
       // Get the y coordinate from the current label.
@@ -211,6 +213,7 @@ Polymer('g-spectrogram', {
       var x = this.width - 60;
       // Get the value for the current y coordinate.
       var label;
+      var units;
       // if (this.log) {
 
         // Handle a logarithmic scale.
@@ -222,10 +225,35 @@ Polymer('g-spectrogram', {
         // freq = Math.max(1, this.indexToFreq(logIndex));
 
         freq = Math.max(1,this.getFrequencies(i));
+        if(this.scale){
+          // console.log("HI")
+          var dist = 20000;
+          var note = 0;
+          var name = this.scaleNames[0];
+          var harmonic = 0;
+          for (var j = 1; j < 1500; j=j*2) {
 
+            for (var k = 0; k < this.scaleVal.length; k++) {
+
+              var check = j * this.scaleVal[k];
+              var checkDist = Math.abs(freq - check);
+              if (checkDist < dist) {
+                dist = checkDist;
+                note = check;
+                name = this.scaleNames[k];
+                harmonic = Math.round(Math.log2(j)-1);
+              }
+            }
+          }
+          label = name;
+          units = harmonic;
+        }
+        else {
+          var label = this.formatFreq(freq);
+          var units = this.formatUnits(freq);
+        }
       // }
-      var label = this.formatFreq(freq);
-      var units = this.formatUnits(freq);
+
       ctx.font = '18px Inconsolata';
       // Draw the value.
       ctx.textAlign = 'right';
@@ -246,11 +274,18 @@ Polymer('g-spectrogram', {
 */
   getFrequencies(index){
     var percent = ((index/this.ticks));
+    var freq = 0;
     if(this.log){
         percent = this.logScale_(percent * 1000, 1000) / 1000;
-        return Math.round(percent * (this.resolutionMax - Number(this.resolutionMin)) + Number(this.resolutionMin));
+        freq = Math.round(percent * (this.resolutionMax - Number(this.resolutionMin)) + Number(this.resolutionMin));
+    } else {
+      freq =  Math.round(percent * (this.resolutionMax - Number(this.resolutionMin)) + Number(this.resolutionMin));
+
     }
-    return Math.round(percent * (this.resolutionMax - Number(this.resolutionMin)) + Number(this.resolutionMin));    
+
+
+    return freq;
+
   },
 
   clearAxesLabels: function() {
@@ -402,5 +437,12 @@ Polymer('g-spectrogram', {
     } else {
       this.clearAxesLabels();
     }
-  }
+  },
+
+  scaleChanged: function() {
+    if(this.labels){
+      this.renderAxesLabels();
+    }
+
+  },
 });

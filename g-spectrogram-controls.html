@@ -1,7 +1,7 @@
 <link rel="import" href="./bower_components/polymer/polymer.html">
 
 
-<polymer-element name="g-spectrogram-controls" attributes="log labels ticks speed color resolutionMax resolutionMin pause gain square">
+<polymer-element name="g-spectrogram-controls" attributes="log labels ticks speed color resolutionMax resolutionMin pause gain square scale">
   <template>
     <style>
       :host {
@@ -72,6 +72,10 @@
     <div class="config">
       <label for="speed">Square Wave</label>
       <input type="checkbox" id="labels" checked="{{square}}">
+    </div>
+    <div class="config">
+      <label for="speed">Snap to C Major</label>
+      <input type="checkbox" id="labels" checked="{{scale}}">
     </div>
 
     <!-- <div class="config">
