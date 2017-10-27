@@ -8,6 +8,7 @@ Polymer('g-spectrogram-controls', {
   resolutionMin: 10,
   square: false,
   scale: false,
+  scaleChoice: 0,
 
   created: function() {
     console.log('Created spectrogram controls');

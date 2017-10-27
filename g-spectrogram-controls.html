@@ -1,7 +1,7 @@
 <link rel="import" href="./bower_components/polymer/polymer.html">
 
 
-<polymer-element name="g-spectrogram-controls" attributes="log labels ticks speed color resolutionMax resolutionMin pause gain square scale">
+<polymer-element name="g-spectrogram-controls" attributes="log labels ticks speed color resolutionMax resolutionMin pause gain square scale scaleChoice">
   <template>
     <style>
       :host {
@@ -41,9 +41,9 @@
 
     <div class = "config">
       <div class="container">
-      <div class="color-map">
+      <div class="color-map" id="cool">
       </div>
-      <div class="color-map-labels">
+      <div class="color-map-labels" >
     Soft<span>Loud</span>
     </div>
 
@@ -74,10 +74,35 @@
       <input type="checkbox" id="labels" checked="{{square}}">
     </div>
     <div class="config">
-      <label for="speed">Snap to C Major</label>
+      <label for="speed">Snap to Scale</label>
       <input type="checkbox" id="labels" checked="{{scale}}">
     </div>
+      <template if="{{scale}}">
+        <label for="speed">Choose Scale</label>
+        <select name="scaleChoice" size="3" onchange="getVal(this)" >
+          <option value="0" selected="selected">C</option>
+          <option value="1">C#/Db</option>
+          <option value="2">D</option>
+          <option value="3">D#/Eb</option>
+          <option value="4">E</option>
+          <option value="5">F</option>
+          <option value="6">F#/Gb</option>
+          <option value="7">G</option>
+          <option value="8">G#/Ab</option>
+          <option value="9">A</option>
+          <option value="10">A#/Bb</option>
+          <option value="11">B</option>
+        </select>
 
+        <span>
+          <select name="mode" size = 2 >
+            <option value="major" selected="selected">Major</option>
+            <option value="minor">Minor</option>
+          </select>
+        </span>
+        <input type="range" id="resolution" value="{{scaleChoice}}" min="0" max="11" />
+        {{scaleChoice}}
+      </template />
     <!-- <div class="config">
     <label for="labels">Show labels</label>
     <input type="checkbox" id="labels" checked="{{labels}}">
@@ -110,4 +135,16 @@
   </template>
     </template>
   <script src="g-spectrogram-controls.js"></script>
+  <script>
+
+
+  function getVal(obj){
+    var choice = obj.value;
+    console.log("CHANGE");
+
+    localStorage.setItem('scaleChoice', choice);
+
+  }
+  </script>
+
 </polymer-element>

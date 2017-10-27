@@ -18,7 +18,6 @@ Polymer('g-spectrogram', {
   resolutionMin: 10,
   gain: 6,
   scale: false,
-  scaleVal: [16.35, 18.35, 20.60, 21.83, 24.50, 27.50, 30.87],
   scaleNames: ['C', 'D', 'E', 'F', 'G', 'A', 'B', 'C'],
 
   attachedCallback: function() {
@@ -225,34 +224,9 @@ Polymer('g-spectrogram', {
         // freq = Math.max(1, this.indexToFreq(logIndex));
 
         freq = Math.max(1,this.getFrequencies(i));
-        if(this.scale){
-          // console.log("HI")
-          var dist = 20000;
-          var note = 0;
-          var name = this.scaleNames[0];
-          var harmonic = 0;
-          for (var j = 1; j < 1500; j=j*2) {
-
-            for (var k = 0; k < this.scaleVal.length; k++) {
-
-              var check = j * this.scaleVal[k];
-              var checkDist = Math.abs(freq - check);
-              if (checkDist < dist) {
-                dist = checkDist;
-                note = check;
-                name = this.scaleNames[k];
-                harmonic = Math.round(Math.log2(j)-1);
-              }
-            }
-          }
-          label = name;
-          units = harmonic;
-        }
-        else {
-          var label = this.formatFreq(freq);
-          var units = this.formatUnits(freq);
-        }
-      // }
+      
+      var label = this.formatFreq(freq);
+      var units = this.formatUnits(freq);
 
       ctx.font = '18px Inconsolata';
       // Draw the value.
