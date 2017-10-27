@@ -79,7 +79,7 @@
     </div>
       <template if="{{scale}}">
         <label for="speed">Choose Scale</label>
-        <select name="scaleChoice" size="3" onchange="getVal(this)" >
+        <select name="scaleChoice" size="3" onchange="changeScale(this)" >
           <option value="0" selected="selected">C</option>
           <option value="1">C#/Db</option>
           <option value="2">D</option>
@@ -95,13 +95,13 @@
         </select>
 
         <span>
-          <select name="mode" size = 2 >
+          <select name="mode" size = "2" onchange="changeMode(this)" >
             <option value="major" selected="selected">Major</option>
             <option value="minor">Minor</option>
           </select>
         </span>
-        <input type="range" id="resolution" value="{{scaleChoice}}" min="0" max="11" />
-        {{scaleChoice}}
+        <!-- <input type="range" id="resolution" value="{{scaleChoice}}" min="0" max="11" />
+        {{scaleChoice}} -->
       </template />
     <!-- <div class="config">
     <label for="labels">Show labels</label>
@@ -137,13 +137,14 @@
   <script src="g-spectrogram-controls.js"></script>
   <script>
 
-
-  function getVal(obj){
+  function changeScale(obj){
     var choice = obj.value;
-    console.log("CHANGE");
-
     localStorage.setItem('scaleChoice', choice);
-
+  }
+  function changeMode(obj){
+    var choice = obj.value;
+    var mode = (choice=='major')? 0:1;
+    localStorage.setItem('modeChoice', mode);
   }
   </script>
 

@@ -48,10 +48,62 @@
        val: [18.35, 20.60, 23.12, 24.50, 27.50, 30.87, 34.65 ],
        notes: ['D', 'E', 'F#', 'G', 'A', 'B', 'C#'],
         },
+        {
+       name: 'C Major',
+       val: [16.35, 18.35, 20.60, 21.83, 24.50, 27.50, 30.87],
+       notes: ['C', 'D', 'E', 'F', 'G', 'A', 'B'],
+        },
+        {
+       name: 'C Major',
+       val: [16.35, 18.35, 20.60, 21.83, 24.50, 27.50, 30.87],
+       notes: ['C', 'D', 'E', 'F', 'G', 'A', 'B'],
+        },
+        {
+       name: 'C Major',
+       val: [16.35, 18.35, 20.60, 21.83, 24.50, 27.50, 30.87],
+       notes: ['C', 'D', 'E', 'F', 'G', 'A', 'B'],
+        },
+        {
+       name: 'C Major',
+       val: [16.35, 18.35, 20.60, 21.83, 24.50, 27.50, 30.87],
+       notes: ['C', 'D', 'E', 'F', 'G', 'A', 'B'],
+        },
+        {
+       name: 'C Major',
+       val: [16.35, 18.35, 20.60, 21.83, 24.50, 27.50, 30.87],
+       notes: ['C', 'D', 'E', 'F', 'G', 'A', 'B'],
+        },
+        {
+       name: 'C Major',
+       val: [16.35, 18.35, 20.60, 21.83, 24.50, 27.50, 30.87],
+       notes: ['C', 'D', 'E', 'F', 'G', 'A', 'B'],
+        },
+        {
+       name: 'C Major',
+       val: [16.35, 18.35, 20.60, 21.83, 24.50, 27.50, 30.87],
+       notes: ['C', 'D', 'E', 'F', 'G', 'A', 'B'],
+        },
+        {
+       name: 'C Major',
+       val: [16.35, 18.35, 20.60, 21.83, 24.50, 27.50, 30.87],
+       notes: ['C', 'D', 'E', 'F', 'G', 'A', 'B'],
+        },
+        {
+       name: 'C Major',
+       val: [16.35, 18.35, 20.60, 21.83, 24.50, 27.50, 30.87],
+       notes: ['C', 'D', 'E', 'F', 'G', 'A', 'B'],
+        },
+        {
+       name: 'C Minor',
+       val: [16.35, 18.35, 19.45, 21.83, 24.50, 25.96, 29.14],
+       notes: ['C', 'D', 'Eb', 'F', 'G', 'Ab', 'Bb'],
+        },
+
 
       ],
       textLabel: 'C 0',
-      scaleChoice: localStorage.getItem('scaleChoice') || 0,
+      // scaleChoice: localStorage.getItem('scaleChoice') || 0,
+      // modeChoice: localStorage.getItem('modeChoice') || 0,
       varChanged: true,
 
       attachedCallback: function() {
@@ -254,7 +306,10 @@
 
           var dist = 20000;
           var note = 0;
-          var scale = this.scales[this.scaleChoice];
+          var scaleChoice = localStorage.getItem('scaleChoice');
+          var modeChoice = localStorage.getItem('modeChoice');
+          var fullScaleChoice = Number(scaleChoice) + Number(modeChoice * 11);
+          var scale = this.scales[fullScaleChoice];
           var name = scale.notes[0];
           var harmonic = 0;
           for (var j = 1; j < 1500; j=j*2) {
