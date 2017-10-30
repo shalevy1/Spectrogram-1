@@ -15,10 +15,8 @@ Polymer('g-spectrogram', {
   color: false,
   pause: false,
   resolutionMax: 20000,
-  resolutionMin: 10,
+  resolutionMin: 20,
   gain: 6,
-  scale: false,
-  scaleNames: ['C', 'D', 'E', 'F', 'G', 'A', 'B', 'C'],
 
   attachedCallback: function() {
     this.tempCanvas = document.createElement('canvas'),
@@ -224,7 +222,7 @@ Polymer('g-spectrogram', {
         // freq = Math.max(1, this.indexToFreq(logIndex));
 
         freq = Math.max(1,this.getFrequencies(i));
-      
+
       var label = this.formatFreq(freq);
       var units = this.formatUnits(freq);
 

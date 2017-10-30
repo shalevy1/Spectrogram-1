@@ -229,10 +229,14 @@
         }
         this.varChanged = true;
         this.updatePointer(event);
+
         // Create an oscillator.
         this.osc_ = this.createOscillator_("1");
         this.lastFreq = this.getLastFrequency();
         this.osc_.frequency.value = this.lastFreq;
+        this.setVolume();
+        this.gain1_.gain.linearRampToValueAtTime(this.gainAmount,
+          context.currentTime + this.fadeTime);
         if (this.square) {
           if (this.osc2_) {
             return;
@@ -267,14 +271,23 @@
           this.updatePointer(event);
           this.lastFreq = this.getLastFrequency();
           this.osc_.frequency.value = this.lastFreq;
+          this.setVolume();
+          this.gain1_.gain.linearRampToValueAtTime(this.gainAmount,
+            context.currentTime + this.fadeTime);
           if (this.square) {
             if (this.osc2_) {
               this.updatePointer(event);
               this.osc2_.frequency.value = this.lastFreq * 3;
+              // this.gain2_.gain.value = this.lastX/this.width *2;
               this.osc3_.frequency.value = this.lastFreq * 5;
+              // this.gain3_.gain.value = this.lastX/this.width *2;
               this.osc4_.frequency.value = this.lastFreq * 7;
+              // this.gain4_.gain.value = this.lastX/this.width *2;
               this.osc5_.frequency.value = this.lastFreq * 9;
+              // this.gain5_.gain.value = this.lastX/this.width *2;
               this.osc6_.frequency.value = this.lastFreq * 11;
+              // this.gain6_.gain.value = this.lastX/this.width *2;
+
             }
 
           }
@@ -291,14 +304,40 @@
       onTouchStart: function(event) {
         event.preventDefault();
         // console.log('ts');
+
         if (this.osc_) {
+          // There can be only one oscillator.
           return;
         }
+        this.varChanged = true;
         this.updatePointer(event);
+
         // Create an oscillator.
-        this.osc_ = this.createOscillator_();
+        this.osc_ = this.createOscillator_("1");
         this.lastFreq = this.getLastFrequency();
         this.osc_.frequency.value = this.lastFreq;
+        this.setVolume();
+        this.gain1_.gain.linearRampToValueAtTime(this.gainAmount,
+          context.currentTime + this.fadeTime);
+        if (this.square) {
+          if (this.osc2_) {
+            return;
+          }
+          this.osc2_ = this.createOscillator_("2");
+          this.osc2_.frequency.value = this.lastFreq * 3;
+
+          this.osc3_ = this.createOscillator_("3");
+          this.osc3_.frequency.value = this.lastFreq * 5;
+
+          this.osc4_ = this.createOscillator_("4");
+          this.osc4_.frequency.value = this.lastFreq * 7;
+
+          this.osc5_ = this.createOscillator_("5");
+          this.osc5_.frequency.value = this.lastFreq * 9;
+
+          this.osc6_ = this.createOscillator_("6");
+          this.osc6_.frequency.value = this.lastFreq * 11;
+        }
       },
 
       onTouchMove: function(event) {
@@ -308,6 +347,26 @@
           this.updatePointer(event);
           this.lastFreq = this.getLastFrequency();
           this.osc_.frequency.value = this.lastFreq;
+          this.setVolume();
+          this.gain1_.gain.linearRampToValueAtTime(this.gainAmount,
+            context.currentTime + this.fadeTime);
+          if (this.square) {
+            if (this.osc2_) {
+              this.updatePointer(event);
+              this.osc2_.frequency.value = this.lastFreq * 3;
+              // this.gain2_.gain.value = this.lastX/this.width *2;
+              this.osc3_.frequency.value = this.lastFreq * 5;
+              // this.gain3_.gain.value = this.lastX/this.width *2;
+              this.osc4_.frequency.value = this.lastFreq * 7;
+              // this.gain4_.gain.value = this.lastX/this.width *2;
+              this.osc5_.frequency.value = this.lastFreq * 9;
+              // this.gain5_.gain.value = this.lastX/this.width *2;
+              this.osc6_.frequency.value = this.lastFreq * 11;
+              // this.gain6_.gain.value = this.lastX/this.width *2;
+
+            }
+
+          }
         }
       },
 
@@ -324,6 +383,7 @@
         var type = event.type || '';
         if (type.indexOf('mouse') == 0) {
           this.lastX = event.pageX;
+          console.log()
           if(this.varChanged){
             this.lastY = event.pageY;
           }
@@ -347,8 +407,10 @@
 
       getLastFrequency: function() {
         var x = this.lastX;
+
         // var y = this.lastY;
-        var y = event.pageY;
+        var y = event.pageY || event.touches[0].pageY;
+
 
         var percent = 1 - (y / this.height);
         var nyquist = context.sampleRate / 2;
@@ -367,7 +429,7 @@
           // console.log("modeChoice: ")
           // console.log(modeChoice);
           var fullScaleChoice = Number(scaleChoice) + Number(modeChoice)*12;
-          console.log(fullScaleChoice);
+          // console.log(fullScaleChoice);
           var scale = this.scales[fullScaleChoice];
           // console.log(scale)
           var name = scale.notes[0];
@@ -409,6 +471,14 @@
 
         return freq;
       },
+      setVolume: function(){
+        var volume = Math.round(this.lastX/this.width*100)/100;
+        this.gainAmount = volume;
+        // gain.gain.linearRampToValueAtTime(this.gainAmount * harmonicMultiplier,
+          // context.currentTime + this.fadeTime);
+        // this.gain1_ = this.gain1_.gain.value * volume;
+
+      },
 
       createOscillator_: function(num) {
         // Create a gain node.
@@ -448,6 +518,7 @@
         osc.connect(gain);
 
         // Start it with a fade-in.
+
         gain.gain.linearRampToValueAtTime(this.gainAmount * harmonicMultiplier,
           context.currentTime + this.fadeTime);
         osc.start(0);

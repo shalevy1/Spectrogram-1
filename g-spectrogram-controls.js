@@ -5,7 +5,7 @@ Polymer('g-spectrogram-controls', {
   pause: false,
   gain: 3,
   resolutionMax: 20000,
-  resolutionMin: 10,
+  resolutionMin: 20,
   square: false,
   scale: false,
   scaleChoice: 0,
