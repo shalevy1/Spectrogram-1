@@ -196,7 +196,12 @@
 
 
           if(this.scale){
-          ctx.fillStyle = 'red';
+          var color = this.volume*245;
+          // var colorLog = Math.round(this.logScale_(color, 245)/1000);
+      // return 'rgb(V, V, V)'.replace(/V/g, 255 - value);
+          var colorVal = 'hsl(H, 100%, 70%)'.replace(/H/g, 255-color);
+          // console.log(color)
+          ctx.fillStyle = colorVal;
           ctx.fillRect(x - size / 2, y - size / 2, size, size);
           }
         }
@@ -219,6 +224,8 @@
       },
 
       onMouseDown: function(event) {
+
+
         // var e = document.getElementById("sup");
         // var strUser = e.options[e.selectedIndex].value;
         // console.log("VAL: "+e)
@@ -471,8 +478,9 @@
 
       setVolume: function(){
         var volume = (this.lastX/this.width);
-        var logVolume = Math.round(this.logScale_(this.lastX, this.width)/10)/100;
+        var logVolume = Math.round(this.logScale_(this.lastX, this.width)/10)/100+0.01;
         // console.log(logVolume);
+        this.volume = volume;
         this.gainAmount = logVolume;
         this.gain1_.gain.linearRampToValueAtTime(this.gainAmount,
           context.currentTime + this.fadeTime);
