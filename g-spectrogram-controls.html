@@ -52,57 +52,13 @@
 
 
     </div>
-    <div class="config">
-      <label for="log">Log scale</label>
-      <input type="checkbox" id="log" checked="{{log}}">
-    </div>
-    <!-- <div class="config">
-      <label for="color">Full color</label>
-      <input type="checkbox" id="color" checked="{{color}}">
-    </div> -->
-    <div class="config">
-      <label for="speed">Speed</label>
-      <input type="range" id="speed" value="{{speed}}" min="1" max="5" />
-    </div>
+
     <div class="config">
       <label for="speed">Microphone Sensitivity</label>
       <input type="range" id="speed" value="{{gain}}" min="1" max="10" />
 
     </div>
-    <div class="config">
-      <label for="speed">Square Wave</label>
-      <input type="checkbox" id="labels" checked="{{square}}">
-    </div>
-    <div class="config">
-      <label for="speed">Snap to Scale</label>
-      <input type="checkbox" id="labels" checked="{{scale}}">
-    </div>
-      <template if="{{scale}}">
-        <label for="speed">Choose Scale</label>
-        <select name="scaleChoice" size="3" onchange="changeScale(this)" >
-          <option value="0" selected="selected">C</option>
-          <option value="1">C#/Db</option>
-          <option value="2">D</option>
-          <option value="3">D#/Eb</option>
-          <option value="4">E</option>
-          <option value="5">F</option>
-          <option value="6">F#/Gb</option>
-          <option value="7">G</option>
-          <option value="8">G#/Ab</option>
-          <option value="9">A</option>
-          <option value="10">A#/Bb</option>
-          <option value="11">B</option>
-        </select>
 
-        <span>
-          <select name="mode" size = "2" onchange="changeMode(this)" >
-            <option value="major" selected="selected">Major</option>
-            <option value="minor">Minor</option>
-          </select>
-        </span>
-        <!-- <input type="range" id="resolution" value="{{scaleChoice}}" min="0" max="11" />
-        {{scaleChoice}} -->
-      </template />
     <!-- <div class="config">
     <label for="labels">Show labels</label>
     <input type="checkbox" id="labels" checked="{{labels}}">
@@ -114,15 +70,61 @@
     </div>
     </template> -->
     <div class="config">
-    <label for="labels">Show Advanced Controls</label>
-    <input type="checkbox" id="labels" checked="{{advanced}}">
-    </div>
-    <div class="config">
     <label for="ticks">Max Frequency</label>
     <input type="range" id="resolution" value="{{resolutionMax}}" min="1000" max="20000" />
     {{resolutionMax}}
     </div>
+    <div class="config">
+    <label for="labels">Show Advanced Controls</label>
+    <input type="checkbox" id="labels" checked="{{advanced}}">
+    </div>
     <template if="{{advanced}}">
+      <div class="config">
+        <label for="log">Log scale</label>
+        <input type="checkbox" id="log" checked="{{log}}">
+      </div>
+      <!-- <div class="config">
+        <label for="color">Full color</label>
+        <input type="checkbox" id="color" checked="{{color}}">
+      </div> -->
+      <div class="config">
+        <label for="speed">Speed</label>
+        <input type="range" id="speed" value="{{speed}}" min="1" max="5" />
+      </div>
+      <div class="config">
+        <label for="speed">Square Wave</label>
+        <input type="checkbox" id="labels" checked="{{square}}">
+      </div>
+      <div class="config">
+        <label for="speed">Snap to Scale</label>
+        <input type="checkbox" id="labels" checked="{{scale}}">
+      </div>
+        <template if="{{scale}}">
+          <label for="speed">Choose Scale</label>
+          <select name="scaleChoice" size="3" onchange="changeScale(this)" >
+            <option value="0" selected="selected">C</option>
+            <option value="1">C#/Db</option>
+            <option value="2">D</option>
+            <option value="3">D#/Eb</option>
+            <option value="4">E</option>
+            <option value="5">F</option>
+            <option value="6">F#/Gb</option>
+            <option value="7">G</option>
+            <option value="8">G#/Ab</option>
+            <option value="9">A</option>
+            <option value="10">A#/Bb</option>
+            <option value="11">B</option>
+          </select>
+
+          <span>
+            <select name="mode" size = "2" onchange="changeMode(this)" >
+              <option value="major" selected="selected">Major</option>
+              <option value="minor">Minor</option>
+            </select>
+          </span>
+          <!-- <input type="range" id="resolution" value="{{scaleChoice}}" min="0" max="11" />
+          {{scaleChoice}} -->
+        </template />
     <div class="config">
     <label for="ticks">Minimum Frequency</label>
     <input type="range" id="resolution" value="{{resolutionMin}}" min="20" max="1000" />
@@ -144,7 +146,7 @@
   function changeMode(obj){
     var choice = obj.value;
     var mode = (choice=='minor')? 1:0;
-    console.log(mode)
+    // console.log(mode)
     localStorage.setItem('modeChoice', mode);
   }
   </script>

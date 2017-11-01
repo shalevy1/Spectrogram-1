@@ -235,8 +235,7 @@
         this.lastFreq = this.getLastFrequency();
         this.osc_.frequency.value = this.lastFreq;
         this.setVolume();
-        this.gain1_.gain.linearRampToValueAtTime(this.gainAmount,
-          context.currentTime + this.fadeTime);
+
         if (this.square) {
           if (this.osc2_) {
             return;
@@ -272,8 +271,7 @@
           this.lastFreq = this.getLastFrequency();
           this.osc_.frequency.value = this.lastFreq;
           this.setVolume();
-          this.gain1_.gain.linearRampToValueAtTime(this.gainAmount,
-            context.currentTime + this.fadeTime);
+
           if (this.square) {
             if (this.osc2_) {
               this.updatePointer(event);
@@ -317,8 +315,7 @@
         this.lastFreq = this.getLastFrequency();
         this.osc_.frequency.value = this.lastFreq;
         this.setVolume();
-        this.gain1_.gain.linearRampToValueAtTime(this.gainAmount,
-          context.currentTime + this.fadeTime);
+
         if (this.square) {
           if (this.osc2_) {
             return;
@@ -348,8 +345,7 @@
           this.lastFreq = this.getLastFrequency();
           this.osc_.frequency.value = this.lastFreq;
           this.setVolume();
-          this.gain1_.gain.linearRampToValueAtTime(this.gainAmount,
-            context.currentTime + this.fadeTime);
+
           if (this.square) {
             if (this.osc2_) {
               this.updatePointer(event);
@@ -471,9 +467,14 @@
 
         return freq;
       },
+
       setVolume: function(){
-        var volume = Math.round(this.lastX/this.width*100)/100;
-        this.gainAmount = volume;
+        var volume = (this.lastX/this.width);
+        var logVolume = Math.round(this.logScale_(this.lastX, this.width)/10)/100;
+        // console.log(logVolume);
+        this.gainAmount = logVolume;
+        this.gain1_.gain.linearRampToValueAtTime(this.gainAmount,
+          context.currentTime + this.fadeTime);
         // gain.gain.linearRampToValueAtTime(this.gainAmount * harmonicMultiplier,
           // context.currentTime + this.fadeTime);
         // this.gain1_ = this.gain1_.gain.value * volume;
@@ -572,6 +573,12 @@
       logBase: function(val, base) {
         return Math.log(val) / Math.log(base);
       },
+
+      scaleChanged: function(){
+        localStorage.removeItem('scaleChoice');
+        localStorage.removeItem('modeChoice');
+      }
+
     });
   </script>
 </polymer-element>
