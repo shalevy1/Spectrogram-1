@@ -195,9 +195,10 @@
           // TODO(smus): Elimiate fudge factor.
 
 
-
+          if(this.scale){
           ctx.fillStyle = 'red';
           ctx.fillRect(x - size / 2, y - size / 2, size, size);
+          }
         }
 
         if (this.osc_) {
