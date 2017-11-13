@@ -10,7 +10,7 @@ Polymer('g-spectrogram', {
   ticks: 5,
   speed: 2,
   // FFT bin size,
-  fftsize: 4096,
+  fftsize: 2048,
   oscillator: false,
   color: false,
   pause: false,
@@ -35,7 +35,6 @@ Polymer('g-spectrogram', {
   },
 
   render: function() {
-    //console.log('Render');
     this.width = window.innerWidth;
     this.height = window.innerHeight;
 
@@ -94,7 +93,6 @@ Polymer('g-spectrogram', {
     // Copy the current canvas onto the temp canvas.
     this.tempCanvas.width = this.width;
     this.tempCanvas.height = this.height;
-    //console.log(this.$.canvas.height, this.tempCanvas.height);
     var tempCtx = this.tempCanvas.getContext('2d');
     tempCtx.drawImage(this.$.canvas, 0, 0, this.width, this.height);
     // Iterate over the frequencies.
@@ -105,26 +103,16 @@ Polymer('g-spectrogram', {
     var minSample = Math.round(freq.length * resolutionMinPercent);
 
 
-// console.log(maxSample - minSample);
     for (var i = 0; i < this.height; i++) {
       var value;
       // Draw each pixel with the specific color.
 
-
-
+      // Gets the height and creates a log scale of the index
       if (this.log) {
-        // logIndex = this.logScale(i, maxSample);
-
-        // var minp = 0;
-        // var maxp = maxSample-minSample;
-        // var minVal = Math.log2(minSample);
-        // var maxVal = Math.log2(maxSample);
-        // var scale = (maxVal-minVal) / (maxp-minp);
-        // logIndex =  Math.round(Math.pow(2,minVal + scale*(i-minp)));
         var myPercent = (i / this.height);
         myPercent = this.logScale_(myPercent * 1000, 1000) / 1000;
-        var xx= Math.floor(myPercent * (this.resolutionMax - Number(this.resolutionMin)) + Number(this.resolutionMin))+1;
-        logIndex = Math.round(xx*freq.length/(context.sampleRate/2));
+        var x= Math.floor(myPercent * (this.resolutionMax - Number(this.resolutionMin)) + Number(this.resolutionMin))+1;
+        logIndex = Math.round(x*freq.length/(context.sampleRate/2));
 
 
         value = freq[logIndex];
@@ -288,6 +276,7 @@ Polymer('g-spectrogram', {
     return this.fftsize / 2;
   },
 
+// This is the stream of audio
   onStream: function(stream) {
     var input = context.createMediaStreamSource(stream);
     var gainNode = context.createGain();
@@ -297,7 +286,7 @@ Polymer('g-spectrogram', {
     analyser.maxDecibels = -20;
     analyser.smoothingTimeConstant = 0;
     // analyser.fftSize = this.fftsize;
-    var fftSize = 4096;
+    var fftSize = 2048;
     analyser.fftSize = fftSize;
 
     // Connect graph.
@@ -316,7 +305,8 @@ Polymer('g-spectrogram', {
   onStreamError: function(e) {
     console.error(e);
   },
-
+  //The name of this function is wrong, should just be getColor, however, there exists
+  //a get Full color that is currently unused
   getGrayColor: function(value) {
     var fromH = 200;
     var toH = 1;
@@ -326,7 +316,7 @@ Polymer('g-spectrogram', {
 
 
 
-//value 1, 255 (255 is max volume)
+    //value 1, 255 (255 is max volume)
 
 
     // Test Max
@@ -366,6 +356,9 @@ Polymer('g-spectrogram', {
     var exp = logmax * index / total;
     return Math.pow(base, exp) - 1;
   },
+
+  // The following functions are listening functions that are called when parameters
+  // are changed
 
   logChanged: function() {
     if (this.labels) {
