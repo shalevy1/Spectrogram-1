@@ -1,7 +1,7 @@
 <link rel="import" href="./bower_components/polymer/polymer.html">
 
 
-<polymer-element name="g-spectrogram-controls" attributes="log labels ticks speed color resolutionMax resolutionMin pause gain square scale scaleChoice fadeInTime fadeOutTime reset">
+<polymer-element name="g-spectrogram-controls" attributes="log labels ticks speed color resolutionMax resolutionMin pause gain square scale scaleChoice fadeInTime fadeOutTime sound">
   <template>
     <style>
       :host {
@@ -35,6 +35,92 @@
         display: flex;
         justify-content: space-between;
       }
+      .section-container {
+        display: flex;
+        flex-direction: column;
+        /*align-items: center;*/
+        width: 100%;
+        margin-top: 0.5em;
+      }
+      .section-title {
+        align-self: center;
+        margin-bottom: 0;
+      }
+
+      .down {
+          transform: rotate(45deg);
+          -webkit-transform: rotate(45deg);
+          margin-bottom: 2px;
+
+      }
+      .up {
+        transform: rotate(-135deg);
+        -webkit-transform: rotate(-135deg);
+        margin-top: 2px;
+      }
+
+      i {
+        border: solid black;
+        border-width: 0 3px 3px 0;
+        display: inline-block;
+        padding: 3px;
+      }
+      .advanced {
+        margin-top: 0.5em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .advanced-button {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      #graph {
+        background-color: #89b6ff;
+      }
+      #sound {
+        background-color: #66ffcc;
+        margin-top: 0!important;
+      }
+      .sound-button {
+        padding: 0.75em;
+        background-color: red;
+        border-radius: 50%;
+        border-width: 1px;
+      }
+      button:focus {
+        outline: none;
+      }
+      input:focus {
+        outline:none;
+      }
+      .green {
+        background-color: green!important;
+      }
+      .timbre-image {
+        height: 30px;
+        width: 30px;
+        padding: 0.25em;
+        background-color: gray;
+      }
+      .timbre-container {
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+      }
+      .img-span{
+        display: flex;
+        flex-direction: column;
+        margin: 0.5em;
+      }
+      .timbre-title{
+        align-self: baseline;
+        margin: 0;
+        padding: 0;
+      }
+
 
     </style>
     <h1>Spectrogram Controls</h1>
@@ -49,15 +135,62 @@
 
       </div>
 
+      <div class="section-container"id="graph">
 
-
-    </div>
-
+      <h1 class="section-title" >
+      Graph
+    </h1>
     <div class="config">
       <label for="speed">Microphone Sensitivity</label>
       <input type="range" id="speed" value="{{gain}}" min="1" max="10" />
+    </div>
+    <div class="config">
+    <label for="ticks">Max Frequency</label>
+    <input type="range" id="resolution" value="{{resolutionMax}}" min="1000" max="20000" />
+    {{resolutionMax}}
+    </div>
+    <template if="{{show1}}">
+    <div class="config">
+    <label for="ticks">Minimum Frequency</label>
+    <input type="range" id="resolution" value="{{resolutionMin}}" min="20" max="1000" />
+    {{resolutionMin}}
+    </div>
+    <div class="config">
+    <label>Pause</label>
+    <input type="checkbox" id="resolution" checked="{{pause}}" />
+    </div>
+    <div class="config">
+      <label for="log">Log scale</label>
+      <input type="checkbox" id="log" checked="{{log}}">
+    </div>
+    <!-- <div class="config">
+      <label for="color">Full color</label>
+      <input type="checkbox" id="color" checked="{{color}}">
+    </div> -->
+    <div class="config">
+      <label for="speed">Speed</label>
+      <input type="range" id="speed" value="{{speed}}" min="1" max="5" />
+    </div>
+  </template>
+  <div class="advanced" on-tap="{{clickAction1}}">
+    <button class="advanced-button">Advanced &nbsp; <i class="arrow down"></i> </button>
+  </div>
+  </div>
+
+  </div>
+
+  <div class="section-container" id="sound">
+
+    <h1 class="section-title">
+        Sound
+      </h1>
+
+    <div class="config">
+      <label for="speed">{{label}}</label>
+      <button class="sound-button" on-tap="{{soundToggle}}"></button>
 
     </div>
+
 
     <!-- <div class="config">
     <label for="labels">Show labels</label>
@@ -69,16 +202,12 @@
       <input type="range" id="ticks" value="{{ticks}}" min="2" max="10" />
     </div>
     </template> -->
-    <div class="config">
-    <label for="ticks">Max Frequency</label>
-    <input type="range" id="resolution" value="{{resolutionMax}}" min="1000" max="20000" />
-    {{resolutionMax}}
-    </div>
-    <div class="config">
+
+    <!-- <div class="config">
     <label for="labels">Show Advanced Controls</label>
     <input type="checkbox" id="labels" checked="{{advanced}}">
-    </div>
-    <template if="{{advanced}}">
+    </div> -->
+    <template if="{{show2}}">
       <div class="config">
       <label for="ticks">Fade In Time</label>
       <input type="range" id="fadeIn" value="{{fadeInTime}}" min="10" max="2000" />
@@ -90,20 +219,34 @@
       {{fadeOutTime}} ms
       </div>
       <div class="config">
-        <label for="log">Log scale</label>
-        <input type="checkbox" id="log" checked="{{log}}">
-      </div>
-      <!-- <div class="config">
-        <label for="color">Full color</label>
-        <input type="checkbox" id="color" checked="{{color}}">
-      </div> -->
-      <div class="config">
-        <label for="speed">Speed</label>
-        <input type="range" id="speed" value="{{speed}}" min="1" max="5" />
-      </div>
-      <div class="config">
         <label for="speed">Square Wave</label>
         <input type="checkbox" id="labels" checked="{{square}}">
+      </div>
+      <div class="config">
+        <div class="timbre-container">
+          <div class="timbre-title">
+        Timbre:
+      </div>
+        <span class="img-span">
+        <img src="./images/sine.png" class="timbre-image"></img>
+        <label for="speed">Sine</label>
+      </span>
+      <span class="img-span">
+    <img src="./images/sine.png" class="timbre-image"></img>
+    <label for="speed">Sine</label>
+  </span>
+  <span class="img-span">
+    <img src="./images/sine.png" class="timbre-image"></img>
+    <label for="speed">Sine</label>
+  </span>
+  <span class="img-span">
+    <img src="./images/sine.png" class="timbre-image"></img>
+    <label for="speed">Sine</label>
+  </span>
+
+
+        </span>
+      </div>
       </div>
       <div class="config">
         <label for="speed">Snap to Scale</label>
@@ -139,35 +282,43 @@
           <!-- <input type="range" id="resolution" value="{{scaleChoice}}" min="0" max="11" />
           {{scaleChoice}} -->
 
-        </template />
-    <div class="config">
-    <label for="ticks">Minimum Frequency</label>
-    <input type="range" id="resolution" value="{{resolutionMin}}" min="20" max="1000" />
-    {{resolutionMin}}
-    </div>
-    <div class="config">
-    <label>Pause</label>
-    <input type="checkbox" id="resolution" checked="{{pause}}" />
-    </div>
       <!-- <button type="reset" onclick="{{reset}}"> Reset All Parameters </button> -->
-  </template>
+  <!-- </template> -->
     </template>
-  <script src="g-spectrogram-controls.js"></script>
-  <script>
 
-  function changeScale(obj){
-    var choice = obj.value;
-    localStorage.setItem('scaleChoice', choice);
-  }
-  function changeMode(obj){
-    var choice = obj.value;
-    // var mode = (choice=='minor')? 1:0;
-    // console.log(mode)
-    localStorage.setItem('modeChoice', choice);
-  }
+    </template>
+    <div class="advanced" on-tap="{{clickAction2}}">
+      <button class="advanced-button">Advanced &nbsp; <i class="arrow down"></i> </button>
+    </div>
+    </template>
 
 
+    <script src="g-spectrogram-controls.js"></script>
+    <script>
+      function changeScale(obj) {
+        var choice = obj.value;
+        localStorage.setItem('scaleChoice', choice);
+      }
 
-  </script>
+      function changeMode(obj) {
+        var choice = obj.value;
+        // var mode = (choice=='minor')? 1:0;
+        // console.log(mode)
+        localStorage.setItem('modeChoice', choice);
+      }
+
+
+      addEventListener('template-bound', function(e) {
+        e.target.clickAction1 = clickAction1;
+      });
+
+      addEventListener('template-bound', function(e) {
+        e.target.clickAction2 = clickAction2;
+      });
+
+      addEventListener('template-bound', function(e) {
+        e.target.soundToggle = soundToggle;
+      });
+    </script>
 
 </polymer-element>

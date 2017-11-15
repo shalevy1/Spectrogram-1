@@ -1,7 +1,7 @@
 <link rel="import" href="./bower_components/polymer/polymer.html">
 <link href='https://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
 
-<polymer-element name="g-oscillator" attributes="log speed resolutionMax resolutionMin square scale fadeInTime fadeOutTime">
+<polymer-element name="g-oscillator" attributes="log speed resolutionMax resolutionMin square scale fadeInTime fadeOutTime sound">
   <template>
   <style>
     canvas {
@@ -40,6 +40,7 @@
       // scaleChoice: localStorage.getItem('scaleChoice') || 0,
       // modeChoice: localStorage.getItem('modeChoice') || 0,
       varChanged: true,
+      sound: 0,
 
       attachedCallback: function() {
         this.loop();
@@ -387,8 +388,8 @@
       setVolume: function(){
         var volume = (this.lastX/this.width);
         var logVolume = Math.round(this.logScale_(this.lastX, this.width)/10*0.75)/100+0.01;
-        this.volume = volume;
-        this.gainAmount = logVolume;
+        this.volume = volume*this.sound;
+        this.gainAmount = logVolume*this.sound;
         this.gain_.gain.linearRampToValueAtTime(this.gainAmount,
           context.currentTime + this.fadeInTime/1000);
       },
@@ -492,7 +493,11 @@
       scaleChanged: function(){
         localStorage.removeItem('scaleChoice');
         localStorage.removeItem('modeChoice');
-      }
+      },
+      soundChanged: function(){
+        this.setVolume();
+      },
+
 
     });
   </script>
