@@ -15,6 +15,7 @@ Polymer('g-spectrogram-controls', {
   show2: false,
   label: "Sound Off",
   sound: 0,
+  timbre: 0,
 
   created: function() {
     console.log('Created spectrogram controls');
@@ -58,6 +59,46 @@ Polymer('g-spectrogram-controls', {
       this.label = "Sound Off";
       this.sound = 0;
     }
+
+  },
+
+  timbreSelect: function(e) {
+    var t = e.target;
+    // t.classList.toggle('selected')
+    // console.log(t.parentNode)
+    var picsContainer = t.parentNode.parentNode;
+    var picsChildren = picsContainer.children;
+    for(var i=1; i<5; i++){
+      var child = picsChildren[i];
+      if(child!=t.parentNode){
+        if(child){
+          child.children[0].classList.remove('selected');
+        }
+      } else {
+        child.children[0].classList.toggle('selected');
+        this.timbre = i-1;
+      }
+
+    }
+    // pics.forEach((pic)=>{
+    //   if(pic!=t)
+    //   pic.classList.remove('selected');
+    // });
+
+
+    // console.log(t.parentNode.c)
+    // var parent = t.parentNode;
+    // var children = parent.childNodes;
+    // for (var n = children.length - 1; n >= 0; n--) {
+    //   console.log(children[n]);
+    //     // if (children[n] != t) {
+    //         // if(children[n].classList.contains('selected')){
+    //           // children[n].classList.remove('selected');
+    //         // }
+    //     // }
+    // }
+
+
 
   }
 

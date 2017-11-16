@@ -1,7 +1,7 @@
 <link rel="import" href="./bower_components/polymer/polymer.html">
 <link href='https://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
 
-<polymer-element name="g-oscillator" attributes="log speed resolutionMax resolutionMin square scale fadeInTime fadeOutTime sound">
+<polymer-element name="g-oscillator" attributes="log speed resolutionMax resolutionMin square scale fadeInTime fadeOutTime sound timbre">
   <template>
   <style>
     canvas {
@@ -41,6 +41,7 @@
       // modeChoice: localStorage.getItem('modeChoice') || 0,
       varChanged: true,
       sound: 0,
+      timbre: 0,
 
       attachedCallback: function() {
         this.loop();
@@ -429,15 +430,29 @@
 
         // Create an oscillator and connect it through the gain.
         var osc = context.createOscillator();
-        if(this.square){
-          osc.type = 'square';
+        switch (this.timbre) {
+          case 0:
+            osc.type = "sine";
+            break;
+          case 1:
+            osc.type = "sawtooth";
+            break;
+          case 2:
+            osc.type = "square";
+            break;
+          case 3:
+            osc.type = "triangle";
+          default:
+            osc.type = "sine";
         }
+        // if(this.square){
+        //   osc.type = 'square';
+        // }
         osc.connect(gain);
 
         // Start it with a fade-in.
-
-        gain.gain.linearRampToValueAtTime(this.gainAmount * harmonicMultiplier,
-          context.currentTime + this.fadeInTime/1000);
+        // gain.gain.linearRampToValueAtTime(this.gainAmount * harmonicMultiplier,
+        //   context.currentTime + this.fadeInTime/1000);
         osc.start(0);
         return osc;
       },
