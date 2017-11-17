@@ -23,7 +23,17 @@ Polymer('g-spectrogram-controls', {
 
   clickAction1: function(e) {
     var t = e.target;
-    if (this.show1) {
+    if(t.classList.contains('arrow')){
+      if (this.show1) {
+        t.classList.remove("up");
+        t.classList.add("down");
+        this.show1 = false;
+      } else {
+        t.classList.remove("down");
+        t.classList.add("up");
+        this.show1 = true;
+      }
+    } else if (this.show1) {
       t.children[0].classList.remove("up");
       t.children[0].classList.add("down");
       this.show1 = false;
@@ -37,7 +47,17 @@ Polymer('g-spectrogram-controls', {
 
   clickAction2: function(e) {
     var t = e.target;
-    if (this.show2) {
+    if(t.classList.contains('arrow')){
+      if (this.show2) {
+        t.classList.remove("up");
+        t.classList.add("down");
+        this.show2 = false;
+      } else {
+        t.classList.remove("down");
+        t.classList.add("up");
+        this.show2 = true;
+      }
+    } else if (this.show2) {
       t.children[0].classList.remove("up");
       t.children[0].classList.add("down");
       this.show2 = false;

@@ -224,38 +224,35 @@
         event.preventDefault();
         // console.log('ts');
 
-        if (this.osc_) {
-          // There can be only one oscillator.
-          return;
-        }
         this.varChanged = true;
         this.updatePointer(event);
 
         // Create an oscillator.
-        this.osc_ = this.createOscillator_("1");
+        this.osc_ = this.createOscillator_();
         this.lastFreq = this.getLastFrequency();
         this.osc_.frequency.value = this.lastFreq;
         this.setVolume();
 
-        if (this.square) {
-          if (this.osc2_) {
-            return;
-          }
-          this.osc2_ = this.createOscillator_("2");
-          this.osc2_.frequency.value = this.lastFreq * 3;
-
-          this.osc3_ = this.createOscillator_("3");
-          this.osc3_.frequency.value = this.lastFreq * 5;
-
-          this.osc4_ = this.createOscillator_("4");
-          this.osc4_.frequency.value = this.lastFreq * 7;
-
-          this.osc5_ = this.createOscillator_("5");
-          this.osc5_.frequency.value = this.lastFreq * 9;
-
-          this.osc6_ = this.createOscillator_("6");
-          this.osc6_.frequency.value = this.lastFreq * 11;
-        }
+        //Square wave settings, odd harmonics only
+        // if (this.square) {
+        //   if (this.osc2_) {
+        //     return;
+        //   }
+        //   this.osc2_ = this.createOscillator_("2");
+        //   this.osc2_.frequency.value = this.lastFreq * 3;
+        //
+        //   this.osc3_ = this.createOscillator_("3");
+        //   this.osc3_.frequency.value = this.lastFreq * 5;
+        //
+        //   this.osc4_ = this.createOscillator_("4");
+        //   this.osc4_.frequency.value = this.lastFreq * 7;
+        //
+        //   this.osc5_ = this.createOscillator_("5");
+        //   this.osc5_.frequency.value = this.lastFreq * 9;
+        //
+        //   this.osc6_ = this.createOscillator_("6");
+        //   this.osc6_.frequency.value = this.lastFreq * 11;
+        // }
       },
 
       onTouchMove: function(event) {
@@ -267,27 +264,28 @@
 
           if(this.scale && this.varChanged){
               this.deleteOscillator_();
-              this.osc_ = this.createOscillator_("1");
+              this.osc_ = this.createOscillator_();
               this.osc_.frequency.value = this.lastFreq;
 
           } else {
           this.osc_.frequency.value = this.lastFreq;
           }
 
+
           this.setVolume();
 
-          if (this.square) {
-            if (this.osc2_) {
-              this.updatePointer(event);
-              this.osc2_.frequency.value = this.lastFreq * 3;
-              this.osc3_.frequency.value = this.lastFreq * 5;
-              this.osc4_.frequency.value = this.lastFreq * 7;
-              this.osc5_.frequency.value = this.lastFreq * 9;
-              this.osc6_.frequency.value = this.lastFreq * 11;
-
-            }
-
-          }
+          // if (this.square) {
+          //   if (this.osc2_) {
+          //     this.updatePointer(event);
+          //     this.osc2_.frequency.value = this.lastFreq * 3;
+          //     this.osc3_.frequency.value = this.lastFreq * 5;
+          //     this.osc4_.frequency.value = this.lastFreq * 7;
+          //     this.osc5_.frequency.value = this.lastFreq * 9;
+          //     this.osc6_.frequency.value = this.lastFreq * 11;
+          //
+          //   }
+          //
+          // }
         }
       },
 
@@ -442,6 +440,7 @@
             break;
           case 3:
             osc.type = "triangle";
+            break;
           default:
             osc.type = "sine";
         }
@@ -510,7 +509,12 @@
         localStorage.removeItem('modeChoice');
       },
       soundChanged: function(){
-        this.setVolume();
+        try {
+          this.setVolume();
+
+        } catch (e) {
+          // console.log(e);
+        }
       },
 
 
