@@ -73,12 +73,12 @@
           // TODO(smus): Elimiate fudge factor.
 
 
-          if(this.scale){
+          // if(this.scale){
           var color = this.volume*245;
           var colorVal = 'hsl(H, 100%, 70%)'.replace(/H/g, 255-color);
           ctx.fillStyle = colorVal;
-          ctx.fillRect(x - size / 2, y - size / 2, size, size/2);
-          }
+          ctx.fillRect(x - size / 2, y - size / 2+1, size, size/2);
+          // }
         }
 
         if (this.osc_) {
