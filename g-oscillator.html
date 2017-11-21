@@ -1,7 +1,7 @@
 <link rel="import" href="./bower_components/polymer/polymer.html">
 <link href='https://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
 
-<polymer-element name="g-oscillator" attributes="log speed resolutionMax resolutionMin square scale fadeInTime fadeOutTime sound timbre">
+<polymer-element name="g-oscillator" attributes="log speed resolutionMax resolutionMin square scale fadeInTime fadeOutTime sound timbre currentScale currentMode">
   <template>
   <style>
     canvas {
@@ -42,6 +42,8 @@
       varChanged: true,
       sound: 0,
       timbre: 0,
+      currentScale: 3,
+      currentMode: 0,
 
       attachedCallback: function() {
         this.loop();
@@ -96,22 +98,25 @@
 
       generateScale: function(startFreq, type){
         this.scaleNames = [];
-        // var root = Math.pow(2, (1/12));
         var scale = [];
         var scalePattern = [];
         var tuning  = 440;
         var tuning_ = tuning / 32;
         switch (type) {
-          case 'major':
+          // Major
+          case 0:
             scalePattern = [0,2,4,5,7,9,11];
             break;
-          case 'minor':
+          // Minor
+          case 1:
             scalePattern = [0, 2, 3, 5, 7, 8, 10];
             break;
-          case 'pentaM':
+          // Penta Major
+          case 2:
             scalePattern = [0,2,4,7,9];
             break;
-          case 'chromatic':
+          // Chromatic
+          case 3:
             scalePattern = [0,1,2,3,4,5,6,7,8,9,10,11];
             break;
           default:
@@ -187,7 +192,11 @@
           this.lastFreq = this.getLastFrequency();
 
           if(this.scale && this.varChanged){
-              this.noteChange = true;
+              // this.noteChange = true;
+              this.gain_.gain.cancelScheduledValues(audioCtx.currentTime);
+              this.gain_.gain.linearRampToValueAtTime(0,
+                context.currentTime + this.fadeInTime/1000);
+                
               this.deleteOscillator_();
               this.osc_ = this.createOscillator_();
               this.osc_.frequency.value = this.lastFreq;
@@ -344,8 +353,10 @@
           var dist = 20000;
           var note = 0;
 
-          var scaleChoice = localStorage.getItem('scaleChoice') || 3;
-          var modeChoice = localStorage.getItem('modeChoice') || 'major';
+          // var scaleChoice = localStorage.getItem('scaleChoice') || 3;
+          var modeChoice = this.currentMode ;
+          var scaleChoice = (this.currentScale + 3 ) % 12;
+
           // var fullScaleChoice = Number(scaleChoice) + Number(modeChoice)*12;
           // var scale = this.scales[fullScaleChoice];
           var scale = this.generateScale(scaleChoice, modeChoice);
@@ -460,13 +471,13 @@
       deleteOscillator_: function() {
         if (this.osc_) {
 
-          if(this.noteChange){
-          var endTime = context.currentTime + 10/1000;
-          this.noteChange = false;
-        } else {
+        //   if(this.noteChange){
+        //   var endTime = context.currentTime + 10/1000;
+        //   this.noteChange = false;
+        // } else {
 
           var endTime = context.currentTime + this.fadeOutTime/1000;
-        }
+        // }
           this.gain_.gain.linearRampToValueAtTime(0, endTime);
           this.osc_.stop(endTime);
           this.osc_ = null;
@@ -524,6 +535,7 @@
           // console.log(e);
         }
       },
+
 
 
     });

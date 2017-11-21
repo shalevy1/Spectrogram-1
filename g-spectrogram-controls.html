@@ -1,6 +1,6 @@
 <link rel="import" href="./bower_components/polymer/polymer.html">
 
-<polymer-element name="g-spectrogram-controls" attributes="log labels ticks speed color resolutionMax resolutionMin pause gain square scale scaleChoice fadeInTime fadeOutTime sound timbre">
+<polymer-element name="g-spectrogram-controls" attributes="log labels ticks speed color resolutionMax resolutionMin pause gain square scale scaleChoice fadeInTime fadeOutTime sound timbre currentScale currentMode">
   <template>
     <link rel="stylesheet" href="./bower_components/css-toggle-switch/dist/toggle-switch.css">
     <style>
@@ -179,13 +179,13 @@
     </div>
     <div class="config contain">
     <label for="ticks">Max Frequency&nbsp;</label>
-    <input type="range" id="resolution" value="{{resolutionMax}}" min="1000" max="20000" />
+    <input type="range" id="resolution" value="{{resolutionMax}}" min="20" max="20000" />
     {{resolutionMax}}
     </div>
     <template if="{{show1}}">
     <div class="config contain">
     <label for="ticks">Minimum Frequency&nbsp;</label>
-    <input type="range" id="resolution" value="{{resolutionMin}}" min="20" max="1000" />
+    <input type="range" id="resolution" value="{{resolutionMin}}" min="20" max="20000" />
     {{resolutionMin}}
     </div>
     <div class="config contain">
@@ -303,7 +303,7 @@
         <template if="{{scale}}">
           <div class="scale-container">
           <label for="speed" class="scale-label">Scale:&nbsp;</label>
-          <select name="scaleChoice" size="3" onchange="changeScale(this)" class="scale-choice" >
+          <select name="scaleChoice" size="3" selectedIndex="{{currentScale}}" class="scale-choice" >
             <option value="3" selected="selected">C</option>
             <option value="4">C#/Db</option>
             <option value="5">D</option>
@@ -319,7 +319,7 @@
           </select>
 
           <span>
-            <select name="mode" size = "3" onchange="changeMode(this)" >
+            <select name="mode" size = "3" selectedIndex="{{currentMode}}" >
               <option value="major" selected="selected">Major</option>
               <option value="minor">Minor</option>
               <option value="pentaM">Major Pentatonic</option>
@@ -335,6 +335,29 @@
   <!-- </template> -->
 </div>
     </template>
+  <!-- {{currentScale}}
+    <select >
+
+      <template repeat="{{options}}">
+        <option >{{}}</option>
+
+      </template> -->
+
+      <!-- <option value="3" selected="selected">C</option>
+      <option value="4">C#/Db</option>
+      <option value="5">D</option>
+      <option value="6">D#/Eb</option>
+      <option value="7">E</option>
+      <option value="8">F</option>
+      <option value="9">F#/Gb</option>
+      <option value="10">G</option>
+      <option value="11">G#/Ab</option>
+      <option value="0">A</option>
+      <option value="1">A#/Bb</option>
+      <option value="12">B</option>
+    </template> -->
+
+    </select>
 
     </template>
     <div class="advanced" on-tap="{{clickAction2}}">
@@ -345,17 +368,17 @@
 
     <script src="g-spectrogram-controls.js"></script>
     <script>
-      function changeScale(obj) {
-        var choice = obj.value;
-        localStorage.setItem('scaleChoice', choice);
-      }
-
-      function changeMode(obj) {
-        var choice = obj.value;
-        // var mode = (choice=='minor')? 1:0;
-        // console.log(mode)
-        localStorage.setItem('modeChoice', choice);
-      }
+      // function changeScale(obj) {
+      //   var choice = obj.value;
+      //   localStorage.setItem('scaleChoice', choice);
+      // }
+      //
+      // function changeMode(obj) {
+      //   var choice = obj.value;
+      //   // var mode = (choice=='minor')? 1:0;
+      //   // console.log(mode)
+      //   localStorage.setItem('modeChoice', choice);
+      // }
 
 
       addEventListener('template-bound', function(e) {
@@ -373,6 +396,11 @@
       addEventListener('template-bound', function(e) {
         e.target.timbreSelect = timbreSelect;
       });
+
+      addEventListener('template-bound', function(e) {
+        e.target.selectScale = selectScale;
+      });
+
     </script>
 
 </polymer-element>
