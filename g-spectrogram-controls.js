@@ -8,14 +8,16 @@ Polymer('g-spectrogram-controls', {
   resolutionMin: 20,
   square: false,
   scale: false,
-  scaleChoice: 0,
   fadeInTime: 10,
-  fadeOutTime: 10,
+  fadeOutTime: 40,
   show1: false,
   show2: false,
   label: "Sound Off",
   sound: 0,
   timbre: 0,
+  outputVolume: 50,
+  currentScale: 0,
+  currentMode: 0,
 
   created: function() {
     console.log('Created spectrogram controls');
@@ -95,31 +97,11 @@ Polymer('g-spectrogram-controls', {
           child.children[0].classList.remove('selected');
         }
       } else {
-        child.children[0].classList.toggle('selected');
+        child.children[0].classList.add('selected');
         this.timbre = i-1;
       }
 
     }
-    // pics.forEach((pic)=>{
-    //   if(pic!=t)
-    //   pic.classList.remove('selected');
-    // });
-
-
-    // console.log(t.parentNode.c)
-    // var parent = t.parentNode;
-    // var children = parent.childNodes;
-    // for (var n = children.length - 1; n >= 0; n--) {
-    //   console.log(children[n]);
-    //     // if (children[n] != t) {
-    //         // if(children[n].classList.contains('selected')){
-    //           // children[n].classList.remove('selected');
-    //         // }
-    //     // }
-    // }
-
-
-
   }
 
 });

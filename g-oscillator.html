@@ -1,7 +1,7 @@
 <link rel="import" href="./bower_components/polymer/polymer.html">
 <link href='https://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
 
-<polymer-element name="g-oscillator" attributes="log speed resolutionMax resolutionMin square scale fadeInTime fadeOutTime sound timbre">
+<polymer-element name="g-oscillator" attributes="log speed resolutionMax resolutionMin square scale fadeInTime fadeOutTime sound timbre outputVolume analyser currentScale currentMode">
   <template>
   <style>
     canvas {
@@ -42,6 +42,9 @@
       varChanged: true,
       sound: 0,
       timbre: 0,
+      outputVolume: 50,
+      currentScale: 3,
+      currentMode: 0,
 
       attachedCallback: function() {
         this.loop();
@@ -102,16 +105,20 @@
         var tuning  = 440;
         var tuning_ = tuning / 32;
         switch (type) {
-          case 'major':
+          case 0:
+            // Major
             scalePattern = [0,2,4,5,7,9,11];
             break;
-          case 'minor':
+          case 1:
+            // Minor
             scalePattern = [0, 2, 3, 5, 7, 8, 10];
             break;
-          case 'pentaM':
+          case 2:
+            // Major Pentatonic
             scalePattern = [0,2,4,7,9];
             break;
-          case 'chromatic':
+          case 3:
+            // Chromatic
             scalePattern = [0,1,2,3,4,5,6,7,8,9,10,11];
             break;
           default:
@@ -343,8 +350,11 @@
           var dist = 20000;
           var note = 0;
 
-          var scaleChoice = localStorage.getItem('scaleChoice') || 3;
-          var modeChoice = localStorage.getItem('modeChoice') || 'major';
+          // var scaleChoice = localStorage.getItem('scaleChoice') || 3;
+          // var modeChoice = localStorage.getItem('modeChoice') || 'major';
+          var scaleChoice = (this.currentScale + 3) % 12;
+          var modeChoice = this.currentMode;
+
           // var fullScaleChoice = Number(scaleChoice) + Number(modeChoice)*12;
           // var scale = this.scales[fullScaleChoice];
           var scale = this.generateScale(scaleChoice, modeChoice);
@@ -387,20 +397,38 @@
       setVolume: function(){
         var volume = (this.lastX/this.width);
         var logVolume = Math.round(this.logScale_(this.lastX, this.width)/10*0.5)/100+0.01;
-        this.volume = volume*this.sound;
-        this.gainAmount = logVolume*this.sound;
+        this.volume = volume*this.sound*(this.outputVolume/100);
+        this.gainAmount = logVolume*this.sound*(this.outputVolume/100);
         this.gain_.gain.linearRampToValueAtTime(this.gainAmount,
           context.currentTime + this.fadeInTime/1000);
-        this.gain_.gain.cancelScheduledValues(startTime);
+        // this.gain_.gain.cancelScheduledValues(startTime);
 
       },
 
       createOscillator_: function() {
         // Create a gain node.
         var gain = context.createGain();
+        // Compressor
+        var compressor = context.createDynamicsCompressor();
+        // compressor.ratio.value = 20;
+        this.compressor = compressor;
+
+        // Create delay offset
+        var delay = context.createDelay(1);
+        delay.delayTime.value = 0.08;
+        // console.log(delay.delayTime.value);
+
+
         var harmonicMultiplier = 1;
         gain.gain.value = 0;
-        gain.connect(context.destination);
+        gain.connect(compressor);
+        compressor.connect(context.destination);
+
+        compressor.connect(delay);
+        delay.connect(this.analyser);
+
+        // gain.connect(context.destination);
+
         this.gain_ = gain;
         // TODO(smus): Clean this up!
         // switch (num) {
@@ -461,6 +489,7 @@
       deleteOscillator_: function() {
         if (this.osc_) {
           var endTime = context.currentTime + this.fadeOutTime/1000;
+          this.gain_.gain.cancelAndHoldAtTime(context.currentTime);
           this.gain_.gain.linearRampToValueAtTime(0, endTime);
           this.osc_.stop(endTime);
           this.osc_ = null;

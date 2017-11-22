@@ -1,6 +1,6 @@
 <link rel="import" href="./bower_components/polymer/polymer.html">
 
-<polymer-element name="g-spectrogram-controls" attributes="log labels ticks speed color resolutionMax resolutionMin pause gain square scale scaleChoice fadeInTime fadeOutTime sound timbre">
+<polymer-element name="g-spectrogram-controls" attributes="log labels ticks speed color resolutionMax resolutionMin pause gain square scale fadeInTime fadeOutTime sound timbre outputVolume currentScale currentMode">
   <template>
     <link rel="stylesheet" href="./bower_components/css-toggle-switch/dist/toggle-switch.css">
     <style>
@@ -16,6 +16,7 @@
         z-index: 10;
         overflow-y: scroll;
         max-height: 75vh;
+        user-select: none;
         }
       h1 {
         font-size: 20px;
@@ -239,6 +240,12 @@
 
     </div>
 
+    <div class="config contain">
+    <label for="ticks">Output Volume&nbsp;</label>
+    <input type="range" id="fadeIn" value="{{outputVolume}}" min="1" max="100" />
+    {{outputVolume}}
+    </div>
+
 
     <!-- <div class="config">
     <label for="labels">Show labels</label>
@@ -303,7 +310,7 @@
         <template if="{{scale}}">
           <div class="scale-container">
           <label for="speed" class="scale-label">Scale:&nbsp;</label>
-          <select name="scaleChoice" size="3" onchange="changeScale(this)" class="scale-choice" >
+          <select name="scaleChoice" size="3" selectedIndex="{{currentScale}}" class="scale-choice" >
             <option value="3" selected="selected">C</option>
             <option value="4">C#/Db</option>
             <option value="5">D</option>
@@ -319,7 +326,7 @@
           </select>
 
           <span>
-            <select name="mode" size = "3" onchange="changeMode(this)" >
+            <select name="mode" size = "3" selectedIndex="{{currentMode}}" >
               <option value="major" selected="selected">Major</option>
               <option value="minor">Minor</option>
               <option value="pentaM">Major Pentatonic</option>
@@ -345,17 +352,17 @@
 
     <script src="g-spectrogram-controls.js"></script>
     <script>
-      function changeScale(obj) {
-        var choice = obj.value;
-        localStorage.setItem('scaleChoice', choice);
-      }
-
-      function changeMode(obj) {
-        var choice = obj.value;
-        // var mode = (choice=='minor')? 1:0;
-        // console.log(mode)
-        localStorage.setItem('modeChoice', choice);
-      }
+      // function changeScale(obj) {
+      //   var choice = obj.value;
+      //   localStorage.setItem('scaleChoice', choice);
+      // }
+      //
+      // function changeMode(obj) {
+      //   var choice = obj.value;
+      //   // var mode = (choice=='minor')? 1:0;
+      //   // console.log(mode)
+      //   localStorage.setItem('modeChoice', choice);
+      // }
 
 
       addEventListener('template-bound', function(e) {

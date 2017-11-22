@@ -279,6 +279,7 @@ Polymer('g-spectrogram', {
 // This is the stream of audio
   onStream: function(stream) {
     var input = context.createMediaStreamSource(stream);
+    
     var gainNode = context.createGain();
     var analyser = context.createAnalyser();
 
