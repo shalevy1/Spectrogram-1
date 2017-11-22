@@ -180,7 +180,7 @@
     </div>
     <div class="config contain">
     <label for="ticks">Max Frequency&nbsp;</label>
-    <input type="range" id="resolution" value="{{resolutionMax}}" min="1000" max="20000" />
+    <input type="range" id="resolution" value="{{resolutionMax}}" min="20" max="20000" />
     {{resolutionMax}}
     </div>
     <template if="{{show1}}">
@@ -342,6 +342,29 @@
   <!-- </template> -->
 </div>
     </template>
+  <!-- {{currentScale}}
+    <select >
+
+      <template repeat="{{options}}">
+        <option >{{}}</option>
+
+      </template> -->
+
+      <!-- <option value="3" selected="selected">C</option>
+      <option value="4">C#/Db</option>
+      <option value="5">D</option>
+      <option value="6">D#/Eb</option>
+      <option value="7">E</option>
+      <option value="8">F</option>
+      <option value="9">F#/Gb</option>
+      <option value="10">G</option>
+      <option value="11">G#/Ab</option>
+      <option value="0">A</option>
+      <option value="1">A#/Bb</option>
+      <option value="12">B</option>
+    </template> -->
+
+    </select>
 
     </template>
     <div class="advanced" on-tap="{{clickAction2}}">
@@ -380,6 +403,8 @@
       addEventListener('template-bound', function(e) {
         e.target.timbreSelect = timbreSelect;
       });
+
+
     </script>
 
 </polymer-element>

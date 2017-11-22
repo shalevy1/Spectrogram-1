@@ -99,7 +99,6 @@
 
       generateScale: function(startFreq, type){
         this.scaleNames = [];
-        // var root = Math.pow(2, (1/12));
         var scale = [];
         var scalePattern = [];
         var tuning  = 440;
@@ -194,6 +193,8 @@
           this.lastFreq = this.getLastFrequency();
 
           if(this.scale && this.varChanged){
+              // this.noteChange = true;
+                
               this.deleteOscillator_();
               this.osc_ = this.createOscillator_();
               this.osc_.frequency.value = this.lastFreq;
@@ -488,6 +489,12 @@
 
       deleteOscillator_: function() {
         if (this.osc_) {
+
+        //   if(this.noteChange){
+        //   var endTime = context.currentTime + 10/1000;
+        //   this.noteChange = false;
+        // } else {
+
           var endTime = context.currentTime + this.fadeOutTime/1000;
           this.gain_.gain.cancelAndHoldAtTime(context.currentTime);
           this.gain_.gain.linearRampToValueAtTime(0, endTime);
@@ -547,6 +554,7 @@
           // console.log(e);
         }
       },
+
 
 
     });
