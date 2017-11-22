@@ -194,7 +194,7 @@
 
           if(this.scale && this.varChanged){
               // this.noteChange = true;
-                
+
               this.deleteOscillator_();
               this.osc_ = this.createOscillator_();
               this.osc_.frequency.value = this.lastFreq;
@@ -398,7 +398,7 @@
       setVolume: function(){
         var volume = (this.lastX/this.width);
         var logVolume = Math.round(this.logScale_(this.lastX, this.width)/10*0.5)/100+0.01;
-        this.volume = volume*this.sound*(this.outputVolume/100);
+        this.volume = volume*this.sound;
         this.gainAmount = logVolume*this.sound*(this.outputVolume/100);
         this.gain_.gain.linearRampToValueAtTime(this.gainAmount,
           context.currentTime + this.fadeInTime/1000);
