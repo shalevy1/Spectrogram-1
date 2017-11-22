@@ -1,7 +1,7 @@
 <link rel="import" href="./bower_components/polymer/polymer.html">
 <link href='https://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
 
-<polymer-element name="g-oscillator" attributes="log speed resolutionMax resolutionMin square scale fadeInTime fadeOutTime sound timbre outputVolume analyser currentScale currentMode">
+<polymer-element name="g-oscillator" attributes="log speed resolutionMax resolutionMin square scale fadeInTime fadeOutTime sound timbre outputVolume analyser currentScale currentMode headphoneMode">
   <template>
   <style>
     canvas {
@@ -45,6 +45,7 @@
       outputVolume: 50,
       currentScale: 3,
       currentMode: 0,
+      headphoneMode: false,
 
       attachedCallback: function() {
         this.loop();
@@ -425,8 +426,10 @@
         gain.connect(compressor);
         compressor.connect(context.destination);
 
-        compressor.connect(delay);
-        delay.connect(this.analyser);
+        if(this.headphoneMode){
+          compressor.connect(this.analyser);
+        }
+        // delay.connect(this.analyser);
 
         // gain.connect(context.destination);
 

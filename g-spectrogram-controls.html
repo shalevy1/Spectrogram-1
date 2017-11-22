@@ -1,6 +1,6 @@
 <link rel="import" href="./bower_components/polymer/polymer.html">
 
-<polymer-element name="g-spectrogram-controls" attributes="log labels ticks speed color resolutionMax resolutionMin pause gain square scale fadeInTime fadeOutTime sound timbre outputVolume currentScale currentMode">
+<polymer-element name="g-spectrogram-controls" attributes="log labels ticks speed color resolutionMax resolutionMin pause gain square scale fadeInTime fadeOutTime sound timbre outputVolume currentScale currentMode headphoneMode">
   <template>
     <link rel="stylesheet" href="./bower_components/css-toggle-switch/dist/toggle-switch.css">
     <style>
@@ -365,6 +365,10 @@
     </template> -->
 
     </select>
+    <div class="config contain">
+      <label for="speed">Headphone Mode&nbsp;</label>
+      <input type="checkbox" id="labels" checked="{{headphoneMode}}">
+    </div>
 
     </template>
     <div class="advanced" on-tap="{{clickAction2}}">

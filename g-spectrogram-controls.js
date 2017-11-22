@@ -18,6 +18,7 @@ Polymer('g-spectrogram-controls', {
   outputVolume: 50,
   currentScale: 0,
   currentMode: 0,
+  headphoneMode: false,
 
   created: function() {
     console.log('Created spectrogram controls');
