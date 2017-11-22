@@ -386,11 +386,13 @@
       //Based on x location, sets the volume
       setVolume: function(){
         var volume = (this.lastX/this.width);
-        var logVolume = Math.round(this.logScale_(this.lastX, this.width)/10*0.75)/100+0.01;
+        var logVolume = Math.round(this.logScale_(this.lastX, this.width)/10*0.5)/100+0.01;
         this.volume = volume*this.sound;
         this.gainAmount = logVolume*this.sound;
         this.gain_.gain.linearRampToValueAtTime(this.gainAmount,
           context.currentTime + this.fadeInTime/1000);
+        this.gain_.gain.cancelScheduledValues(startTime);
+
       },
 
       createOscillator_: function() {

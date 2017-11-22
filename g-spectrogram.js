@@ -10,7 +10,7 @@ Polymer('g-spectrogram', {
   ticks: 5,
   speed: 2,
   // FFT bin size,
-  fftsize: 2048,
+  fftsize: 8192,
   oscillator: false,
   color: false,
   pause: false,
@@ -286,7 +286,7 @@ Polymer('g-spectrogram', {
     analyser.maxDecibels = -20;
     analyser.smoothingTimeConstant = 0;
     // analyser.fftSize = this.fftsize;
-    var fftSize = 2048;
+    var fftSize = 8192;
     analyser.fftSize = fftSize;
 
     // Connect graph.
