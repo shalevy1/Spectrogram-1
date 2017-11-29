@@ -103,6 +103,22 @@ Polymer('g-spectrogram-controls', {
       }
 
     }
+  },
+
+  reset: function(e){
+    this.log= true;
+    this.pause= false;
+    this.gain= 6;
+    this.resolutionMax= 20000;
+    this.resolutionMin= 20;
+    this.square= false;
+    this.scale= false;
+    this.fadeInTime= 10;
+    this.fadeOutTime= 40;
+    this.timbre= 0;
+    this.outputVolume= 50;
+    this.currentScale= 0;
+    this.currentMode= 0;
   }
 
 });

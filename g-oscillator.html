@@ -81,7 +81,7 @@
           var color = this.volume*245;
           var colorVal = 'hsl(H, 100%, 70%)'.replace(/H/g, 255-color);
           ctx.fillStyle = colorVal;
-          ctx.fillRect(x - size / 2, y - size / 2+1, size, size/2);
+          // ctx.fillRect(x - size / 2, y - size / 2+1, size, size/2);
           }
         }
 
@@ -121,6 +121,19 @@
             // Chromatic
             scalePattern = [0,1,2,3,4,5,6,7,8,9,10,11];
             break;
+          case 4:
+            // Major Blues
+            scalePattern = [0,3,5,6,7,10];
+            break;
+          case 5:
+            // Flemenco
+            scalePattern = [0,1,4,5,7,8,10];
+            break;
+          case 6:
+            // Hungarian Minor
+            scalePattern = [0,2,3,6,7,8,11];
+            break;
+
           default:
             scalePattern = [0,2,4,5,7,9,11];
 

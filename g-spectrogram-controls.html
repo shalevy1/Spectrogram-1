@@ -14,7 +14,8 @@
         border-style: solid;
         font-family: 'Inconsolata', sans-serif;
         z-index: 10;
-        overflow-y: scroll;
+        overflow-y: auto;
+        resize: both;
         max-height: 75vh;
         user-select: none;
         }
@@ -154,10 +155,18 @@
       .graph-scale {
         width: 40%;
       }
+      .title-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+      }
 
 
     </style>
+    <div class="title-container">
     <h1>Spectrogram Controls</h1>
+    <button on-tap="{{reset}}">Reset</button>
+  </div>
 
     <div class = "config">
       <div class="container">
@@ -331,38 +340,16 @@
               <option value="minor">Minor</option>
               <option value="pentaM">Major Pentatonic</option>
               <option value="chromatic">Chromatic</option>
+              <option value="blues">Blues</option>
+              <option value="flemenco">Flemenco</option>
+              <option value="hungarian-minor">Hungarian Minor</option>
 
 
             </select>
           </span>
-          <!-- <input type="range" id="resolution" value="{{scaleChoice}}" min="0" max="11" />
-          {{scaleChoice}} -->
 
-      <!-- <button type="reset" onclick="{{reset}}"> Reset All Parameters </button> -->
-  <!-- </template> -->
 </div>
     </template>
-  <!-- {{currentScale}}
-    <select >
-
-      <template repeat="{{options}}">
-        <option >{{}}</option>
-
-      </template> -->
-
-      <!-- <option value="3" selected="selected">C</option>
-      <option value="4">C#/Db</option>
-      <option value="5">D</option>
-      <option value="6">D#/Eb</option>
-      <option value="7">E</option>
-      <option value="8">F</option>
-      <option value="9">F#/Gb</option>
-      <option value="10">G</option>
-      <option value="11">G#/Ab</option>
-      <option value="0">A</option>
-      <option value="1">A#/Bb</option>
-      <option value="12">B</option>
-    </template> -->
 
     </select>
     <div class="config contain">
@@ -408,6 +395,9 @@
         e.target.timbreSelect = timbreSelect;
       });
 
+      addEventListener('template-bound', function(e) {
+        e.target.reset = reset;
+      });
 
     </script>
 
