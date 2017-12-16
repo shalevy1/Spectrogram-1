@@ -211,14 +211,14 @@ Polymer('g-spectrogram', {
 
         freq = Math.max(1,this.getFrequencies(i));
 
-      var label = this.formatFreq(freq);
+      // var label = this.formatFreq(freq);
       var units = this.formatUnits(freq);
 
       ctx.font = '18px Inconsolata';
       // Draw the value.
       ctx.textAlign = 'right';
       ctx.fillStyle = 'white';
-      ctx.fillText(label, x, y + yLabelOffset);
+      ctx.fillText(freq, x, y + yLabelOffset);
       // Draw the units.
       ctx.textAlign = 'left';
       ctx.fillStyle = 'white';
@@ -259,7 +259,8 @@ Polymer('g-spectrogram', {
   },
 
   formatUnits: function(freq) {
-    return (freq >= 1000 ? 'KHz' : 'Hz');
+    // return (freq >= 1000 ? 'KHz' : 'Hz');
+    return 'Hz';
   },
 
   indexToFreq: function(index) {
@@ -279,7 +280,7 @@ Polymer('g-spectrogram', {
 // This is the stream of audio
   onStream: function(stream) {
     var input = context.createMediaStreamSource(stream);
-    
+
     var gainNode = context.createGain();
     var analyser = context.createAnalyser();
 

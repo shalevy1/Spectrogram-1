@@ -244,7 +244,7 @@
       </h1>
 
     <div class="config contain">
-      <label for="speed">{{label}}&nbsp;</label>
+      <label for="speed">Sound&nbsp;</label>
       <button class="sound-button" on-tap="{{soundToggle}}"></button>
 
     </div>
@@ -273,12 +273,12 @@
     </div> -->
     <template if="{{show2}}">
       <div class="config contain">
-      <label for="ticks">Fade In Time&nbsp;</label>
+      <label for="ticks">Onset Time&nbsp;</label>
       <input type="range" id="fadeIn" value="{{fadeInTime}}" min="10" max="2000" />
       {{fadeInTime}} ms
       </div>
       <div class="config contain">
-      <label for="ticks">Fade Out Time&nbsp;</label>
+      <label for="ticks">Offset Time&nbsp;</label>
       <input type="range" id="fadeOut" value="{{fadeOutTime}}" min="10" max="2000" />
       {{fadeOutTime}} ms
       </div>
