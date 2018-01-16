@@ -22,557 +22,604 @@
   <script>
     // Assumes context is an AudioContext defined outside of this class.
     Polymer('g-oscillator', {
-      gainAmount: 0.2,
-      history: [],
-      log: false,
-      speed: 2,
-      fadeInTime: 10,
-      fadeOutTime: 10,
-      resolutionMax: 20000,
-      resolutionMin: 10,
-      square: false,
-      scale: false,
-      // Scales are Major from 0-11, Minor from 12-23.
-      notes: ['A', 'A#/Bb', 'B','C', 'C#/Db', 'D', 'D#/Eb', 'E', 'F', 'F#/Gb', 'G', 'G#/Ab'],
-      scaleNames: [],
+          gainAmount: 0.2,
+          history: [],
+          log: false,
+          speed: 2,
+          fadeInTime: 10,
+          fadeOutTime: 10,
+          resolutionMax: 20000,
+          resolutionMin: 10,
+          square: false,
+          scale: false,
+          // Scales are Major from 0-11, Minor from 12-23.
+          notes: ['A', 'A#/Bb', 'B', 'C', 'C#/Db', 'D', 'D#/Eb', 'E', 'F', 'F#/Gb', 'G', 'G#/Ab'],
+          scaleNames: [],
 
-      textLabel: 'C 0',
-      // scaleChoice: localStorage.getItem('scaleChoice') || 0,
-      // modeChoice: localStorage.getItem('modeChoice') || 0,
-      varChanged: true,
-      sound: 0,
-      timbre: 0,
-      outputVolume: 50,
-      currentScale: 3,
-      currentMode: 0,
-      headphoneMode: false,
+          textLabel: 'C 0',
+          // scaleChoice: localStorage.getItem('scaleChoice') || 0,
+          // modeChoice: localStorage.getItem('modeChoice') || 0,
+          varChanged: true,
+          sound: 0,
+          timbre: 0,
+          outputVolume: 50,
+          currentScale: 3,
+          currentMode: 0,
+          headphoneMode: false,
+          lastX_: new Array(),
+          lastY_: new Array(),
+          lastFreq_: new Array(),
+          multigain: new Array(),
+          multiosc: new Array(),
+          multi: false,
+          touches: 0,
 
-      attachedCallback: function() {
-        this.loop();
-      },
+          attachedCallback: function() {
+            this.loop();
+          },
 
-      // Controls the loop of the drawing of the line when dragged
-      loop: function() {
-        this.width = window.innerWidth;
-        this.height = window.innerHeight;
+          // Controls the loop of the drawing of the line when dragged
+          loop: function() {
+            this.width = window.innerWidth;
+            this.height = window.innerHeight;
 
-        this.addHistory(this.lastY);
-        var canvas = this.$.freq;
-        var ctx = canvas.getContext('2d');
-        canvas.width = this.width;
-        canvas.height = this.height;
+            this.addHistory(this.lastY);
+            var canvas = this.$.freq;
+            var ctx = canvas.getContext('2d');
+            canvas.width = this.width;
+            canvas.height = this.height;
 
-        var size = 6;
-        var nyquist = context.sampleRate / 2;
+            var size = 6;
+            var nyquist = context.sampleRate / 2;
 
-        for (var i = 0; i < this.history.length; i++) {
-
-
-          var y = this.history[i];
-
-          if (y === null) {
-            continue;
-          }
-          var x = this.width - (this.history.length - i - 1) * this.speed;
-          // TODO(smus): Elimiate fudge factor.
+            for (var i = 0; i < this.history.length; i++) {
 
 
-          if(this.scale){
-          var color = this.volume*245;
-          var colorVal = 'hsl(H, 100%, 70%)'.replace(/H/g, 255-color);
-          ctx.fillStyle = colorVal;
-          // ctx.fillRect(x - size / 2, y - size / 2+1, size, size/2);
-          }
-        }
+              var y = this.history[i];
 
-        if (this.osc_) {
-          // Label the point.
-          var label = this.formatFrequency_(this.lastFreq);
-          if(this.scale){
-            label = label + " "+this.textLabel ;
-          }
-          ctx.font = '20px Inconsolata';
-          ctx.fillStyle = 'white'
-          ctx.fillText(label, this.lastX, this.lastY);
-        }
-        requestAnimationFrame(this.loop.bind(this));
-      },
-
-      generateScale: function(startFreq, type){
-        this.scaleNames = [];
-        var scale = [];
-        var scalePattern = [];
-        var tuning  = 440;
-        var tuning_ = tuning / 32;
-        switch (type) {
-          case 0:
-            // Major
-            scalePattern = [0,2,4,5,7,9,11];
-            break;
-          case 1:
-            // Minor
-            scalePattern = [0, 2, 3, 5, 7, 8, 10];
-            break;
-          case 2:
-            // Major Pentatonic
-            scalePattern = [0,2,4,7,9];
-            break;
-          case 3:
-            // Chromatic
-            scalePattern = [0,1,2,3,4,5,6,7,8,9,10,11];
-            break;
-          case 4:
-            // Major Blues
-            scalePattern = [0,3,5,6,7,10];
-            break;
-          case 5:
-            // Flemenco
-            scalePattern = [0,1,4,5,7,8,10];
-            break;
-          case 6:
-            // Hungarian Minor
-            scalePattern = [0,2,3,6,7,8,11];
-            break;
-
-          default:
-            scalePattern = [0,2,4,5,7,9,11];
-
-        }
-        for(var i=0; i<scalePattern.length; i++){
-          var currentF = Number(startFreq)+scalePattern[i];
-          scale.push(tuning_ * Math.pow(Math.pow(2, 1/12),currentF));
-          this.scaleNames.push(this.notes[currentF%12]);
-        }
-        // console.log("SCALES");
-        // console.log(scale);
-        // console.log(this.scaleNames);
-
-        return scale;
-      },
-
-      //Adds 'hz' to frequencies when drawn
-      formatFrequency_: function(freq) {
-        return Math.round(freq) + ' Hz';
-      },
-
-      //The next few functions detail the events of mouse/touch down, drag, and up
-      //
-      onMouseDown: function(event) {
-        if (this.osc_) {
-          // There can be only one oscillator.
-          return;
-        }
-        this.varChanged = true;
-        this.updatePointer(event);
-
-        // Create an oscillator.
-        this.osc_ = this.createOscillator_();
-        this.lastFreq = this.getLastFrequency();
-        this.osc_.frequency.value = this.lastFreq;
-        this.setVolume();
-
-        //Square wave settings, odd harmonics only
-        // if (this.square) {
-        //   if (this.osc2_) {
-        //     return;
-        //   }
-        //   this.osc2_ = this.createOscillator_("2");
-        //   this.osc2_.frequency.value = this.lastFreq * 3;
-        //
-        //   this.osc3_ = this.createOscillator_("3");
-        //   this.osc3_.frequency.value = this.lastFreq * 5;
-        //
-        //   this.osc4_ = this.createOscillator_("4");
-        //   this.osc4_.frequency.value = this.lastFreq * 7;
-        //
-        //   this.osc5_ = this.createOscillator_("5");
-        //   this.osc5_.frequency.value = this.lastFreq * 9;
-        //
-        //   this.osc6_ = this.createOscillator_("6");
-        //   this.osc6_.frequency.value = this.lastFreq * 11;
-        // }
-      },
-
-      onMouseUp: function() {
-        // console.log('mu');
-        this.deleteOscillator_();
-        this.updatePointer(null);
-        this.lastFreq = null;
-      },
-
-      onMouseMove: function(event) {
-        // console.log('mm');
-        if (this.osc_) {
-          this.updatePointer(event);
-          this.lastFreq = this.getLastFrequency();
-
-          if(this.scale && this.varChanged){
-              // this.noteChange = true;
-
-              this.deleteOscillator_();
-              this.osc_ = this.createOscillator_();
-              this.osc_.frequency.value = this.lastFreq;
-
-          } else {
-          this.osc_.frequency.value = this.lastFreq;
-          }
+              if (y === null) {
+                continue;
+              }
+              var x = this.width - (this.history.length - i - 1) * this.speed;
+              // TODO(smus): Elimiate fudge factor.
 
 
-          this.setVolume();
-
-          // if (this.square) {
-          //   if (this.osc2_) {
-          //     this.updatePointer(event);
-          //     this.osc2_.frequency.value = this.lastFreq * 3;
-          //     this.osc3_.frequency.value = this.lastFreq * 5;
-          //     this.osc4_.frequency.value = this.lastFreq * 7;
-          //     this.osc5_.frequency.value = this.lastFreq * 9;
-          //     this.osc6_.frequency.value = this.lastFreq * 11;
-          //
-          //   }
-          //
-          // }
-        }
-      },
-
-      onMouseOut: function(event) {
-        // console.log('mo');
-        this.deleteOscillator_();
-        this.updatePointer(null);
-        this.lastFreq = null;
-      },
-
-      onTouchStart: function(event) {
-        event.preventDefault();
-        // console.log('ts');
-
-        this.varChanged = true;
-        this.updatePointer(event);
-
-        // Create an oscillator.
-        this.osc_ = this.createOscillator_();
-        this.lastFreq = this.getLastFrequency();
-        this.osc_.frequency.value = this.lastFreq;
-        this.setVolume();
-
-        //Square wave settings, odd harmonics only
-        // if (this.square) {
-        //   if (this.osc2_) {
-        //     return;
-        //   }
-        //   this.osc2_ = this.createOscillator_("2");
-        //   this.osc2_.frequency.value = this.lastFreq * 3;
-        //
-        //   this.osc3_ = this.createOscillator_("3");
-        //   this.osc3_.frequency.value = this.lastFreq * 5;
-        //
-        //   this.osc4_ = this.createOscillator_("4");
-        //   this.osc4_.frequency.value = this.lastFreq * 7;
-        //
-        //   this.osc5_ = this.createOscillator_("5");
-        //   this.osc5_.frequency.value = this.lastFreq * 9;
-        //
-        //   this.osc6_ = this.createOscillator_("6");
-        //   this.osc6_.frequency.value = this.lastFreq * 11;
-        // }
-      },
-
-      onTouchMove: function(event) {
-        event.preventDefault();
-        // console.log('tm');
-        if (this.osc_) {
-          this.updatePointer(event);
-          this.lastFreq = this.getLastFrequency();
-
-          if(this.scale && this.varChanged){
-              this.deleteOscillator_();
-              this.osc_ = this.createOscillator_();
-              this.osc_.frequency.value = this.lastFreq;
-
-          } else {
-          this.osc_.frequency.value = this.lastFreq;
-          }
-
-
-          this.setVolume();
-
-          // if (this.square) {
-          //   if (this.osc2_) {
-          //     this.updatePointer(event);
-          //     this.osc2_.frequency.value = this.lastFreq * 3;
-          //     this.osc3_.frequency.value = this.lastFreq * 5;
-          //     this.osc4_.frequency.value = this.lastFreq * 7;
-          //     this.osc5_.frequency.value = this.lastFreq * 9;
-          //     this.osc6_.frequency.value = this.lastFreq * 11;
-          //
-          //   }
-          //
-          // }
-        }
-      },
-
-      onTouchEnd: function(event) {
-        event.preventDefault();
-        // console.log('te');
-        this.updatePointer(null);
-        this.deleteOscillator_();
-        this.lastFreq = null;
-      },
-
-      // Function that listens for changes in xy pointer position and updates
-      // Global variables lastX and lastY
-      updatePointer: function(event) {
-        event = event || {};
-        var type = event.type || '';
-        if (type.indexOf('mouse') == 0) {
-          this.lastX = event.pageX;
-          console.log()
-          if(this.varChanged){
-            this.lastY = event.pageY;
-          }
-        } else if (type.indexOf('touch') == 0) {
-          this.lastX = event.touches[0].pageX;
-          this.lastY = event.touches[0].pageY;
-        } else {
-          this.lastX = null;
-          this.lastY = null;
-        }
-      },
-
-      addHistory: function(freq) {
-        if (this.history.length > 100) {
-          this.history.splice(0, 1);
-        }
-        this.history.push(freq);
-      },
-
-      // Use the X and Y values to calculate frequency for the osc
-      getLastFrequency: function() {
-        var x = this.lastX;
-
-        var y = event.pageY || event.touches[0].pageY;
-
-
-        var percent = 1 - (y / this.height);
-        var nyquist = context.sampleRate / 2;
-        if (this.log) {
-          percent = this.logScale_(percent * 1000, 1000) / 1000;
-        }
-        var freq = Math.floor(percent * (this.resolutionMax - Number(this.resolutionMin)) + Number(this.resolutionMin)) + 1;
-        //If snap to scale is on
-        if (this.scale) {
-
-          var dist = 20000;
-          var note = 0;
-
-          // var scaleChoice = localStorage.getItem('scaleChoice') || 3;
-          // var modeChoice = localStorage.getItem('modeChoice') || 'major';
-          var scaleChoice = (this.currentScale + 3) % 12;
-          var modeChoice = this.currentMode;
-
-          // var fullScaleChoice = Number(scaleChoice) + Number(modeChoice)*12;
-          // var scale = this.scales[fullScaleChoice];
-          var scale = this.generateScale(scaleChoice, modeChoice);
-          // var scale = this.generateScale(3, 'Major');
-          var name = this.scaleNames[0];
-          var harmonic = 0;
-          //Sweeps through scale object and plays correct frequency
-          for (var j = 1; j < 1500; j=j*2) {
-
-            for (var k = 0; k < scale.length; k++) {
-
-              var check = j * scale[k];
-              var checkDist = Math.abs(freq - check);
-              if (checkDist < dist) {
-                dist = checkDist;
-                note = check;
-                name = this.scaleNames[k];
-                harmonic = Math.round(Math.log2(j)-1);
+              if (this.scale) {
+                var color = this.volume * 245;
+                var colorVal = 'hsl(H, 100%, 70%)'.replace(/H/g, 255 - color);
+                ctx.fillStyle = colorVal;
+                // ctx.fillRect(x - size / 2, y - size / 2+1, size, size/2);
               }
             }
-          }
-          freq = note;
-          var textLabel = name+ ''+harmonic;
-          if(this.textLabel === textLabel ){
 
-            this.varChanged = false;
-          } else {
+            if (this.osc_) {
+              // Label the point.
+              var label = this.formatFrequency_(this.lastFreq);
+              if (this.scale) {
+                label = label + " " + this.textLabel;
+              }
+              ctx.font = '20px Inconsolata';
+              ctx.fillStyle = 'white'
+              ctx.fillText(label, this.lastX, this.lastY);
+            }
+            requestAnimationFrame(this.loop.bind(this));
+          },
+
+          generateScale: function(startFreq, type) {
+            this.scaleNames = [];
+            var scale = [];
+            var scalePattern = [];
+            var tuning = 440;
+            var tuning_ = tuning / 32;
+            switch (type) {
+              case 0:
+                // Major
+                scalePattern = [0, 2, 4, 5, 7, 9, 11];
+                break;
+              case 1:
+                // Minor
+                scalePattern = [0, 2, 3, 5, 7, 8, 10];
+                break;
+              case 2:
+                // Major Pentatonic
+                scalePattern = [0, 2, 4, 7, 9];
+                break;
+              case 3:
+                // Chromatic
+                scalePattern = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+                break;
+              case 4:
+                // Major Blues
+                scalePattern = [0, 3, 5, 6, 7, 10];
+                break;
+              case 5:
+                // Flemenco
+                scalePattern = [0, 1, 4, 5, 7, 8, 10];
+                break;
+              case 6:
+                // Hungarian Minor
+                scalePattern = [0, 2, 3, 6, 7, 8, 11];
+                break;
+
+              default:
+                scalePattern = [0, 2, 4, 5, 7, 9, 11];
+
+            }
+            for (var i = 0; i < scalePattern.length; i++) {
+              var currentF = Number(startFreq) + scalePattern[i];
+              scale.push(tuning_ * Math.pow(Math.pow(2, 1 / 12), currentF));
+              this.scaleNames.push(this.notes[currentF % 12]);
+            }
+            // console.log("SCALES");
+            // console.log(scale);
+            // console.log(this.scaleNames);
+
+            return scale;
+          },
+
+          //Adds 'hz' to frequencies when drawn
+          formatFrequency_: function(freq) {
+            return Math.round(freq) + ' Hz';
+          },
+
+          //The next few functions detail the events of mouse/touch down, drag, and up
+          //
+          onMouseDown: function(event) {
+            if (this.osc_) {
+              // There can be only one oscillator.
+              return;
+            }
             this.varChanged = true;
-          }
-          this.textLabel = textLabel;
-        } else{
-          localStorage.removeItem('scaleChoice');
-          localStorage.removeItem('modeChoice');
-        }
+            this.updatePointer(event);
 
-        return freq;
-      },
+            // Create an oscillator.
+            this.osc_ = this.createOscillator_();
+            var x = this.lastX;
+            var y = event.pageY || event.touches[0].pageY;
+            this.lastFreq = this.getLastFrequency(x,y);
+            this.osc_.frequency.value = this.lastFreq;
+            this.setVolume(this.lastX);
 
-      //Based on x location, sets the volume
-      setVolume: function(){
-        var volume = (this.lastX/this.width);
-        var logVolume = Math.round(this.logScale_(this.lastX, this.width)/10*0.5)/100+0.01;
-        this.volume = volume*this.sound;
-        this.gainAmount = logVolume*this.sound*(this.outputVolume/100);
-        this.gain_.gain.linearRampToValueAtTime(this.gainAmount,
-          context.currentTime + this.fadeInTime/1000);
-        // this.gain_.gain.cancelScheduledValues(startTime);
+            //Square wave settings, odd harmonics only
+            // if (this.square) {
+            //   if (this.osc2_) {
+            //     return;
+            //   }
+            //   this.osc2_ = this.createOscillator_("2");
+            //   this.osc2_.frequency.value = this.lastFreq * 3;
+            //
+            //   this.osc3_ = this.createOscillator_("3");
+            //   this.osc3_.frequency.value = this.lastFreq * 5;
+            //
+            //   this.osc4_ = this.createOscillator_("4");
+            //   this.osc4_.frequency.value = this.lastFreq * 7;
+            //
+            //   this.osc5_ = this.createOscillator_("5");
+            //   this.osc5_.frequency.value = this.lastFreq * 9;
+            //
+            //   this.osc6_ = this.createOscillator_("6");
+            //   this.osc6_.frequency.value = this.lastFreq * 11;
+            // }
+          },
 
-      },
+          onMouseUp: function() {
+            // console.log('mu');
+            this.deleteOscillator_();
+            this.updatePointer(null);
+            this.lastFreq = null;
+          },
 
-      createOscillator_: function() {
-        // Create a gain node.
-        var gain = context.createGain();
-        // Compressor
-        var compressor = context.createDynamicsCompressor();
-        // compressor.ratio.value = 20;
-        this.compressor = compressor;
+          onMouseMove: function(event) {
+            // console.log('mm');
+            if (this.osc_) {
+              this.updatePointer(event);
+              var x = this.lastX;
+              var y = event.pageY || event.touches[0].pageY;
+              this.lastFreq = this.getLastFrequency(x,y);
 
-        // Create delay offset
-        var delay = context.createDelay(1);
-        delay.delayTime.value = 0.08;
-        // console.log(delay.delayTime.value);
+              if (this.scale && this.varChanged) {
+                // this.noteChange = true;
+
+                this.deleteOscillator_();
+                this.osc_ = this.createOscillator_();
+                this.osc_.frequency.value = this.lastFreq;
+
+              } else {
+                this.osc_.frequency.value = this.lastFreq;
+              }
 
 
-        var harmonicMultiplier = 1;
-        gain.gain.value = 0;
-        gain.connect(compressor);
-        compressor.connect(context.destination);
+              this.setVolume(this.lastX);
 
-        if(this.headphoneMode){
-          compressor.connect(this.analyser);
-        }
-        // delay.connect(this.analyser);
+              // if (this.square) {
+              //   if (this.osc2_) {
+              //     this.updatePointer(event);
+              //     this.osc2_.frequency.value = this.lastFreq * 3;
+              //     this.osc3_.frequency.value = this.lastFreq * 5;
+              //     this.osc4_.frequency.value = this.lastFreq * 7;
+              //     this.osc5_.frequency.value = this.lastFreq * 9;
+              //     this.osc6_.frequency.value = this.lastFreq * 11;
+              //
+              //   }
+              //
+              // }
+            }
+          },
 
-        // gain.connect(context.destination);
+          onMouseOut: function(event) {
+            // console.log('mo');
+            this.deleteOscillator_();
+            this.updatePointer(null);
+            this.lastFreq = null;
+          },
 
-        this.gain_ = gain;
-        // TODO(smus): Clean this up!
-        // switch (num) {
-        //   case "1":
-        //     this.gain1_ = gain;
-        //     harmonicMultiplier = 1;
-        //   case "2":
-        //     this.gain2_ = gain;
-        //     harmonicMultiplier = 0.333;
-        //   case "3":
-        //     this.gain3_ = gain;
-        //     harmonicMultiplier = 0.2;
-        //   case "4":
-        //     this.gain4_ = gain;
-        //     harmonicMultiplier = 0.143;
-        //   case "5":
-        //     this.gain5_ = gain;
-        //     harmonicMultiplier = 0.111;
-        //   case "6":
-        //     this.gain6_ = gain;
-        //     harmonicMultiplier = 0.09;
-        //
-        //     break;
-        //   default:
-        //
-        // }
+          onTouchStart: function(event) {
+            event.preventDefault();
+            // console.log('ts');
 
-        // Create an oscillator and connect it through the gain.
-        var osc = context.createOscillator();
-        switch (this.timbre) {
-          case 0:
-            osc.type = "sine";
-            break;
-          case 1:
-            osc.type = "sawtooth";
-            break;
-          case 2:
-            osc.type = "square";
-            break;
-          case 3:
-            osc.type = "triangle";
-            break;
-          default:
-            osc.type = "sine";
-        }
-        // if(this.square){
-        //   osc.type = 'square';
-        // }
-        osc.connect(gain);
+            //handle multitouch
 
-        // Start it with a fade-in.
-        // gain.gain.linearRampToValueAtTime(this.gainAmount * harmonicMultiplier,
-        //   context.currentTime + this.fadeInTime/1000);
-        osc.start(0);
-        return osc;
-      },
+              if (this.osc_) {
+                // There can be only one oscillator.
 
-      deleteOscillator_: function() {
-        if (this.osc_) {
-
-        //   if(this.noteChange){
-        //   var endTime = context.currentTime + 10/1000;
-        //   this.noteChange = false;
-        // } else {
-
-          var endTime = context.currentTime + this.fadeOutTime/1000;
-          this.gain_.gain.cancelAndHoldAtTime(context.currentTime);
-          this.gain_.gain.linearRampToValueAtTime(0, endTime);
-          this.osc_.stop(endTime);
-          this.osc_ = null;
-          // if (this.square) {
-          //   if (this.osc2_) {
-          //     this.gain2_.gain.linearRampToValueAtTime(0, endTime);
-          //     this.osc2_.stop(endTime);
-          //     this.osc2_ = null;
-          //
-          //     this.gain3_.gain.linearRampToValueAtTime(0, endTime);
-          //     this.osc3_.stop(endTime);
-          //     this.osc3_ = null;
-          //
-          //     this.gain4_.gain.linearRampToValueAtTime(0, endTime);
-          //     this.osc4_.stop(endTime);
-          //     this.osc4_ = null;
-          //
-          //     this.gain5_.gain.linearRampToValueAtTime(0, endTime);
-          //     this.osc5_.stop(endTime);
-          //     this.osc5_ = null;
-          //
-          //     this.gain6_.gain.linearRampToValueAtTime(0, endTime);
-          //     this.osc6_.stop(endTime);
-          //     this.osc6_ = null;
-          //
-          //   }
-          // }
-        }
-      },
-
-      /**
-       * Given an index and the total number of entries, return the
-       * log-scaled value.
-       */
-      logScale_: function(index, total, opt_base) {
-        var base = opt_base || 2;
-        var logmax = this.logBase(total + 1, base);
-        var exp = logmax * index / total;
-        return Math.pow(base, exp) - 1;
-      },
-
-      logBase: function(val, base) {
-        return Math.log(val) / Math.log(base);
-      },
-
-      scaleChanged: function(){
-        localStorage.removeItem('scaleChoice');
-        localStorage.removeItem('modeChoice');
-      },
-      soundChanged: function(){
-        try {
-          this.setVolume();
-
-        } catch (e) {
-          // console.log(e);
-        }
-      },
+                return;
+              }
+              this.varChanged = true;
+              this.updatePointer(event);
 
 
 
-    });
+              if(this.multi){
+                for (var i=0; i < this.touches; i++) {
+                  this.lastFreq_.push(this.getLastFrequency(this.lastX_[i],this.lastY_[i]));
+                  this.multiosc.push(this.createOscillator_());
+                  this.multiosc[i].frequency.value = this.lastFreq_[i];
+                  console.log(this.multiosc);
+                  this.setVolume();
+                }
+
+              } else {
+                // Create an oscillator.
+                this.osc_ = this.createOscillator_();
+                var x = this.lastX;
+                var y = event.pageY || event.touches[0].pageY;
+                this.lastFreq = this.getLastFrequency(x,y);
+                this.osc_.frequency.value = this.lastFreq;
+                this.setVolume(this.lastX);
+              }
+
+              //Square wave settings, odd harmonics only
+              // if (this.square) {
+              //   if (this.osc2_) {
+              //     return;
+              //   }
+              //   this.osc2_ = this.createOscillator_("2");
+              //   this.osc2_.frequency.value = this.lastFreq * 3;
+              //
+              //   this.osc3_ = this.createOscillator_("3");
+              //   this.osc3_.frequency.value = this.lastFreq * 5;
+              //
+              //   this.osc4_ = this.createOscillator_("4");
+              //   this.osc4_.frequency.value = this.lastFreq * 7;
+              //
+              //   this.osc5_ = this.createOscillator_("5");
+              //   this.osc5_.frequency.value = this.lastFreq * 9;
+              //
+              //   this.osc6_ = this.createOscillator_("6");
+              //   this.osc6_.frequency.value = this.lastFreq * 11;
+              // }
+
+          },
+            onTouchMove: function(event) {
+                event.preventDefault();
+                // console.log('tm');
+                if (this.osc_) {
+                  this.updatePointer(event);
+                  var x = this.lastX;
+                  var y = event.pageY || event.touches[0].pageY;
+                  this.lastFreq = this.getLastFrequency(x,y);
+
+                  if (this.scale && this.varChanged) {
+                    this.deleteOscillator_();
+                    this.osc_ = this.createOscillator_();
+                    this.osc_.frequency.value = this.lastFreq;
+
+                  } else {
+                    this.osc_.frequency.value = this.lastFreq;
+                  }
+
+
+                  this.setVolume(this.lastX);
+
+                  // if (this.square) {
+                  //   if (this.osc2_) {
+                  //     this.updatePointer(event);
+                  //     this.osc2_.frequency.value = this.lastFreq * 3;
+                  //     this.osc3_.frequency.value = this.lastFreq * 5;
+                  //     this.osc4_.frequency.value = this.lastFreq * 7;
+                  //     this.osc5_.frequency.value = this.lastFreq * 9;
+                  //     this.osc6_.frequency.value = this.lastFreq * 11;
+                  //
+                  //   }
+                  //
+                  // }
+                }
+              },
+
+              onTouchEnd: function(event) {
+                event.preventDefault();
+                // console.log('te');
+                this.updatePointer(null);
+                this.deleteOscillator_();
+                this.lastFreq = null;
+              },
+
+              // Function that listens for changes in xy pointer position and updates
+              // Global variables lastX and lastY
+              updatePointer: function(event) {
+                event = event || {};
+                var type = event.type || '';
+                if (type.indexOf('mouse') == 0) {
+                  this.lastX = event.pageX;
+                  if (this.varChanged) {
+                    this.lastY = event.pageY;
+                  }
+                } else if (type.indexOf('touch') == 0) {
+                  //multitouch
+                  this.touches =event.touches.length;
+                  if(this.touches > 1){
+                    // this.multi = true;
+                      for (var i=0; i < this.touches; i++) {
+                        this.lastX_.push(event.touches[i].pageX);
+                        this.lastY_.push(event.touches[i].pageY);
+                      }
+                  } else {
+                    this.multi = false;
+                  this.lastX = event.touches[0].pageX;
+                  this.lastY = event.touches[0].pageY;
+                  }
+                } else {
+                  this.lastX = null;
+                  this.lastY = null;
+                }
+              },
+
+              addHistory: function(freq) {
+                if (this.history.length > 100) {
+                  this.history.splice(0, 1);
+                }
+                this.history.push(freq);
+              },
+
+              // Use the X and Y values to calculate frequency for the osc
+              getLastFrequency: function(x,y) {
+
+
+                var percent = 1 - (y / this.height);
+                var nyquist = context.sampleRate / 2;
+                if (this.log) {
+                  percent = this.logScale_(percent * 1000, 1000) / 1000;
+                }
+                var freq = Math.floor(percent * (this.resolutionMax - Number(this.resolutionMin)) + Number(this.resolutionMin)) + 1;
+                //If snap to scale is on
+                if (this.scale) {
+
+                  var dist = 20000;
+                  var note = 0;
+
+                  // var scaleChoice = localStorage.getItem('scaleChoice') || 3;
+                  // var modeChoice = localStorage.getItem('modeChoice') || 'major';
+                  var scaleChoice = (this.currentScale + 3) % 12;
+                  var modeChoice = this.currentMode;
+
+                  // var fullScaleChoice = Number(scaleChoice) + Number(modeChoice)*12;
+                  // var scale = this.scales[fullScaleChoice];
+                  var scale = this.generateScale(scaleChoice, modeChoice);
+                  // var scale = this.generateScale(3, 'Major');
+                  var name = this.scaleNames[0];
+                  var harmonic = 0;
+                  //Sweeps through scale object and plays correct frequency
+                  for (var j = 1; j < 1500; j = j * 2) {
+
+                    for (var k = 0; k < scale.length; k++) {
+
+                      var check = j * scale[k];
+                      var checkDist = Math.abs(freq - check);
+                      if (checkDist < dist) {
+                        dist = checkDist;
+                        note = check;
+                        name = this.scaleNames[k];
+                        harmonic = Math.round(Math.log2(j) - 1);
+                      }
+                    }
+                  }
+                  freq = note;
+                  var textLabel = name + '' + harmonic;
+                  if (this.textLabel === textLabel) {
+
+                    this.varChanged = false;
+                  } else {
+                    this.varChanged = true;
+                  }
+                  this.textLabel = textLabel;
+                } else {
+                  localStorage.removeItem('scaleChoice');
+                  localStorage.removeItem('modeChoice');
+                }
+
+                return freq;
+              },
+
+              //Based on x location, sets the volume
+              setVolume: function(x) {
+                var volume = (x / this.width);
+                var logVolume = Math.round(this.logScale_(x, this.width) / 10 * 0.5) / 100 + 0.01;
+                this.volume = volume * this.sound;
+                this.gainAmount = logVolume * this.sound * (this.outputVolume / 100);
+                this.gain_.gain.linearRampToValueAtTime(this.gainAmount,
+                  context.currentTime + this.fadeInTime / 1000);
+                // this.gain_.gain.cancelScheduledValues(startTime);
+
+              },
+
+              createOscillator_: function(i) {
+                // Create a gain node.
+                var gain = context.createGain();
+                // Compressor
+                var compressor = context.createDynamicsCompressor();
+                // compressor.ratio.value = 20;
+                this.compressor = compressor;
+
+                // Create delay offset
+                var delay = context.createDelay(1);
+                delay.delayTime.value = 0.08;
+                // console.log(delay.delayTime.value);
+
+
+                var harmonicMultiplier = 1;
+                gain.gain.value = 0;
+                gain.connect(compressor);
+                compressor.connect(context.destination);
+
+                if (this.headphoneMode) {
+                  compressor.connect(this.analyser);
+                }
+                // delay.connect(this.analyser);
+
+                // gain.connect(context.destination);
+                if(this.multi){
+                  this.multigain[i] = gain;
+                } else {
+                  this.gain_ = gain;
+
+                }
+                // TODO(smus): Clean this up!
+                // switch (num) {
+                //   case "1":
+                //     this.gain1_ = gain;
+                //     harmonicMultiplier = 1;
+                //   case "2":
+                //     this.gain2_ = gain;
+                //     harmonicMultiplier = 0.333;
+                //   case "3":
+                //     this.gain3_ = gain;
+                //     harmonicMultiplier = 0.2;
+                //   case "4":
+                //     this.gain4_ = gain;
+                //     harmonicMultiplier = 0.143;
+                //   case "5":
+                //     this.gain5_ = gain;
+                //     harmonicMultiplier = 0.111;
+                //   case "6":
+                //     this.gain6_ = gain;
+                //     harmonicMultiplier = 0.09;
+                //
+                //     break;
+                //   default:
+                //
+                // }
+
+                // Create an oscillator and connect it through the gain.
+                var osc = context.createOscillator();
+                switch (this.timbre) {
+                  case 0:
+                    osc.type = "sine";
+                    break;
+                  case 1:
+                    osc.type = "sawtooth";
+                    break;
+                  case 2:
+                    osc.type = "square";
+                    break;
+                  case 3:
+                    osc.type = "triangle";
+                    break;
+                  default:
+                    osc.type = "sine";
+                }
+                // if(this.square){
+                //   osc.type = 'square';
+                // }
+
+                osc.connect(gain);
+
+                // Start it with a fade-in.
+                // gain.gain.linearRampToValueAtTime(this.gainAmount * harmonicMultiplier,
+                //   context.currentTime + this.fadeInTime/1000);
+                osc.start(0);
+                return osc;
+              },
+
+              deleteOscillator_: function() {
+                if (this.osc_) {
+
+                  //   if(this.noteChange){
+                  //   var endTime = context.currentTime + 10/1000;
+                  //   this.noteChange = false;
+                  // } else {
+
+                  var endTime = context.currentTime + this.fadeOutTime / 1000;
+                  this.gain_.gain.cancelAndHoldAtTime(context.currentTime);
+                  this.gain_.gain.linearRampToValueAtTime(0, endTime);
+                  this.osc_.stop(endTime);
+                  this.osc_ = null;
+                  // if (this.square) {
+                  //   if (this.osc2_) {
+                  //     this.gain2_.gain.linearRampToValueAtTime(0, endTime);
+                  //     this.osc2_.stop(endTime);
+                  //     this.osc2_ = null;
+                  //
+                  //     this.gain3_.gain.linearRampToValueAtTime(0, endTime);
+                  //     this.osc3_.stop(endTime);
+                  //     this.osc3_ = null;
+                  //
+                  //     this.gain4_.gain.linearRampToValueAtTime(0, endTime);
+                  //     this.osc4_.stop(endTime);
+                  //     this.osc4_ = null;
+                  //
+                  //     this.gain5_.gain.linearRampToValueAtTime(0, endTime);
+                  //     this.osc5_.stop(endTime);
+                  //     this.osc5_ = null;
+                  //
+                  //     this.gain6_.gain.linearRampToValueAtTime(0, endTime);
+                  //     this.osc6_.stop(endTime);
+                  //     this.osc6_ = null;
+                  //
+                  //   }
+                  // }
+                }
+              },
+
+              /**
+               * Given an index and the total number of entries, return the
+               * log-scaled value.
+               */
+              logScale_: function(index, total, opt_base) {
+                var base = opt_base || 2;
+                var logmax = this.logBase(total + 1, base);
+                var exp = logmax * index / total;
+                return Math.pow(base, exp) - 1;
+              },
+
+              logBase: function(val, base) {
+                return Math.log(val) / Math.log(base);
+              },
+
+              scaleChanged: function() {
+                localStorage.removeItem('scaleChoice');
+                localStorage.removeItem('modeChoice');
+              },
+              soundChanged: function() {
+                try {
+                  this.setVolume(this.lastX);
+
+                } catch (e) {
+                  // console.log(e);
+                }
+              },
+
+
+
+          });
   </script>
 </polymer-element>

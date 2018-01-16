@@ -66,8 +66,9 @@ Polymer('g-spectrogram', {
     }
     this.lastRenderTime_ = now;
 
+    this.gainNode.gain.setTargetAtTime(this.setGain(this.gain), context.currentTime, 0.01);
 
-    this.gainNode.gain.value = this.setGain(this.gain);
+    // this.gainNode.gain.value =
 
   },
 
@@ -298,7 +299,8 @@ Polymer('g-spectrogram', {
     this.gainNode = gainNode;
     this.analyser = analyser;
 
-    gainNode.gain.value = 1;
+    // gainNode.gain.value = 1;
+    gainNode.gain.setTargetAtTime(1, context.currentTime, 0.01);
 
     // Setup a timer to visualize some stuff.
     this.render();
