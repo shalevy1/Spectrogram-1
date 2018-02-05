@@ -36,11 +36,12 @@
           outputVolume="{{outputVolume}}"
           currentScale="{{currentScale}}"
           currentMode="{{currentMode}}"
-          headphoneMode="{{headphoneMode}}">
+          headphoneMode="{{headphoneMode}}"
+          softSnap="{{softSnap}}">
       </g-spectrogram-controls>
     </template>
     <template if="{{oscillator}}">
-      <g-oscillator log={{log}} speed={{speed}} resolutionMax={{resolutionMax}} resolutionMin={{resolutionMin}} square={{square}} scale={{scale}} fadeInTime={{fadeInTime}} fadeOutTime={{fadeOutTime}} sound={{sound}} timbre={{timbre}} outputVolume={{outputVolume}} analyser={{analyser}} currentScale={{currentScale}} currentMode={{currentMode}} headphoneMode={{headphoneMode}}></g-oscillator>
+      <g-oscillator log={{log}} speed={{speed}} resolutionMax={{resolutionMax}} resolutionMin={{resolutionMin}} square={{square}} scale={{scale}} fadeInTime={{fadeInTime}} fadeOutTime={{fadeOutTime}} sound={{sound}} timbre={{timbre}} outputVolume={{outputVolume}} analyser={{analyser}} currentScale={{currentScale}} currentMode={{currentMode}} headphoneMode={{headphoneMode}} softSnap={{softSnap}}></g-oscillator>
     </template>
   </template>
   <script src="g-spectrogram.js"></script>

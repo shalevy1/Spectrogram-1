@@ -111,8 +111,9 @@ Polymer('g-spectrogram', {
       // Gets the height and creates a log scale of the index
       if (this.log) {
         var myPercent = (i / this.height);
-        myPercent = this.logScale_(myPercent * 1000, 1000) / 1000;
-        var x= Math.floor(myPercent * (this.resolutionMax - Number(this.resolutionMin)) + Number(this.resolutionMin))+1;
+        // myPercent = this.logScale_(myPercent * 1000, 1000) / 1000;
+        var x = this.newFreqAlgorithm(myPercent);
+        // var x= Math.floor(myPercent * (this.resolutionMax - Number(this.resolutionMin)) + Number(this.resolutionMin))+1;
         logIndex = Math.round(x*freq.length/(context.sampleRate/2));
 
 
@@ -237,8 +238,9 @@ Polymer('g-spectrogram', {
     var percent = ((index/this.ticks));
     var freq = 0;
     if(this.log){
-        percent = this.logScale_(percent * 1000, 1000) / 1000;
-        freq = Math.round(percent * (this.resolutionMax - Number(this.resolutionMin)) + Number(this.resolutionMin));
+        // percent = this.logScale_(percent * 1000, 1000) / 1000;
+        // freq = Math.round(percent * (this.resolutionMax - Number(this.resolutionMin)) + Number(this.resolutionMin));
+        freq = this.newFreqAlgorithm(percent);
     } else {
       freq =  Math.round(percent * (this.resolutionMax - Number(this.resolutionMin)) + Number(this.resolutionMin));
 
@@ -246,6 +248,16 @@ Polymer('g-spectrogram', {
 
 
     return freq;
+
+  },
+
+  newFreqAlgorithm(index){
+    // console.log(index);
+    var l = Math.log(this.resolutionMax/this.resolutionMin);
+    // console.log(l);
+    var freq = this.resolutionMin * Math.pow(Math.E, index*l);
+    // console.log(freq);
+    return Math.round(freq);
 
   },
 
@@ -356,6 +368,7 @@ Polymer('g-spectrogram', {
 
   logScale_: function(index, total, opt_base) {
     var base = opt_base || 2;
+    //Math.log(total + 1) / Math.log(base);
     var logmax = this.logBase(total + 1, base);
     var exp = logmax * index / total;
     return Math.pow(base, exp) - 1;

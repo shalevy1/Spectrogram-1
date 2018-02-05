@@ -19,6 +19,7 @@ Polymer('g-spectrogram-controls', {
   currentScale: 0,
   currentMode: 0,
   headphoneMode: false,
+  softSnap: false,
 
   created: function() {
     console.log('Created spectrogram controls');
@@ -119,6 +120,7 @@ Polymer('g-spectrogram-controls', {
     this.outputVolume= 50;
     this.currentScale= 0;
     this.currentMode= 0;
+    this.softSnap = false;
   }
 
 });

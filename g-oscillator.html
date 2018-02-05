@@ -1,7 +1,7 @@
 <link rel="import" href="./bower_components/polymer/polymer.html">
 <link href='https://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
 
-<polymer-element name="g-oscillator" attributes="log speed resolutionMax resolutionMin square scale fadeInTime fadeOutTime sound timbre outputVolume analyser currentScale currentMode headphoneMode">
+<polymer-element name="g-oscillator" attributes="log speed resolutionMax resolutionMin square scale fadeInTime fadeOutTime sound timbre outputVolume analyser currentScale currentMode headphoneMode softSnap">
   <template>
   <style>
     canvas {
@@ -53,6 +53,7 @@
           multiosc: new Array(),
           multi: false,
           touches: 0,
+          softSnap: false,
 
           attachedCallback: function() {
             this.loop();
@@ -273,7 +274,12 @@
             if (this.osc_) {
               this.updatePointer(event);
               var x = this.lastX;
-              var y = event.pageY || event.touches[0].pageY;
+              try {
+                var y = event.pageY || event.touches[0].pageY;
+
+              } catch(e){
+                console.log(e);
+              }
               this.lastFreq = this.getLastFrequency(x,y);
 
               if (this.scale && this.varChanged) {
@@ -455,13 +461,19 @@
 
 
                 var percent = 1 - (y / this.height);
+                var freq;
                 var nyquist = context.sampleRate / 2;
                 if (this.log) {
-                  percent = this.logScale_(percent * 1000, 1000) / 1000;
+                  // percent = this.logScale_(percent * 1000, 1000) / 1000;
+
+                  freq = this.newFreqAlgorithm(percent);
+                } else{
+
+                  freq = Math.floor(percent * (this.resolutionMax - Number(this.resolutionMin)) + Number(this.resolutionMin)) + 1;
                 }
-                var freq = Math.floor(percent * (this.resolutionMax - Number(this.resolutionMin)) + Number(this.resolutionMin)) + 1;
                 //If snap to scale is on
                 if (this.scale) {
+
 
                   var dist = 20000;
                   var note = 0;
@@ -489,10 +501,21 @@
                         note = check;
                         name = this.scaleNames[k];
                         harmonic = Math.round(Math.log2(j) - 1);
+                      } else {
+                        break;
                       }
                     }
                   }
-                  freq = note;
+                  // if(!this.softSnap && Math.abs(freq - note) > 0.05*note){
+                    // console.log(this.softSnap);
+                    if(this.softSnap && Math.abs(freq - note) < 0.05*note){
+
+                    } else{
+
+                      freq = note;
+                    }
+
+                  // }
                   var textLabel = name + '' + harmonic;
                   if (this.textLabel === textLabel) {
 
@@ -505,7 +528,9 @@
                   localStorage.removeItem('scaleChoice');
                   localStorage.removeItem('modeChoice');
                 }
-
+                // if(){
+                //   return freq;
+                // }
                 return freq;
               },
 
@@ -647,6 +672,16 @@
                   //   }
                   // }
                 }
+              },
+
+              newFreqAlgorithm(index){
+                // console.log(index);
+                var l = Math.log(this.resolutionMax/this.resolutionMin);
+                // console.log(l);
+                var freq = this.resolutionMin * Math.pow(Math.E, index*l);
+                // console.log(freq);
+                return Math.round(freq);
+
               },
 
               /**

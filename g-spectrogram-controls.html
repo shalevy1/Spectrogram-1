@@ -1,6 +1,6 @@
 <link rel="import" href="./bower_components/polymer/polymer.html">
 
-<polymer-element name="g-spectrogram-controls" attributes="log labels ticks speed color resolutionMax resolutionMin pause gain square scale fadeInTime fadeOutTime sound timbre outputVolume currentScale currentMode headphoneMode">
+<polymer-element name="g-spectrogram-controls" attributes="log labels ticks speed color resolutionMax resolutionMin pause gain square scale fadeInTime fadeOutTime sound timbre outputVolume currentScale currentMode headphoneMode softSnap">
   <template>
     <link rel="stylesheet" href="./bower_components/css-toggle-switch/dist/toggle-switch.css">
     <style>
@@ -214,7 +214,7 @@
     </div> -->
     <div class="config">
     <label class="switch-light switch-candy contain" onclick="">
-  <input type="checkbox" checked="!{{log}}">
+  <input type="checkbox" checked="{{log}}">
 
   <strong>
     Vertical Scale&nbsp;
@@ -367,6 +367,10 @@
             </select>
           </span>
 
+</div>
+<div class="config contain">
+  <label for="speed">Soft Snap&nbsp;</label>
+  <input type="checkbox" id="labels" checked="{{softSnap}}">
 </div>
     </template>
 
