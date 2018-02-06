@@ -391,7 +391,7 @@
           if (this.osc_ ) {
             // document.getElementById('softSnap').style.display = 'block';
           this.vibrato = event.touches[1].pageY;
-          this.vibrato = (1 - (this.vibrato / this.height)) * 8 - 4;
+          this.vibrato = (1 - (this.vibrato / (this.height/2))) * 8 - 4;
           this.vibrato = Math.round(this.vibrato*100)/100;
           // console.log(this.vibrato);
 
