@@ -2,9 +2,33 @@
 <link rel="import" href="./g-spectrogram-controls.html">
 <link rel="import" href="./g-oscillator.html">
 
-<polymer-element name="g-spectrogram" attributes="controls log fftsize labels ticks oscillator speed color resolutionMax resolutionMin gain scale fadeInTime fadeOutTime sound timbre outputVolume analyser currentScale currentMode headphoneMode">
+<polymer-element name="g-spectrogram" attributes="controls log fftsize labels ticks oscillator speed color resolutionMax resolutionMin gain scale fadeInTime fadeOutTime sound timbre outputVolume analyser currentScale currentMode headphoneMode softSnap vibrato">
   <template>
   <style>
+  .vibrato{
+    position: absolute;
+    right: 30%;
+    top: 50%;
+    z-index: 2;
+
+  }
+  .vibrato-title{
+    position: absolute;
+    right: 30%;
+    top: 35%;
+    z-index: 2;
+
+    color: white;
+  margin-left: 10px;
+
+  }
+  #softSnap {
+
+    -webkit-transform:rotate(-90deg);
+       -moz-transform:rotate(-90deg);
+         -o-transform:rotate(-90deg);
+            transform:rotate(-90deg);
+  }
     canvas {
       position: absolute;
       width: 100%;
@@ -16,6 +40,18 @@
   </style>
     <canvas id="canvas"></canvas>
     <canvas id="labels"></canvas>
+    <template if="{{vibrato != 0}}">
+    <div class="vibrato-title">
+    <label for="ticks">Vibrato&nbsp;</label>
+        {{vibrato}}
+    </div>
+    <div class="config contain vibrato">
+
+      <input type="range" id="softSnap" value="{{vibrato}}" min="-4" max="4" disabled  />
+
+
+    </div>
+  </template>
     <template if="{{controls}}">
       <g-spectrogram-controls
           log="{{log}}"
@@ -41,7 +77,8 @@
       </g-spectrogram-controls>
     </template>
     <template if="{{oscillator}}">
-      <g-oscillator log={{log}} speed={{speed}} resolutionMax={{resolutionMax}} resolutionMin={{resolutionMin}} square={{square}} scale={{scale}} fadeInTime={{fadeInTime}} fadeOutTime={{fadeOutTime}} sound={{sound}} timbre={{timbre}} outputVolume={{outputVolume}} analyser={{analyser}} currentScale={{currentScale}} currentMode={{currentMode}} headphoneMode={{headphoneMode}} softSnap={{softSnap}}></g-oscillator>
+      <g-oscillator log={{log}} speed={{speed}} resolutionMax={{resolutionMax}} resolutionMin={{resolutionMin}} square={{square}} scale={{scale}} fadeInTime={{fadeInTime}} fadeOutTime={{fadeOutTime}} sound={{sound}} timbre={{timbre}} outputVolume={{outputVolume}} analyser={{analyser}} currentScale={{currentScale}} currentMode={{currentMode}} headphoneMode={{headphoneMode}} softSnap={{softSnap}} vibrato={{vibrato}}></g-oscillator>
+
     </template>
   </template>
   <script src="g-spectrogram.js"></script>

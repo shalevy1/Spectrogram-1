@@ -17,6 +17,7 @@ Polymer('g-spectrogram', {
   resolutionMax: 20000,
   resolutionMin: 20,
   gain: 6,
+  vibrato: 0,
 
   attachedCallback: function() {
     this.tempCanvas = document.createElement('canvas'),
@@ -427,4 +428,5 @@ Polymer('g-spectrogram', {
     }
 
   },
+
 });

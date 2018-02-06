@@ -162,6 +162,13 @@
         justify-content: space-between;
         align-items: flex-start;
       }
+      #softSnap {
+
+        -webkit-transform:rotate(-90deg);
+           -moz-transform:rotate(-90deg);
+             -o-transform:rotate(-90deg);
+                transform:rotate(-90deg);
+      }
 
 
     </style>
@@ -368,10 +375,11 @@
           </span>
 
 </div>
-<div class="config contain">
-  <label for="speed">Soft Snap&nbsp;</label>
-  <input type="checkbox" id="labels" checked="{{softSnap}}">
-</div>
+<!-- <div class="config contain">
+  <label for="ticks">Vibrato&nbsp;</label>
+  <input type="range" id="softSnap" value="{{softSnap}}" min="-10" max="10" />
+{{softSnap}}
+</div> -->
     </template>
 
     </select>
