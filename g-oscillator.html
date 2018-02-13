@@ -4,12 +4,53 @@
 <polymer-element name="g-oscillator" attributes="log speed resolutionMax resolutionMin square scale fadeInTime fadeOutTime sound timbre outputVolume analyser currentScale currentMode headphoneMode softSnap vibrato">
   <template>
   <style>
+  :host {
+     --vibrato-top: 50%;
+     --vibrato-right: 30%;
+  }
+  .vibrato{
+    position: absolute;
+    top: var(--vibrato-top);
+    right: var(--vibrato-right);
+    z-index: 2;
+
+  }
+  .vibrato-title{
+    position: absolute;
+    right: 30%;
+    top: 35%;
+    z-index: 2;
+
+    color: white;
+  margin-left: 10px;
+
+  }
+
+  #softSnap {
+
+    -webkit-transform:rotate(-90deg);
+       -moz-transform:rotate(-90deg);
+         -o-transform:rotate(-90deg);
+            transform:rotate(-90deg);
+  }
     canvas {
       position: absolute;
       width: 100%;
       height: 100%;
     }
   </style>
+  <template if="{{multi}}">
+  <div class="vibrato-title">
+  <label for="ticks">Vibrato&nbsp;</label>
+      {{vibrato}}
+  </div>
+  <div class="config contain vibrato">
+
+    <input type="range" id="softSnap" value="{{vibrato}}" min="-4" max="4" disabled  />
+
+
+  </div>
+</template>
   <canvas id="freq"
       on-mousedown={{onMouseDown}}
       on-mouseup={{onMouseUp}}
@@ -390,10 +431,21 @@
           // console.log("2-tap");
           if (this.osc_ ) {
             // document.getElementById('softSnap').style.display = 'block';
-          this.vibrato = event.touches[1].pageY;
-          this.vibrato = (1 - (this.vibrato / (this.height/2))) * 8 - 4;
-          this.vibrato = Math.round(this.vibrato*100)/100;
-          // console.log(this.vibrato);
+          var currentPos = event.touches[0].pageY;
+          var vibrato = event.touches[1].pageY;
+          var vibratoSliderYPos = (vibrato/this.height)*100;
+          var vibratoSliderXPos = (event.touches[1].pageX/this.width)*100;
+          vibratoSliderXPos = (vibratoSliderXPos > 5) ? vibratoSliderXPos-5 : vibratoSliderXPos+5;
+          // console.log(document.getElementById('softSnap'));
+
+          // console.log(this.customStyle);
+          // this.customStyle['--vibrato-top'] = `${vibratoSliderYPos}%`;
+          // this.customStyle['--vibrato-left'] = `${vibratoSliderXPos}%`;
+          // this.updateStyles();
+
+          // vibrato = (1 - (vibrato / (this.height/2))) * 8 - 4;
+          vibrato = (currentPos - vibrato)/20;
+          this.vibrato = Math.round(vibrato*100)/100;
 
 
             var newFreq = Math.round(this.lastFreq + (this.lastFreq * 1.0595 - this.lastFreq) * this.vibrato);
@@ -409,8 +461,10 @@
             if (this.scale && this.varChanged) {
               // this.deleteOscillator_();
               // this.osc_ = this.createOscillator_();
-              this.osc_.frequency.setTargetAtTime(newFreq, context.currentTime + 0.01, 0.5);
+              if(vibrato != 0){
+                this.osc_.frequency.setTargetAtTime(newFreq, context.currentTime + 0.01, 0.5);
 
+              }
             } else {
               this.osc_.frequency.setTargetAtTime(newFreq, context.currentTime + 0.01, 0.5);
 
@@ -439,7 +493,8 @@
               this.osc_.frequency.value = this.lastFreq;
 
             } else {
-              this.osc_.frequency.value = this.lastFreq;
+              this.osc_.frequency.setTargetAtTime(this.lastFreq, context.currentTime + 0.01, 0.5);
+
             }
 
 
