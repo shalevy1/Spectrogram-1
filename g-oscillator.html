@@ -115,25 +115,25 @@
         var size = 6;
         var nyquist = context.sampleRate / 2;
 
-        for (var i = 0; i < this.history.length; i++) {
-
-
-          var y = this.history[i];
-
-          if (y === null) {
-            continue;
-          }
-          var x = this.width - (this.history.length - i - 1) * this.speed;
-          // TODO(smus): Elimiate fudge factor.
-
-
-          if (this.scale) {
-            var color = this.volume * 245;
-            var colorVal = 'hsl(H, 100%, 70%)'.replace(/H/g, 255 - color);
-            ctx.fillStyle = colorVal;
-            ctx.fillRect(x - size / 2, y - size / 2+1, size, size/2);
-          }
-        }
+        // for (var i = 0; i < this.history.length; i++) {
+        //
+        //
+        //   var y = this.history[i];
+        //
+        //   if (y === null) {
+        //     continue;
+        //   }
+        //   var x = this.width - (this.history.length - i - 1) * this.speed;
+        //   // TODO(smus): Elimiate fudge factor.
+        //
+        //
+        //   if (this.scale) {
+        //     var color = this.volume * 245;
+        //     var colorVal = 'hsl(H, 100%, 70%)'.replace(/H/g, 255 - color);
+        //     ctx.fillStyle = colorVal;
+        // ctx.fillRect(x - size / 2, y - size / 2+1, size, size/2);
+        //   }
+        // }
 
         if (this.osc_) {
           // Label the point.
@@ -242,6 +242,10 @@
           case 21:
             // Pentatonic 3
             scalePattern = [0, 1, 5, 7, 10];
+            break;
+            case 22:
+            //mondongo
+            scalePattern = [0, 4, 5, 6, 8, 10];
             break;
           default:
             scalePattern = [0, 2, 4, 5, 7, 9, 11];
@@ -780,7 +784,8 @@
 
           var endTime = context.currentTime + this.fadeOutTime / 1000;
           this.gain_.gain.cancelAndHoldAtTime(context.currentTime);
-          this.gain_.gain.linearRampToValueAtTime(0, endTime);
+          // this.gain_.gain.linearRampToValueAtTime(0, endTime);
+          this.gain_.gain.exponentialRampToValueAtTime(0.0001, endTime);
           this.osc_.stop(endTime);
           this.osc_ = null;
           // if (this.square) {
