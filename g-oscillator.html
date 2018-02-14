@@ -131,7 +131,7 @@
             var color = this.volume * 245;
             var colorVal = 'hsl(H, 100%, 70%)'.replace(/H/g, 255 - color);
             ctx.fillStyle = colorVal;
-            // ctx.fillRect(x - size / 2, y - size / 2+1, size, size/2);
+            ctx.fillRect(x - size / 2, y - size / 2+1, size, size/2);
           }
         }
 
@@ -431,11 +431,11 @@
           // console.log("2-tap");
           if (this.osc_ ) {
             // document.getElementById('softSnap').style.display = 'block';
-          var currentPos = event.touches[0].pageY;
-          var vibrato = event.touches[1].pageY;
-          var vibratoSliderYPos = (vibrato/this.height)*100;
-          var vibratoSliderXPos = (event.touches[1].pageX/this.width)*100;
-          vibratoSliderXPos = (vibratoSliderXPos > 5) ? vibratoSliderXPos-5 : vibratoSliderXPos+5;
+          var currentPos = this.lastY;
+          var vibrato = event.touches[0].pageY;
+          // var vibratoSliderYPos = (vibrato/this.height)*100;
+          // var vibratoSliderXPos = (event.touches[1].pageX/this.width)*100;
+        //vibratoSliderXPos = (vibratoSliderXPos > 5) ? vibratoSliderXPos-5 : vibratoSliderXPos+5;
           // console.log(document.getElementById('softSnap'));
 
           // console.log(this.customStyle);
@@ -444,11 +444,14 @@
           // this.updateStyles();
 
           // vibrato = (1 - (vibrato / (this.height/2))) * 8 - 4;
-          vibrato = (currentPos - vibrato)/20;
+          vibrato = (currentPos - vibrato)/2;
           this.vibrato = Math.round(vibrato*100)/100;
 
+//Eliminate Snap
+//Fix first frequency
+// Change the vibrato to first touch only happens with second finger, change distance
 
-            var newFreq = Math.round(this.lastFreq + (this.lastFreq * 1.0595 - this.lastFreq) * this.vibrato);
+
             // console.log(this.softSnap);
             // console.log(newFreq);
             // console.log(newFreq);
@@ -456,17 +459,23 @@
             // this.setVolume(this.lastX);
             var x = this.lastX;
             var y = event.pageY || event.touches[0].pageY;
-            this.lastFreq = this.getLastFrequency(x, y);
+
+
+            var newFreq = this.getLastFrequency(x,this.lastY-this.vibrato);
+            console.log(newFreq);
+            // var newFreq = Math.round(this.lastFreq + this.vibrato);
+
+            //this.lastFreq = this.getLastFrequency(x, y);
 
             if (this.scale && this.varChanged) {
               // this.deleteOscillator_();
               // this.osc_ = this.createOscillator_();
               if(vibrato != 0){
-                this.osc_.frequency.setTargetAtTime(newFreq, context.currentTime + 0.01, 0.5);
+                this.osc_.frequency.value = newFreq;//, context.currentTime + 0.01, 0.5);
 
               }
             } else {
-              this.osc_.frequency.setTargetAtTime(newFreq, context.currentTime + 0.01, 0.5);
+              this.osc_.frequency.value = newFreq;//, context.currentTime + 0.01, 0.5);
 
             }
 
@@ -493,7 +502,7 @@
               this.osc_.frequency.value = this.lastFreq;
 
             } else {
-              this.osc_.frequency.setTargetAtTime(this.lastFreq, context.currentTime + 0.01, 0.5);
+              this.osc_.frequency.value = this.lastFreq;//, context.currentTime + 0.01, 0.5);
 
             }
 
@@ -530,7 +539,7 @@
           if (this.touches == 1) {
 
             this.vibrato = 0;
-            this.osc_.frequency.setTargetAtTime(this.lastFreq, context.currentTime + 0.01, 0.5);
+            this.osc_.frequency.value = this.lastFreq;//, context.currentTime + 0.01, 0.5);
             return;
           } else {
 
@@ -593,8 +602,8 @@
 
           freq = Math.floor(percent * (this.resolutionMax - Number(this.resolutionMin)) + Number(this.resolutionMin)) + 1;
         }
-        //If snap to scale is on
-        if (this.scale) {
+        //If snap to scale is on && not multitouch
+        if (this.scale && !this.multi) {
 
 
           var dist = 20000;
