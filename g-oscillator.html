@@ -466,7 +466,7 @@
 
 
             var newFreq = this.getLastFrequency(x,this.lastY-this.vibrato);
-            console.log(newFreq);
+            // console.log(newFreq);
             // var newFreq = Math.round(this.lastFreq + this.vibrato);
 
             //this.lastFreq = this.getLastFrequency(x, y);
@@ -607,7 +607,7 @@
           freq = Math.floor(percent * (this.resolutionMax - Number(this.resolutionMin)) + Number(this.resolutionMin)) + 1;
         }
         //If snap to scale is on && not multitouch
-        if (this.scale && !this.multi) {
+        if (this.scale && !this.vibrato) {
 
 
           var dist = 20000;
