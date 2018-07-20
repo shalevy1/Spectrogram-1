@@ -1,0 +1,32 @@
+.scale-container {
+  border: 1px dashed gold;
+  position: absolute;
+  width: 10%;
+  height: 90%;
+  top: 10%;
+  left: 90%;
+  z-index: 21;
+  /* background-color: white; */
+  border-radius: 1.5rem;
+}
+
+.scale-canvas {
+  height: 100%;
+  top: 0%;
+}
+
+.zoom-text {
+  color: white;
+  user-select: none;
+}
+.scales-bottom {
+  width: 100%;
+  display: flex;
+  padding: 0 0 0 1.14285714em;
+}
+.note-lines {
+  margin-right: 34%;
+}
+.no-bot-padding {
+  padding-bottom: 0!important;
+}

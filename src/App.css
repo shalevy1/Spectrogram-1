@@ -1,0 +1,88 @@
+@import url('https://fonts.googleapis.com/css?family=Inconsolata');
+
+body, html {
+  margin: 0;
+  padding: 0;
+  /* user-select: none; */
+  margin: 0;
+  height: 100%;
+}
+
+.App {
+  text-align: center;
+  display: flex;
+  justify-content: center;
+}
+
+.App-logo {
+  animation: App-logo-spin infinite 20s linear;
+  height: 80px;
+}
+
+.App-header {
+  background-color: #222;
+  height: 150px;
+  padding: 20px;
+  color: white;
+}
+
+.App-title {
+  font-size: 1.5em;
+}
+
+.App-intro {
+  font-size: large;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+a:visited {
+  text-decoration: none;
+  color: black;
+}
+
+#about {
+  position: absolute;
+  left: 1%;
+  bottom: 0.5%;
+  font-family: 'Inconsolata';
+  z-index: 23;
+  user-select: none;
+
+
+}
+#about-text {
+  margin: 0;
+  padding: 0;
+}
+
+.fullscreenbutton {
+  position: absolute;
+  bottom: 1%;
+  right: 1%;
+  z-index: 51;
+  opacity: 0.5;
+}
+
+canvas {
+  position: absolute;
+  width: 100%;
+  height: 90%;
+  top: 10%;
+  z-index: 9;
+  flex: 1;
+  left: 0%;
+  touch-action: none;
+  overflow: hidden;
+}
+html {
+  touch-action: none;
+
+}
