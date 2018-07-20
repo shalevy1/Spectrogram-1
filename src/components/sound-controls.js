@@ -28,8 +28,8 @@ class SoundControls extends Component {
   }
 
   componentDidMount() {
-    this.ctx = this.canvas.getContext('2d');
-    // this.drawADSR();
+    // this.ctx = this.canvas.getContext('2d');
+    // this.drawADSR(0, 0, 0, 0);
   }
 
 onPointerDown(e){
@@ -53,11 +53,11 @@ onPointerOut(e){
 
 }
 
-  drawADSR(){
-    const attackShift = 0;
-    const decayShift = 0;
-    const sustainShift = 0;
-    const releaseShift = 0;
+  drawADSR(attackShift, decayShift, sustainShift, releaseShift){
+    // const attackShift = 0;
+    // const decayShift = 0;
+    // const sustainShift = 0;
+    // const releaseShift = 0;
 
     this.ctx.lineCap = 'butt';
     this.ctx.lineWidth=10;
