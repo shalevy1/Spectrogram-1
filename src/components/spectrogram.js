@@ -201,7 +201,7 @@ handleHeadphoneModeToggle=()=>{
       release={this.props.release}
       ref={this.updateNoteLines}
       handleResize={this.props.handleResize}/>
-      <Message className="scales-snackbar" > Scale: {this.props.musicKey.name}{this.props.accidental.name}{this.props.scale.name} </Message>
+      {/* <Message className="scales-snackbar" > Scale: {this.props.musicKey.name}{this.props.accidental.name}{this.props.scale.name} </Message> */}
       </React.Fragment>
     ): (
       <Oscillator
@@ -228,20 +228,21 @@ handleHeadphoneModeToggle=()=>{
     if(this.props.headphoneMode){
       style = {'backgroundColor': '#2769d8'}
     }
-    let borderStyle={'border': '' }
+    // let borderStyle={'border': '' }
     // let snackbarStyle={'opacity': 0}
-  if(this.props.tuningMode){
-    borderStyle = {'border': '2px solid #ff8177'}
+  // if(this.props.tuningMode){
+    // borderStyle = {'border': '2px solid #ff8177'}
     // snackbarStyle={'opacity': 1}
-  }
+  // }
     return (
       <div onClick={this.startSpectrogram} >
 
-        <canvas width={this.props.width} height={this.props.height} style={borderStyle} ref={(c) => {
+        <canvas width={this.props.width} height={this.props.height} ref={(c) => {
           this.canvas = c;
         }}/>
         {this.props.isStarted &&
           <React.Fragment>
+          {this.props.freqControls &&
           <ScaleControls
           resolutionMax={this.props.resolutionMax}
           resolutionMin={this.props.resolutionMin}
@@ -249,7 +250,7 @@ handleHeadphoneModeToggle=()=>{
           height={this.props.height}
           handleZoom={this.props.handleZoom}
           handleResize={this.props.handleResize}/>
-
+          }
           <Button icon onClick={this.props.handlePause} className="pause-button">
           {!this.props.speed  ?  <Icon fitted name="play" color="orange"/> :
             <Icon fitted name="pause" color="orange"/>}

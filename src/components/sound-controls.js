@@ -171,7 +171,7 @@ onPointerOut(e){
                     fluid
                     options={timbreOptions}
                     onChange={context.handleTimbreChange}
-                    disabled={!context.state.isStarted || context.state.tuningMode}
+                    disabled={!context.state.isStarted}
                     className="timbre-dropdown"/>
                     {/*<div className="timbre-text">
                       {context.state.timbre}
@@ -275,7 +275,7 @@ onPointerOut(e){
                     className="scales-checkbox"
                     checked={context.state.noteLinesOn}
                     onChange={context.handleNoteLinesToggle}
-                    disabled={!context.state.isStarted || context.state.tuningMode || !context.state.scaleOn}/>
+                    disabled={!context.state.isStarted || !context.state.scaleOn}/>
                   </div>
                   <div>
                   {context.state.musicKey.name}{context.state.accidental.name}{context.state.scale.name}
@@ -288,9 +288,11 @@ onPointerOut(e){
                 </Menu.Item>*/}
 
               </Menu>
-              <Button icon onClick={this.props.closeMenu} className="close-menu">
-              <Icon fitted name="angle double up" size="large"/>
-              </Button>
+              <div className="sound-close-menu">
+                <Button icon onClick={this.props.closeMenu} className="close-menu">
+                <Icon fitted name="angle double up" size="large"/>
+                </Button>
+              </div>
 
             </Segment>
           </React.Fragment>

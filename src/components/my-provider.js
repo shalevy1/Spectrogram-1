@@ -31,6 +31,7 @@ class MyProvider extends Component {
     min: 20, // Temp Min for Input
     max: 20000, // Temp Max for Input
     tuningMode: false,// Mode Switcher
+    freqControls: false,
     graphPreset: 'default',
     headphoneMode: false,
     //hidePanes: false,
@@ -90,21 +91,10 @@ class MyProvider extends Component {
           let newScaleValue = data.value;
           this.setState({scale: {name: newScaleName, value: newScaleValue}});
         },
-        handleTuningModeToggle: () => {
-          if(this.state.tuningMode){
-            this.setState({
-              tuningMode: false,
-              noteLinesOn: false
-
-            });
-          } else {
-            this.setState({
-              tuningMode: true,
-              noteLinesOn: true
-            });
-          };
-
-        },
+        handleTuningModeOn: () => this.setState({tuningMode: true, noteLinesOn: true}),
+        handleTuningModeOff: () => this.setState({tuningMode: false, noteLinesOn: false}),
+        handleFreqControlsOn: () => this.setState({freqControls: true}),
+        handleFreqControlsOff: () => this.setState({freqControls: false}),
         handleRangeChange: value => {
           if(value.length){
             let newMin = Math.round(convertToLog(value[0], 1,100, 1, 20000));
@@ -211,7 +201,16 @@ class MyProvider extends Component {
           this.setState({headphoneMode: !this.state.headphoneMode});
         },
         start: ()=> this.setState({isStarted: true}),
-        reset: ()=> this.setState({ ...defaultState, isStarted: this.state.isStarted})
+        reset: ()=> this.setState({
+          resolutionMax: 20000,//Real Max
+          resolutionMin: 20, // Real Min
+          limitMax: 100, // Range slider max
+          limitMin: 29, // Range slider Min
+          min: 20, // Temp Min for Input
+          max: 20000, // Temp Max for Input
+        })
+
+        // reset: ()=> this.setState({ ...defaultState, isStarted: this.state.isStarted})
 
       }}>
         {this.props.children}

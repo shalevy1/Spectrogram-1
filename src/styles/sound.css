@@ -53,11 +53,11 @@
   margin-top: 8%!important;
 }
 .close-menu {
-  width: 5%;
-  float: right;
-  background: none!important;
-  padding: 0!important;
-  margin-top: 2px!important;
+  /*width: 5%;*/
+  /*float: right;*/
+  /*background: none!important;*/
+  /*padding: 0!important;*/
+  /*margin-top: -12px!important;*/
 }
 .sound-toggle-container {
   margin: 4% 0;
@@ -79,4 +79,10 @@
   border: 1px solid #282828;
   border-radius: 0.5em;
   margin-top: 2px;
+}
+
+.sound-close-menu{
+    display: flex!important;
+    justify-content: flex-end;
+    align-items: center;
 }

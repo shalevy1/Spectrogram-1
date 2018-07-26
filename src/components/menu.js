@@ -3,7 +3,7 @@ import {Menu} from 'semantic-ui-react';
 import "../styles/menu.css";
 import GraphControls from './graph-controls';
 import SoundControls from './sound-controls';
-import AdvancedControls from './advanced-controls';
+import TuningControls from './tuning-controls';
 import Slider from 'react-rangeslider';
 
 // To include the default styles
@@ -22,9 +22,11 @@ class MyMenu extends Component {
   handleItemClick = (e, {name}) => {
     let pane = null;
     switch (name) {
-      case "graph":
+      case "tuning":
         if (name !== this.state.activeItem) {
-          pane = <GraphControls closeMenu={this.closeMenu}/>
+          pane = <TuningControls closeMenu={this.closeMenu}/>
+          this.props.handleTuningModeOn();
+          this.setState({tuningMode: true});
         } else {
           name = null;
         }
@@ -35,34 +37,20 @@ class MyMenu extends Component {
         } else {
           name = null;
         }
+          this.props.handleTuningModeOff();
+          this.setState({tuningMode: false});
         break;
-      case "advanced":
-        if (name !== this.state.activeItem) {
-          pane = <AdvancedControls closeMenu={this.closeMenu}/>
-        } else {
-          name = null;
-        }
-        break;
+
       default:
         pane = null;
-
     }
     this.setState({activeItem: name, pane: pane});
+    this.props.handleFreqControlsOff();
+
   }
 
   closeMenu = () => this.setState({pane: null, activeItem: null});
 
-  // componentWillReceiveProps(nextProps){
-  //   //Check if CLicked on Spectrogram, close menu pane, then call parent function to
-  //   // set as false. Without extra function, menu would close every time after 1st click
-  //   if(nextProps.hidePanes){
-  //     this.setState({
-  //       pane: null,
-  //       activeItem: null
-  //     });
-  //     this.props.handleHidePanesCompletion();
-  //   }
-  // }
   // Function that switches to the signal generator on click
   switchToSignalGenerator = () => {
     console.log("SWITCH");
@@ -83,24 +71,49 @@ class MyMenu extends Component {
 
   // Function that handles the push of the reset button
   // (resets all params except isStarted)
-  handleReset = () => {
-    this.setState({value: 50, soundOn: false, tuningMode: false});
-    this.props.reset();
+  // handleReset = () => {
+  //   this.setState({value: 50, soundOn: false, tuningMode: false});
+  //   this.props.reset();
+  // }
+
+  showFreqControls = () =>{
+    if(this.state.activeItem !== 'graph'){
+      this.setState({
+        pane: <GraphControls closeMenu={this.closeMenu} handleFreqControlsToggle={this.props.handleFreqControlsToggle} reset={this.props.reset}/>,
+        activeItem: 'graph'
+      });
+      this.props.handleFreqControlsOn();
+    } else{
+      this.setState({pane: null, activeItem: null});
+      this.props.handleFreqControlsOff();
+    }
   }
 
   // Function that handle switch between modes
-  handleTuningModeToggle = () =>{
-    this.setState({tuningMode: !this.state.tuningMode});
-    this.props.handleTuningModeToggle();
-  }
+  // handleTuningModeToggle = () =>{
+  //   this.setState({tuningMode: !this.state.tuningMode});
+  //   this.props.handleTuningModeToggle();
+  // }
 
   // Renders the top Menu Bar with tabs, microphone gain, and the two menu buttons
   // as well as the graph scale and which tab to render
   render() {
     const {activeItem} = this.state;
-    let style={'backgroundColor': '' }
-  if(this.state.tuningMode){
-    style = {'backgroundColor': '#ff8177'}
+    const activeStyle = {'borderBottom': '4px solid #A291FB'}
+    const defaultStyle= {'borderBottom': '0'}
+    // let style={'backgroundColor': '' }
+    let tuningStyle=defaultStyle;
+    let soundStyle=defaultStyle;
+
+  if(this.props.isStarted){
+    if(this.state.tuningMode){
+      // style = {'backgroundColor': '#ff8177'}
+      tuningStyle=activeStyle;
+      soundStyle=defaultStyle
+    } else{
+      tuningStyle=defaultStyle;
+      soundStyle=activeStyle;
+    }
   }
     return (
       <div className="menu-container">
@@ -108,12 +121,11 @@ class MyMenu extends Component {
           <Menu.Item>
             <button className="function-switch-button" onClick={this.switchToSignalGenerator}>Signal Generator</button>
           </Menu.Item>
-          <Menu.Item name='graph' active={activeItem === 'graph'} onClick={this.handleItemClick} className="tab-item"/>
-          <Menu.Item name='sound-making' active={activeItem === 'sound-making'} onClick={this.handleItemClick} className="tab-item"/>
+          <Menu.Item name='tuning' active={activeItem === 'tuning'} onClick={this.handleItemClick} className="tab-item" style={tuningStyle}/>
+          <Menu.Item name='sound-making' active={activeItem === 'sound-making'} onClick={this.handleItemClick} className="tab-item" style={soundStyle}/>
           {/*<Menu.Item name='advanced' active={activeItem === 'advanced'} onClick={this.handleItemClick} className="tab-item"/>*/}
-          <button onClick={this.handleTuningModeToggle} className="tuning-button" style={style}>Tuning Mode</button>
+          {/* <button onClick={this.handleTuningModeToggle} className="tuning-button" style={style}>Tuning Mode</button> */}
 
-          <Menu.Item position="right">
             {/*<div>Expressive&nbsp;&nbsp;</div>
             <Checkbox
             slider
@@ -122,10 +134,9 @@ class MyMenu extends Component {
             disabled={!this.props.isStarted}/>
             <div>&nbsp;&nbsp;Tuning</div>
             */}
-          <Menu.Item position="right">
+          {/* <Menu.Item >
 
 
-          {/*<Menu.Item position="right">*/}
 
             Microphone Gain&nbsp;&nbsp;
             <div className="gain-container">
@@ -138,12 +149,14 @@ class MyMenu extends Component {
               className="gain-slider"/>
             </div>
 
+          </Menu.Item> */}
 
-            <Menu.Item position="right">
+            {/* <Menu.Item position="right">
               <button onClick={this.handleReset} className="reset-button">Reset</button>
-              </Menu.Item>
-            </Menu.Item>
-          </Menu.Item>
+              </Menu.Item> */}
+              <Menu.Item position="right" className="no-margin">
+                <button onClick={this.showFreqControls} className="freq-button">Scale Controls</button>
+                </Menu.Item>
           <Menu.Header className="menu-title" active="false">Spectrogram</Menu.Header>
         </Menu>
         {this.state.pane}

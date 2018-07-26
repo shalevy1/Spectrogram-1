@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {Button, Icon, Form, Segment, Menu, Input, Radio} from 'semantic-ui-react';
 import {MyContext} from './my-provider';
 
-import "../styles/tuning.css";
+import "../styles/graph.css";
 // Using an ES6 transpiler like Babel
 // import Slider from 'react-rangeslider';
 import 'rc-slider/assets/index.css';
@@ -16,8 +16,8 @@ class GraphControls extends Component {
       <MyContext.Consumer>
         {(context) => (
           <React.Fragment>
-            <Segment className="menu-pane-container">
-              <Menu className="menu-pane">
+            <Segment className="menu-pane-container graph-container">
+              <Menu compact>
                 <Menu.Item className="vert graph-limit-container">
                   <div className="multi-slider-container">
                   <div className="menu-header">
@@ -143,10 +143,14 @@ class GraphControls extends Component {
                 </Menu.Item>*/}
 
               </Menu>
-
-              <Button icon onClick={this.props.closeMenu} className="close-menu">
-              <Icon fitted name="angle double up" size="large"/>
-              </Button>
+              <div className="graph-close-menu">
+                <Button icon onClick={this.props.reset} className="icon-button">
+                  <Icon fitted name="redo alternate"/>
+                </Button>
+                <Button icon onClick={this.props.closeMenu} className="icon-button">
+                  <Icon fitted name="angle double up" size="large"/>
+                </Button>
+              </div>
             </Segment>
           </React.Fragment>
         )}
