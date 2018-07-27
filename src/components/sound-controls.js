@@ -38,11 +38,11 @@ onPointerDown(e){
 }
 
 onPointerMove(e){
-  if(this.state.pointerDown){
-    let pos = getMousePos(this.canvas, e);
-    // console.log("MOVE");
-
-  }
+  // if(this.state.pointerDown){
+  //   let pos = getMousePos(this.canvas, e);
+  //   // console.log("MOVE");
+  //
+  // }
 }
 onPointerUp(e){
   this.setState({pointerDown: false});

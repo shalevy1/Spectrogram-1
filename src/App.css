@@ -65,8 +65,8 @@ a:visited {
 
 .fullscreenbutton {
   position: absolute;
-  bottom: 1%;
-  right: 1%;
+  bottom: 0%;
+  right: 0%;
   z-index: 51;
   opacity: 0.5;
 }

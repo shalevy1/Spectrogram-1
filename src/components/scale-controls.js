@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import "../styles/scale-controls.css";
-import { getMousePos, newFreqAlgorithm, calculateNewMax, calculateNewMin } from "../util/conversions";
+import { getMousePos, newFreqAlgorithm, calculateNewMax, calculateNewMin, freqToIndex } from "../util/conversions";
+import generateScale from '../util/generateScale';
+
+const CHROMATIC_INDEX = 3;
 
 class Scales extends Component {
   constructor(props) {
@@ -17,13 +20,16 @@ class Scales extends Component {
       prevDiff: -1,
       zoomMax: 0,
       zoomMin: 0,
-      pointerDown: false
+      pointerDown: false,
+      direction: "", // Up = true, down = false
     }
   }
   componentDidMount() {
     window.addEventListener("resize", this.handleResize);
     this.ctx = this.canvas.getContext('2d');
-
+    if(!this.props.noteLinesOn){
+      this.renderNoteLines();
+    }
     this.setState({zoomMax: this.props.resolutionMax, zoomMin: this.props.resolutionMin});
   }
 
@@ -85,14 +91,22 @@ class Scales extends Component {
       // Mouse
       if(this.state.pointerDown){
         if(this.state.bottomFreq > 0){
-          let top, bottom;
+          // let top, bottom;
           if (this.state.bottomFreq < this.state.topFreq){
-            top = this.state.bottomFreq;
-            bottom = this.state.topFreq
+            // Moving Up
+            // top = this.state.bottomFreq;
+            // bottom = this.state.topFreq;
+            if(this.state.direction === ""){
+              this.setState({direction: "Up"});
+            }
 
           } else {
-            top = this.state.topFreq;
-            bottom = this.state.topFreq
+            // Moving Down
+            // top = this.state.topFreq;
+            // bottom = this.state.topFreq
+            if(this.state.direction === ""){
+              this.setState({direction: "Down"});
+            }
           }
 
           // Color each pointer
@@ -105,9 +119,8 @@ class Scales extends Component {
           // this.ctx.fillText(Math.round(freq1) + ' Hz', 100, finger1+2);
           this.ctx.fillText(Math.round(freq1) + ' Hz', 100, this.state.bottomFreq+2);
 
-          let curDiff = Math.abs(top - bottom);
-
-          if (curDiff > this.state.prevDiff) {
+          // let curDiff = Math.abs(top - bottom);
+          if (this.state.direction === "Up") {
               let A0 = this.state.zoomMin;
               let yPercent = 1 - this.state.topFreq / this.props.height;
               let freq = newFreqAlgorithm(yPercent, this.state.zoomMax, this.state.zoomMin)
@@ -129,12 +142,14 @@ class Scales extends Component {
               this.props.handleZoom(this.state.zoomMax, newMin);
 
             }
-            this.setState({prevDiff: curDiff});
+            // this.setState({prevDiff: curDiff});
           }
         }
         this.setState({bottomFreq: pos.y})
 
-
+        if(!this.props.noteLinesOn){
+          this.renderNoteLines();
+        }
 
     }
 
@@ -192,6 +207,9 @@ class Scales extends Component {
         // }
       }
       this.setState({prevDiff: curDiff})
+      if(!this.props.noteLinesOn){
+        this.renderNoteLines();
+      }
     }
 
   }
@@ -209,23 +227,31 @@ class Scales extends Component {
         evCache: {},
         topFreq: 0,
         bottomFreq: 0,
-        pointerDown: false
+        pointerDown: false,
+        direction: ""
       });
+    }
+    if(!this.props.noteLinesOn){
+      this.renderNoteLines();
     }
   }
   onPointerOut(e) {
     let {height, width} = this.props;
-      this.ctx.clearRect(0, 0, width, height);
+    this.ctx.clearRect(0, 0, width, height);
 
-      this.setState({
-        prevDiff: -1,
-        zoomMax: this.props.resolutionMax,
-        zoomMin: this.props.resolutionMin,
-        evCache: {},
-        topFreq: 0,
-        bottomFreq: 0,
-        pointerDown: false
-      });
+    this.setState({
+      prevDiff: -1,
+      zoomMax: this.props.resolutionMax,
+      zoomMin: this.props.resolutionMin,
+      evCache: {},
+      topFreq: 0,
+      bottomFreq: 0,
+      pointerDown: false,
+      direction: ""
+    });
+    if(!this.props.noteLinesOn){
+      this.renderNoteLines();
+    }
   }
 
   remove_event(e) {
@@ -236,6 +262,28 @@ class Scales extends Component {
     this.setState({evCache: newObj});
 
   }
+
+  renderNoteLines = () => {
+    let {height, width, resolutionMax, resolutionMin} = this.props;
+    // Uses generateScale helper method to generate base frequency values
+    let s = generateScale(0, CHROMATIC_INDEX);
+    //Sweeps through scale object and draws frequency
+    for (let i = 0; i < s.scale.length; i++) {
+      let freq = s.scale[i];
+
+      for (let j = 0; j < 15; j++) {
+        if (freq > resolutionMax) {
+          break;
+        } else {
+          let name = s.scaleNames[i]+''+j;
+          let index = freqToIndex(freq, resolutionMax, resolutionMin, height);
+          this.ctx.fillStyle = 'white';
+          this.ctx.fillRect(0, index, width, 1.5);
+        }
+          freq = freq * 2;
+        }
+      }
+    }
 
 
 

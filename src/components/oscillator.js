@@ -6,7 +6,7 @@ import generateScale from '../util/generateScale';
 import { newFreqAlgorithm, getGain, freqToIndex, getMousePos } from "../util/conversions";
 
 const NUM_VOICES = 6;
-const RAMPVALUE = 0.1;
+const RAMPVALUE = 0.2;
 
 // Main sound-making class. Can handle click and touch inputs
 class Oscillator extends Component {
@@ -154,13 +154,18 @@ class Oscillator extends Component {
       let gain = getGain(xPercent);
       let freq = this.newFreqAlgorithm(yPercent);
       this.goldIndices.splice(this.state.currentVoice - 1, 1);
-      // this.synths[this.state.currentVoice].oscillator.frequency.value = freq;
-      // Ramps to new Frequency
-      this.synths[this.state.currentVoice].frequency.exponentialRampToValueAtTime(freq, this.props.context.currentTime+RAMPVALUE);
-      // this.synths[this.state.currentVoice].volume.value = gain;
-      // Ramps to new Gain
-      this.synths[this.state.currentVoice].volume.exponentialRampToValueAtTime(gain,
+      if(this.props.scaleOn){
+        // Jumps to new Frequency and Volume
+        this.synths[this.state.currentVoice].frequency.value = freq;
+        this.synths[this.state.currentVoice].volume.value = gain;
+      } else {
+        // Ramps to new Frequency and Volume
+        this.synths[this.state.currentVoice].frequency.exponentialRampToValueAtTime(freq, this.props.context.currentTime+RAMPVALUE);
+        // Ramp to new Volume
+        this.synths[this.state.currentVoice].volume.exponentialRampToValueAtTime(gain,
           this.props.context.currentTime+RAMPVALUE);
+      }
+
       // Clears the label
       this.ctx.clearRect(0, 0, this.props.width, this.props.height);
       this.label(freq, pos.x, pos.y);
@@ -266,14 +271,17 @@ class Oscillator extends Component {
             }
           }
           this.goldIndices.splice(index - 1, 1);
-
-          // Ramps to new Frequency
-  this.synths[index].frequency.exponentialRampToValueAtTime(freq, this.props.context.currentTime+RAMPVALUE);
-        // this.synths[index].frequency.value = freq;
-        // Ramp to new Volume
-        this.synths[index].volume.exponentialRampToValueAtTime(gain,
-            this.props.context.currentTime+RAMPVALUE);
-        // Clears the canvas on touch move
+          if(this.props.scaleOn){
+            // Jumps to new Frequency and Volume
+            this.synths[index].frequency.value = freq;
+            this.synths[index].volume.value = gain;
+          } else {
+            // Ramps to new Frequency and Volume
+            this.synths[index].frequency.exponentialRampToValueAtTime(freq, this.props.context.currentTime+RAMPVALUE);
+            // Ramp to new Volume
+            this.synths[index].volume.exponentialRampToValueAtTime(gain,
+              this.props.context.currentTime+RAMPVALUE);
+          }
       }
       //RedrawLabels
         this.ctx.clearRect(0, 0, width, height);

@@ -24,6 +24,7 @@ class Spectrogram extends Component {
     super(props);
     this.updateNoteLines = React.createRef();
     this.updateAxes = React.createRef();
+    this.updateScaleControls = React.createRef();
 
     this.state = {
       resolutionMax: 20000,
@@ -106,11 +107,19 @@ class Spectrogram extends Component {
         if(this.updateNoteLines.current){
           this.updateNoteLines.current.renderNoteLines();
         }
+        if(this.updateScaleControls.current){
+          if(!this.props.noteLines){
+            this.updateScaleControls.current.renderNoteLines();
+          }
+        }
         this.setState({resolutionMax: this.props.resolutionMax, resolutionMin: this.props.resolutionMin});
       }
       if(this.props.scale !== this.state.scale || this.props.musicKey !== this.state.musicKey || this.props.accidental !== this.state.accidental){
         if(this.updateNoteLines.current){
           this.updateNoteLines.current.renderNoteLines();
+        }
+        if(this.updateScaleControls.current && !this.props.noteLines){
+          this.updateScaleControls.current.renderNoteLines();
         }
         this.setState({scale: this.props.scale, musicKey: this.props.musicKey, accidental: this.props.accidental});
       }
@@ -249,8 +258,10 @@ handleHeadphoneModeToggle=()=>{
           width={this.props.width}
           height={this.props.height}
           handleZoom={this.props.handleZoom}
-          handleResize={this.props.handleResize}/>
-          }
+          handleResize={this.props.handleResize}
+          noteLinesOn={this.props.noteLinesOn}
+          ref={this.updateScaleControls}
+          />}
           <Button icon onClick={this.props.handlePause} className="pause-button">
           {!this.props.speed  ?  <Icon fitted name="play" color="orange"/> :
             <Icon fitted name="pause" color="orange"/>}

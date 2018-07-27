@@ -52,6 +52,7 @@ class App extends Component {
       gain={context.state.gain}
       handleSoundToggle={context.handleSoundToggle}
       isStarted={context.state.isStarted}
+      tuningMode={context.state.tuningMode}
       handleTuningModeOn={context.handleTuningModeOn}
       handleTuningModeOff={context.handleTuningModeOff}
       handleFreqControlsOn={context.handleFreqControlsOn}

@@ -16,7 +16,6 @@ class MyMenu extends Component {
     pane: null,
     value: 50,
     soundOn: false,
-    tuningMode: false
   }
   // Function that switches between Menu Panes (children components)
   handleItemClick = (e, {name}) => {
@@ -26,7 +25,6 @@ class MyMenu extends Component {
         if (name !== this.state.activeItem) {
           pane = <TuningControls closeMenu={this.closeMenu}/>
           this.props.handleTuningModeOn();
-          this.setState({tuningMode: true});
         } else {
           name = null;
         }
@@ -34,11 +32,13 @@ class MyMenu extends Component {
       case "sound-making":
         if (name !== this.state.activeItem) {
           pane = <SoundControls closeMenu={this.closeMenu}/>
+          if(this.props.tuningMode){
+            this.props.handleTuningModeOff();
+          }
         } else {
           name = null;
         }
-          this.props.handleTuningModeOff();
-          this.setState({tuningMode: false});
+
         break;
 
       default:
@@ -106,7 +106,7 @@ class MyMenu extends Component {
     let soundStyle=defaultStyle;
 
   if(this.props.isStarted){
-    if(this.state.tuningMode){
+    if(this.props.tuningMode){
       // style = {'backgroundColor': '#ff8177'}
       tuningStyle=activeStyle;
       soundStyle=defaultStyle
@@ -118,26 +118,14 @@ class MyMenu extends Component {
     return (
       <div className="menu-container">
         <Menu color="violet" tabular pointing className="menu-menu" attached="bottom">
-          <Menu.Item>
+          <Menu.Item className="function-switch-button-container">
             <button className="function-switch-button" onClick={this.switchToSignalGenerator}>Signal Generator</button>
           </Menu.Item>
           <Menu.Item name='tuning' active={activeItem === 'tuning'} onClick={this.handleItemClick} className="tab-item" style={tuningStyle}/>
           <Menu.Item name='sound-making' active={activeItem === 'sound-making'} onClick={this.handleItemClick} className="tab-item" style={soundStyle}/>
           {/*<Menu.Item name='advanced' active={activeItem === 'advanced'} onClick={this.handleItemClick} className="tab-item"/>*/}
-          {/* <button onClick={this.handleTuningModeToggle} className="tuning-button" style={style}>Tuning Mode</button> */}
 
-            {/*<div>Expressive&nbsp;&nbsp;</div>
-            <Checkbox
-            slider
-            checked={this.state.mode}
-            onChange={this.handleModeSwitch}
-            disabled={!this.props.isStarted}/>
-            <div>&nbsp;&nbsp;Tuning</div>
-            */}
-          {/* <Menu.Item >
-
-
-
+          <Menu.Item className="microphone-positioning">
             Microphone Gain&nbsp;&nbsp;
             <div className="gain-container">
               <Slider
@@ -148,12 +136,8 @@ class MyMenu extends Component {
               tooltip={false}
               className="gain-slider"/>
             </div>
+          </Menu.Item>
 
-          </Menu.Item> */}
-
-            {/* <Menu.Item position="right">
-              <button onClick={this.handleReset} className="reset-button">Reset</button>
-              </Menu.Item> */}
               <Menu.Item position="right" className="no-margin">
                 <button onClick={this.showFreqControls} className="freq-button">Scale Controls</button>
                 </Menu.Item>

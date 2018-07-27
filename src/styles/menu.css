@@ -9,8 +9,8 @@
 .menu-title {
   font-size: 24px;
   align-self: center;
-  /* text-align: center; */
-  /* transform: translateX(-50%); */
+  text-align: center;
+  transform: translateX(-50%);
   left: 50%;
   position: absolute;
   user-select: none;
@@ -48,6 +48,9 @@
 }
 .icon-button {
   background: none!important;
+}
+.function-switch-button-container{
+  padding-left: 0!important;
 }
 
 .function-switch-button {
@@ -162,4 +165,8 @@
   color: white;
   outline: none;
   cursor: pointer;
+}
+.microphone-positioning {
+  position: absolute;
+  left: 30%;
 }

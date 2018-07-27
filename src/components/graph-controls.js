@@ -99,55 +99,13 @@ class GraphControls extends Component {
                   </div>
                 </Menu.Item>
 
-                {/** Scale Menu **/}
-                {/*<Menu.Item className="vert">
-                  <div className="menu-header">Scales</div>
-                  <Menu.Menu className="horiz">
-                    <Menu.Item className="vert no-line">
-                      <div>Note Lines</div>
-                      <Checkbox
-                      toggle
-                      className="scales-checkbox"
-                      checked={context.state.noteLinesOn}
-                      onChange={context.handleNoteLinesToggle}
-                      disabled={!context.state.isStarted || context.state.tuningMode}/>
-                    </Menu.Item>
-                    <Menu.Item>
-                      <Dropdown
-                      fluid
-                      text='Key'
-                      options={keyOptions}
-                      onChange={context.handleKeyChange}
-                      disabled={!context.state.isStarted}
-                      >
-                      </Dropdown>
-                    </Menu.Item>
-                    <Menu.Item>
-                      <Dropdown
-                      text='#/b'
-                      compact
-                      options={accidentalOptions}
-                      onChange={context.handleAccidentalChange}
-                      disabled={!context.state.isStarted}/>
-                    </Menu.Item>
-                    <Menu.Item>
-                      <Dropdown
-                      text='Scale'
-                      compact
-                      options={scaleOptions}
-                      onChange={context.handleScaleChange}
-                      disabled={!context.state.isStarted}/>
-                    </Menu.Item>
-                  </Menu.Menu>
-                  {context.state.musicKey.name}{context.state.accidental.name}{context.state.scale.name}
-                </Menu.Item>*/}
 
               </Menu>
               <div className="graph-close-menu">
                 <Button icon onClick={this.props.reset} className="icon-button">
                   <Icon fitted name="redo alternate"/>
                 </Button>
-                <Button icon onClick={this.props.closeMenu} className="icon-button">
+                <Button icon onClick={this.props.closeMenu} className="icon-button close-menu">
                   <Icon fitted name="angle double up" size="large"/>
                 </Button>
               </div>

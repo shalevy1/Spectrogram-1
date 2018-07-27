@@ -1,5 +1,5 @@
 .tuning-container {
-  width: 50%;
+  width: 46%;
   display: flex;
 
 }
@@ -8,4 +8,5 @@
     justify-content: flex-end;
     flex-direction: column;
     align-items: center;
+    margin-left: 1%!important;
 }

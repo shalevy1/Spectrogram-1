@@ -50,8 +50,8 @@ align-items: center;
 } */
 
 .close-menu {
-  width: 5%;
-  float: right;
+  /* width: 5%; */
+  /* float: right; */
   background: none!important;
   padding: 0!important;
   margin-top: -12px!important;
@@ -65,7 +65,7 @@ align-items: center;
 }
 
 .graph-container {
-  width: 42%;
+  width: 38%;
   display: flex;
 
 }
