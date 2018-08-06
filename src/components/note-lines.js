@@ -38,19 +38,16 @@ class NoteLines extends Component {
 
   componentDidMount() {
     this.ctx = this.canvas.getContext('2d');
-    // this.ctx.globalAlpha = 0.5;
     window.addEventListener("resize", this.handleResize);
     Tone.context = this.props.context;
-
-    this.synth = new Tone.Synth(options);
-    this.masterVolume = new Tone.Volume(-2);
-    this.synth.connect(this.masterVolume);
+    this.synths = new Array(NUM_VOICES);
+    this.masterVolume = new Tone.Volume(0);
+    for (let i = 0; i < NUM_VOICES; i++) {
+      this.synths[i] = new Tone.Synth(options);
+      this.synths[i].connect(this.masterVolume);
+    }
     this.masterVolume.connect(Tone.Master);
     this.masterVolume.mute = !this.props.soundOn;
-    // If Headphone Mode, connect the masterVolume to the graph
-    if (true) {
-      this.masterVolume.connect(this.props.analyser);
-    }
     this.frequencies = {};
     this.freq = 1;
     this.goldIndices = [];
@@ -71,25 +68,37 @@ class NoteLines extends Component {
     if (this.masterVolume.mute === false && nextProps.outputVolume && nextProps.outputVolume !== this.masterVolume.volume.value ) {
       this.masterVolume.volume.value = getGain(1 - (nextProps.outputVolume) / 100);
     }
+    if(nextProps.headphoneMode){
+      // If Headphone Mode, connect the masterVolume to the graph
+      if(!this.state.feedback){
+        this.masterVolume.connect(this.props.analyser);
+        this.setState({feedback: true});
+      }
+    } else {
+      if(this.state.feedback){
+        this.masterVolume.disconnect(this.props.analyser);
+        this.setState({feedback: false});
+      }
+    }
   }
 
   onMouseDown(e){
     e.preventDefault();
-    let {height, width, soundOn, resolutionMax, resolutionMin} = this.props;
+    let {height, width, resolutionMax, resolutionMin} = this.props;
     let pos = getMousePos(this.canvas, e);
     let yPercent = 1 - pos.y / height;
     let xPercent = 1 - pos.x / width;
     let gain = getGain(xPercent);
     let freq = newFreqAlgorithm(yPercent, resolutionMax, resolutionMin);
+    let newVoice = (this.state.currentVoice + 1) % NUM_VOICES; // Mouse always changes to new "voice"
 
-    if(soundOn){
       for(let j in this.frequencies){
         if(Math.abs(this.frequencies[j] - freq) < 0.01 * freq){
           if(this.frequencies[j] !== this.freq){
-            this.synth = new Tone.Synth(options);
-            this.synth.connect(this.masterVolume);
-            this.synth.triggerAttack(this.frequencies[j]);
-            this.synth.volume.value = gain;
+            this.synths[newVoice] = new Tone.Synth(options);
+            this.synths[newVoice].connect(this.masterVolume);
+            this.synths[newVoice].triggerAttack(this.frequencies[j]);
+            this.synths[newVoice].volume.value = gain;
             this.freq = this.frequencies[j];
             let index = freqToIndex(this.frequencies[j], this.props.resolutionMax, this.props.resolutionMin, this.props.height);
             // this.goldIndices.splice(this.state.currentVoice, 1);// Sets the Gold Line to the new Line
@@ -105,12 +114,11 @@ class NoteLines extends Component {
           break;
         }
       }
-      let newVoice = (this.state.currentVoice + 1) % NUM_VOICES; // Mouse always changes to new "voice"
       this.setState({
         mouseDown: true,
         currentVoice: newVoice,
-        voices: this.state.voices + 1});
-    }
+        voices: this.state.voices + 1
+      });
   }
 
   onMouseMove(e) {
@@ -127,14 +135,14 @@ class NoteLines extends Component {
             if(Math.abs(this.frequencies[j] - freq) < 0.01 * freq){
               if(this.frequencies[j] !== this.freq){
                 let endTime =  this.props.context.currentTime + release;
-                this.synth.volume.cancelAndHoldAtTime(this.props.context.currentTime);
-                this.synth.volume.exponentialRampToValueAtTime(-80, endTime);
-                this.synth.oscillator.stop(this.props.context.currentTime + release);
-                this.synth = null;
-                this.synth = new Tone.Synth(options);
-                this.synth.connect(this.masterVolume);
-                this.synth.triggerAttack(this.frequencies[j])
-                this.synth.volume.value = gain;
+                this.synths[this.state.currentVoice].volume.cancelAndHoldAtTime(this.props.context.currentTime);
+                this.synths[this.state.currentVoice].volume.exponentialRampToValueAtTime(-80, endTime);
+                this.synths[this.state.currentVoice].oscillator.stop(this.props.context.currentTime + release);
+                this.synths[this.state.currentVoice] = null;
+                this.synths[this.state.currentVoice] = new Tone.Synth(options);
+                this.synths[this.state.currentVoice].connect(this.masterVolume);
+                this.synths[this.state.currentVoice].triggerAttack(this.frequencies[j])
+                this.synths[this.state.currentVoice].volume.value = gain;
 
                 let index = freqToIndex(this.frequencies[j], this.props.resolutionMax, this.props.resolutionMin, this.props.height);
                 if (!this.goldIndices.includes(index)){
@@ -146,7 +154,7 @@ class NoteLines extends Component {
                 this.label(j, pos.x, pos.y+2);
 
               }
-              this.synth.volume.value = gain;
+              this.synths[this.state.currentVoice].volume.value = gain;
               break;
             }
           }
@@ -157,10 +165,10 @@ class NoteLines extends Component {
   onMouseUp(e){
     e.preventDefault();
     this.setState({mouseDown: false});
-    this.synth.triggerRelease();
-    this.synth = null;
-    this.synth = new Tone.Synth(options);
-    this.synth.volume.value  = -Infinity;
+    this.synths[this.state.currentVoice].triggerRelease();
+    this.synths[this.state.currentVoice] = null;
+    this.synths[this.state.currentVoice] = new Tone.Synth(options);
+    this.synths[this.state.currentVoice].volume.value  = -Infinity;
     this.goldIndices = [];
     this.freq = -1;
     this.renderNoteLines();
@@ -169,7 +177,7 @@ class NoteLines extends Component {
   onMouseOut(e){
     e.preventDefault();
     this.setState({mouseDown: false});
-    this.synth.triggerRelease();
+    this.synths[this.state.currentVoice].triggerRelease();
     this.goldIndices = [];
     this.freq = -1;
     this.renderNoteLines();
@@ -334,7 +342,8 @@ class NoteLines extends Component {
 
 
   render() {
-    return (<canvas
+    return (
+      <canvas
       className="note-lines-canvas"
       width={this.props.width}
       height={this.props.height}
@@ -342,9 +351,7 @@ class NoteLines extends Component {
       onMouseMove={this.onMouseMove}
       onMouseUp={this.onMouseUp}
       onMouseOut={this.onMouseOut}
-      onTouchStart={this.onTouchStart}
-      onTouchMove={this.onTouchMove}
-      onTouchEnd={this.onTouchEnd}
+
       ref={(c) => {
       this.canvas = c;
     }}/>);

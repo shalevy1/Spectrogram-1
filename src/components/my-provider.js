@@ -34,6 +34,8 @@ class MyProvider extends Component {
     freqControls: false,
     graphPreset: 'default',
     headphoneMode: false,
+    reverbOn: false,
+    reverbLevel: 0,
     //hidePanes: false,
     isStarted: false,
   }
@@ -199,6 +201,12 @@ class MyProvider extends Component {
           } else {
           }
           this.setState({headphoneMode: !this.state.headphoneMode});
+        },
+        handleReverbToggle: () => this.setState({reverbOn: !this.state.reverbOn}),
+        handleReverbLevelChange: value => {
+          if(this.state.reverbOn){
+            this.setState({reverbLevel: Math.round(value*100)/100});
+          }
         },
         start: ()=> this.setState({isStarted: true}),
         reset: ()=> this.setState({

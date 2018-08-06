@@ -87,6 +87,8 @@ class App extends Component {
       headphoneMode={context.state.headphoneMode}
       tuningMode={context.state.tuningMode}
       freqControls={context.state.freqControls}
+      reverbOn={context.state.reverbOn}
+      reverbLevel={context.state.reverbLevel}
       start={context.start}
       />
       </React.Fragment>

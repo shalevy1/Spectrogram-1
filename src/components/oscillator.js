@@ -48,6 +48,13 @@ class Oscillator extends Component {
     }
     this.goldIndices = [];
     this.masterVolume.connect(Tone.Master);
+    this.reverb = new Tone.Reverb();
+    this.masterVolume.connect(this.reverb);
+    this.reverbVolume = new Tone.Volume(0);
+    this.reverbVolume.connect(Tone.Master);
+    this.reverb.generate().then(()=>{
+      this.reverb.connect(this.reverbVolume);
+    });
     //Off by default
     this.masterVolume.mute = !this.props.soundOn;
 
@@ -101,23 +108,27 @@ class Oscillator extends Component {
     } else {
       this.ctx.clearRect(0, 0, this.props.width, this.props.height);
     }
+    if(nextProps.reverbOn){
+      this.reverbVolume.mute = false;
+      let reverb;
+      if(nextProps.reverbLevel === 0){
+        reverb = -Infinity;
+      } else {
+        reverb = - (1 - nextProps.reverbLevel) * 30;
+
+      }
+      this.reverbVolume.volume.value = reverb;
+    } else {
+      if(this.reverb.connec)
+      this.reverbVolume.mute = true;
+
+    }
   }
   componentWillUnmount() {
     this.masterVolume.mute = true;
     window.removeEventListener("resize", this.handleResize);
   }
 
-  // Helper Function that gets the Mouse position based on the rescaled canvas
-  getMousePos(canvas, evt) {
-    var rect = canvas.getBoundingClientRect(), // abs. size of element
-      scaleX = canvas.width / rect.width, // relationship bitmap vs. element for X
-      scaleY = canvas.height / rect.height; // relationship bitmap vs. element for Y
-
-    return {
-      x: (evt.clientX - rect.left) * scaleX, // scale mouse coordinates after they have
-      y: (evt.clientY - rect.top) * scaleY // been adjusted to be relative to element
-    }
-  }
   /**
   This Section controls how the Oscillator(s) react to user input
   */

@@ -1,0 +1,13 @@
+.effect-module {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1%;
+}
+.effect-on {
+  display: flex;
+  align-items: center;
+  align-self: flex-start;
+}

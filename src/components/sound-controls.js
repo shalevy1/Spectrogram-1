@@ -1,16 +1,17 @@
 import React, {Component} from 'react';
 import {MyContext} from './my-provider';
 
-import {Segment, Menu, Dropdown, Checkbox} from 'semantic-ui-react';
+import EffectModule from './effect-module';
+
+import {Segment, Menu, Dropdown, Checkbox, Button, Icon} from 'semantic-ui-react';
 import "../styles/sound.css";
 // Using an ES6 transpiler like Babel
 import Slider from 'react-rangeslider';
 // To include the default styles
 import 'react-rangeslider/lib/index.css';
 import {timbreOptions, scaleOptions, keyOptions, accidentalOptions} from '../util/dropdownOptions';
-import { Button, Icon } from 'semantic-ui-react';
 
- import { getMousePos } from '../util/conversions'
+import { getMousePos } from '../util/conversions'
 // Sound Controls Class that renders all of the sound controls and uses the
 // React Context API to hook up their functionality to the main state in app.js
 // Which passes the controls down to Spectrogram
@@ -283,9 +284,27 @@ onPointerOut(e){
                   </div>
                 </Menu.Item>
                   {/* Effects */}
-                {/*<Menu.Item className="vert">
-                <div className="menu-header effects-tab">Effects</div>
-                </Menu.Item>*/}
+                <Menu.Item className="vert">
+                <div className="menu-header">Effects</div>
+                <div className="effects-container">
+                  <EffectModule
+                    name="Reverb"
+                    toggle={context.state.reverbOn}
+                    toggleChange={context.handleReverbToggle}
+                    level={context.state.reverbLevel}
+                    levelChange={context.handleReverbLevelChange}
+                    disable={context.state.isStarted}
+                  />
+                  <EffectModule
+                    name="Decay"
+                    toggle={context.state.reverbOn}
+                    toggleChange={context.handleReverbToggle}
+                    level={context.state.reverbLevel}
+                    levelChange={context.handleReverbLevelChange}
+                    disable={context.state.isStarted}
+                  />
+                  </div>
+                </Menu.Item>
 
               </Menu>
               <div className="sound-close-menu">

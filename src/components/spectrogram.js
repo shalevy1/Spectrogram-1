@@ -208,9 +208,10 @@ handleHeadphoneModeToggle=()=>{
       scale={this.props.scale}
       attack={this.props.attack}
       release={this.props.release}
+      reverbOn={this.props.reverbOn}
+      reverbLevel={this.props.reverbLevel}
       ref={this.updateNoteLines}
       handleResize={this.props.handleResize}/>
-      {/* <Message className="scales-snackbar" > Scale: {this.props.musicKey.name}{this.props.accidental.name}{this.props.scale.name} </Message> */}
       </React.Fragment>
     ): (
       <Oscillator
@@ -231,6 +232,8 @@ handleHeadphoneModeToggle=()=>{
       release={this.props.release}
       headphoneMode={this.props.headphoneMode}
       noteLinesOn={this.props.noteLinesOn}
+      reverbOn={this.props.reverbOn}
+      reverbLevel={this.props.reverbLevel}
       handleResize={this.props.handleResize}/>
     );
       let style={'backgroundColor': ''}
