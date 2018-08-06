@@ -36,7 +36,14 @@ class Scales extends Component {
   componentWillUnmount() {
     window.removeEventListener("resize", this.handleResize);
   }
-
+  componentWillReceiveProps(nextProps, prevState){
+    if(nextProps.resolutionMax !== this.state.zoomMax || nextProps.resolutionMin !== this.state.zoomMin){
+      if(!this.state.pointerDown){
+        this.ctx.clearRect(0, 0, nextProps.width, nextProps.height);
+      }
+        this.renderNoteLines();
+    }
+  }
 
   onPointerDown(e) {
     let key = e.pointerId;
@@ -74,12 +81,12 @@ class Scales extends Component {
       zoomMax: this.props.resolutionMax,
       zoomMin: this.props.resolutionMin
     });
+
     // console.log(bottom);
   }
 
   onPointerMove(e) {
       let {height, width} = this.props;
-      this.ctx.clearRect(0, 0, width, height);
       let newObj = this.state.evCache;
       let key = e.pointerId;
       let pos = getMousePos(this.canvas, e);
@@ -111,12 +118,10 @@ class Scales extends Component {
 
           // Color each pointer
           let freq1 = newFreqAlgorithm(1-this.state.topFreq/this.props.height, this.state.zoomMax, this.state.zoomMin);
-          // let freq2 = newFreqAlgorithm(1-bottom/this.props.height, this.state.zoomMax, this.state.zoomMin);
+          this.ctx.clearRect(0, 0, width, height);
           this.ctx.fillStyle = '#d6d1d5';
-          // this.ctx.fillRect(0, top, this.canvas.width, 20);
           this.ctx.fillRect(0, this.state.bottomFreq, this.canvas.width, 20);
           this.ctx.fillStyle = 'white';
-          // this.ctx.fillText(Math.round(freq1) + ' Hz', 100, finger1+2);
           this.ctx.fillText(Math.round(freq1) + ' Hz', 100, this.state.bottomFreq+2);
 
           // let curDiff = Math.abs(top - bottom);
@@ -147,9 +152,6 @@ class Scales extends Component {
         }
         this.setState({bottomFreq: pos.y})
 
-        if(!this.props.noteLinesOn){
-          this.renderNoteLines();
-        }
 
     }
 
@@ -170,6 +172,7 @@ class Scales extends Component {
       // Color each pointer
       let freq1 = newFreqAlgorithm(1-this.state.topFreq/this.props.height, this.state.zoomMax, this.state.zoomMin);
       let freq2 = newFreqAlgorithm(1-this.state.bottomFreq/this.props.height, this.state.zoomMax, this.state.zoomMin);
+      this.ctx.clearRect(0, 0, width, height);
       this.ctx.fillStyle = '#d6d1d5';
       this.ctx.fillRect(0, finger1, this.canvas.width, 20);
       this.ctx.fillRect(0, finger2, this.canvas.width, 20);
@@ -207,9 +210,7 @@ class Scales extends Component {
         // }
       }
       this.setState({prevDiff: curDiff})
-      if(!this.props.noteLinesOn){
-        this.renderNoteLines();
-      }
+
     }
 
   }
@@ -264,7 +265,10 @@ class Scales extends Component {
   }
 
   renderNoteLines = () => {
+
     let {height, width, resolutionMax, resolutionMin} = this.props;
+    this.ctx.clearRect(0, 0, width, height);
+
     // Uses generateScale helper method to generate base frequency values
     let s = generateScale(0, CHROMATIC_INDEX);
     //Sweeps through scale object and draws frequency
@@ -275,7 +279,6 @@ class Scales extends Component {
         if (freq > resolutionMax) {
           break;
         } else {
-          let name = s.scaleNames[i]+''+j;
           let index = freqToIndex(freq, resolutionMax, resolutionMin, height);
           this.ctx.fillStyle = 'white';
           this.ctx.fillRect(0, index, width, 1.5);
@@ -283,9 +286,34 @@ class Scales extends Component {
           freq = freq * 2;
         }
       }
+      if(this.state.pointerDown){
+        let top, bottom;
+        let finger1 = this.state.evCache[Object.keys(this.state.evCache)[0]];
+        let finger2 = this.state.evCache[Object.keys(this.state.evCache)[1]];
+        if (finger1 > finger2) {
+          top = finger2;
+          bottom = finger1;
+        } else {
+          top = finger1;
+          bottom = finger2;
+        }
+        // Color each pointer
+        let freq1 = newFreqAlgorithm(1-this.state.topFreq/this.props.height, this.state.zoomMax, this.state.zoomMin);
+        let freq2 = newFreqAlgorithm(1-this.state.bottomFreq/this.props.height, this.state.zoomMax, this.state.zoomMin);
+
+        this.ctx.fillStyle = '#d6d1d5';
+        this.ctx.fillRect(0, finger1, this.canvas.width, 20);
+        this.ctx.fillRect(0, finger2, this.canvas.width, 20);
+
+        this.ctx.fillStyle = 'white';
+        this.ctx.fillText(Math.round(freq1) + ' Hz', 100, top+2);
+        this.ctx.fillText(Math.round(freq2) + ' Hz', 100, bottom+2);
+      }
     }
 
+    _renderNoteLines(){
 
+    }
 
 
   handleResize = () => {

@@ -7,7 +7,7 @@ import NoteLines from './note-lines';
 import Oscillator from './oscillator';
 
 import { convertToLog, newFreqAlgorithm } from '../util/conversions';
-import { Button, Icon, Message } from 'semantic-ui-react';
+import { Button, Icon } from 'semantic-ui-react';
 
 const ReactAnimationFrame = require('react-animation-frame');
 // TODO: Tap anywhere to start (ipad bug)
@@ -109,7 +109,7 @@ class Spectrogram extends Component {
         }
         if(this.updateScaleControls.current){
           if(!this.props.noteLines){
-            this.updateScaleControls.current.renderNoteLines();
+            // this.updateScaleControls.current._renderNoteLines();
           }
         }
         this.setState({resolutionMax: this.props.resolutionMax, resolutionMin: this.props.resolutionMin});
@@ -119,7 +119,7 @@ class Spectrogram extends Component {
           this.updateNoteLines.current.renderNoteLines();
         }
         if(this.updateScaleControls.current && !this.props.noteLines){
-          this.updateScaleControls.current.renderNoteLines();
+          // this.updateScaleControls.current.renderNoteLines();
         }
         this.setState({scale: this.props.scale, musicKey: this.props.musicKey, accidental: this.props.accidental});
       }
