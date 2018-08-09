@@ -89,6 +89,8 @@ class App extends Component {
       freqControls={context.state.freqControls}
       reverbOn={context.state.reverbOn}
       reverbLevel={context.state.reverbLevel}
+      delayOn={context.state.delayOn}
+      delayLevel={context.state.delayLevel}
       start={context.start}
       />
       </React.Fragment>

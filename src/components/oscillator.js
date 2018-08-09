@@ -32,6 +32,9 @@ class Oscillator extends Component {
   // Setup Tone and all of its needed dependencies
   componentDidMount() {
     Tone.context = this.props.context;
+    // Array to hold synthesizer objects. Implemented in a circular way
+    // so that each new voice (touch input) is allocated, it is appended to the
+    // array until the array is full and it then appends the next voice to array[0]
     this.synths = new Array(NUM_VOICES);
     // Start master volume at -20 dB
     this.masterVolume = new Tone.Volume(0);
@@ -46,20 +49,26 @@ class Oscillator extends Component {
       this.synths[i] = new Tone.Synth(options);
       this.synths[i].connect(this.masterVolume);
     }
-    this.goldIndices = [];
-    this.masterVolume.connect(Tone.Master);
-    this.reverb = new Tone.Reverb();
+    this.goldIndices = []; // Array to hold indices on the screen of gold note lines (touched/clicked lines)
+    this.masterVolume.connect(Tone.Master); // Master volume receives all of the synthesizer inputs and sends them to the speakers
+
+    this.reverb = new Tone.Reverb(); // Reverb unit. Runs in parallel to masterVolume
     this.masterVolume.connect(this.reverb);
     this.reverbVolume = new Tone.Volume(0);
     this.reverbVolume.connect(Tone.Master);
     this.reverb.generate().then(()=>{
       this.reverb.connect(this.reverbVolume);
     });
-    //Off by default
-    this.masterVolume.mute = !this.props.soundOn;
+    this.delay = new Tone.FeedbackDelay(); // delay unit. Runs in parallel to masterVolume
+    this.masterVolume.connect(this.delay)
+    this.delayVolume = new Tone.Volume(0);
+    this.delay.connect(this.delayVolume);
 
+    this.delayVolume.connect(Tone.Master);
+    // Sound Off by default
+    this.masterVolume.mute = !this.props.soundOn;
+    // Object to hold all of the note-line frequencies (for checking the gold lines)
     this.frequencies = {};
-    this.freq = 1;
 
     window.addEventListener("resize", this.handleResize);
   }
@@ -94,11 +103,15 @@ class Oscillator extends Component {
       // If Headphone Mode, connect the masterVolume to the graph
       if(!this.state.feedback){
         this.masterVolume.connect(this.props.analyser);
+        this.reverbVolume.connect(this.props.analyser);
+        this.delayVolume.connect(this.props.analyser)
         this.setState({feedback: true});
       }
     } else {
       if(this.state.feedback){
         this.masterVolume.disconnect(this.props.analyser);
+        this.reverbVolume.disconnect(this.props.analyser);
+        this.delayVolume.disconnect(this.props.analyser)
         this.setState({feedback: false});
       }
     }
@@ -119,8 +132,21 @@ class Oscillator extends Component {
       }
       this.reverbVolume.volume.value = reverb;
     } else {
-      if(this.reverb.connec)
       this.reverbVolume.mute = true;
+
+    }
+    if(nextProps.delayOn){
+      this.delayVolume.mute = false;
+      let delay;
+      if(nextProps.delayLevel === 0){
+        delay = -Infinity;
+      } else {
+        delay = - (1 - nextProps.delayLevel) * 30;
+
+      }
+      this.delayVolume.volume.value = delay;
+    } else {
+      this.delayVolume.mute = true;
 
     }
   }
@@ -133,18 +159,20 @@ class Oscillator extends Component {
   This Section controls how the Oscillator(s) react to user input
   */
   onMouseDown(e) {
-    e.preventDefault();
+    e.preventDefault(); // Always need to prevent default browser choices
     let pos = getMousePos(this.canvas, e);
+    // Calculates x and y value in respect to width and height of screen
+    // The value goes from 0 to 1. (0, 0) = Bottom Left corner
     let yPercent = 1 - pos.y / this.props.height;
     let xPercent = 1 - pos.x / this.props.width;
     let freq = this.newFreqAlgorithm(yPercent);
     let gain = getGain(xPercent);
-
+    // newVoice = implementation of circular array discussed above.
     let newVoice = (this.state.currentVoice + 1) % NUM_VOICES; // Mouse always changes to new "voice"
-    this.synths[newVoice].triggerAttack(freq);
-    this.synths[newVoice].volume.value = gain;
-    this.ctx.clearRect(0, 0, this.props.width, this.props.height);
-    this.label(freq, pos.x, pos.y);
+    this.synths[newVoice].triggerAttack(freq); // Starts the synth at frequency = freq
+    this.synths[newVoice].volume.value = gain; // Starts the synth at volume = gain
+    this.ctx.clearRect(0, 0, this.props.width, this.props.height); // Clears canvas for redraw of label
+    this.label(freq, pos.x, pos.y); // Labels the point
     this.setState({
       mouseDown: true,
       currentVoice: newVoice,
@@ -156,14 +184,16 @@ class Oscillator extends Component {
 
   }
   onMouseMove(e) {
-    e.preventDefault();
-    if (this.state.mouseDown) {
+    e.preventDefault(); // Always need to prevent default browser choices
+    if (this.state.mouseDown) { // Only want to change when mouse is pressed
+      // The next few lines are similar to onMouseDown
       let {height, width} = this.props
       let pos = getMousePos(this.canvas, e);
       let yPercent = 1 - pos.y / height;
       let xPercent = 1 - pos.x / width;
       let gain = getGain(xPercent);
       let freq = this.newFreqAlgorithm(yPercent);
+      // Remove previous gold indices and update them to new positions
       this.goldIndices.splice(this.state.currentVoice - 1, 1);
       if(this.props.scaleOn){
         // Jumps to new Frequency and Volume
@@ -182,16 +212,15 @@ class Oscillator extends Component {
       this.label(freq, pos.x, pos.y);
       if(this.props.noteLinesOn){
         this.renderNoteLines();
-
       }
     }
 
-
   }
   onMouseUp(e) {
-    e.preventDefault();
+    e.preventDefault(); // Always need to prevent default browser choices
+    // Only need to trigger release if synth exists (a.k.a mouse is down)
     if (this.state.mouseDown) {
-      this.synths[this.state.currentVoice].triggerRelease();
+      this.synths[this.state.currentVoice].triggerRelease(); // Relase frequency, volume goes to -Infinity
       this.setState({mouseDown: false, voices: 0});
       this.goldIndices = [];
 
@@ -204,8 +233,9 @@ class Oscillator extends Component {
 
 
   }
+  /* This is a similar method to onMouseUp. Occurs when mouse exists canvas */
   onMouseOut(e) {
-    e.preventDefault();
+    e.preventDefault(); // Always need to prevent default browser choices
     if (this.state.mouseDown) {
       this.synths[this.state.currentVoice].triggerRelease();
       this.setState({mouseDown: false, voices: 0});
@@ -214,7 +244,6 @@ class Oscillator extends Component {
       // Clears the label
       this.ctx.clearRect(0, 0, this.props.width, this.props.height);
       if(this.props.noteLinesOn){
-        // this.goldIndex = -1;
         this.renderNoteLines();
       }
     }
@@ -226,10 +255,11 @@ class Oscillator extends Component {
   (implmented as a circular array).
   */
   onTouchStart(e) {
-    e.preventDefault();
+    e.preventDefault(); // Always need to prevent default browser choices
     if(e.touches.length > NUM_VOICES ){
       return;
     }
+    // For each finger, do the same as above in onMouseDown
     for (let i = 0; i < e.touches.length; i++) {
       let pos = getMousePos(this.canvas, e.touches[i]);
       let yPercent = 1 - pos.y / this.props.height;
@@ -253,15 +283,17 @@ class Oscillator extends Component {
     }
   }
   onTouchMove(e) {
-    e.preventDefault();
+    e.preventDefault(); // Always need to prevent default browser choices
+    // Check if more fingers were moved than allowed
     if(e.changedTouches.length > NUM_VOICES ){
       return;
     }
     let {width, height} = this.props;
-
+    // If touch is pressed (Similar to mouseDown = true, although there should never be a case where this is false)
     if (this.state.touch) {
+      // Determines the current "starting" index to change
       let voiceToChange = this.state.currentVoice - (this.state.voices - 1);
-
+      // For each changed touch, do the same as onMouseMove
       for (let i = 0; i < e.changedTouches.length; i++) {
         let pos = getMousePos(this.canvas, e.changedTouches[i]);
         let yPercent = 1 - pos.y / this.props.height;
@@ -269,18 +301,20 @@ class Oscillator extends Component {
         let gain = getGain(xPercent);
 
         let freq = this.newFreqAlgorithm(yPercent);
+        // Determines index of the synth needing to change volume/frequency
         let index = (voiceToChange + e.changedTouches[i].identifier) % NUM_VOICES;
         // Wraps the array
         index = (index < 0)
           ? (NUM_VOICES + index)
           : index;
-
+          // Deals with rounding issues with the note lines
           let oldFreq = this.synths[index].frequency.value;
           for (let note in this.frequencies){
             if (Math.abs(this.frequencies[note] - oldFreq) < 0.1*oldFreq){
               oldFreq = this.frequencies[note]
             }
           }
+          // These are the same as onMouseMove
           this.goldIndices.splice(index - 1, 1);
           if(this.props.scaleOn){
             // Jumps to new Frequency and Volume
@@ -308,8 +342,9 @@ class Oscillator extends Component {
     }
   }
   onTouchEnd(e) {
-    e.preventDefault();
+    e.preventDefault(); // Always need to prevent default browser choices
     let {width, height} = this.props;
+    // Check if there are more touches changed than on the screen and release everything (mostly as an fail switch)
     if (e.changedTouches.length === e.touches.length + 1) {
       for (var i = 0; i < NUM_VOICES; i++) {
         this.synths[i].triggerRelease();
@@ -318,6 +353,7 @@ class Oscillator extends Component {
 
       this.setState({voices: 0, touch: false, notAllRelease: false, currentVoice: -1});
     } else {
+      // Does the same as onTouchMove, except instead of changing the voice, it deletes it.
       let voiceToRemoveFrom = this.state.currentVoice - (this.state.voices - 1);
       for (let i = 0; i < e.changedTouches.length; i++) {
         let index = (voiceToRemoveFrom + e.changedTouches[i].identifier) % NUM_VOICES;
@@ -397,9 +433,7 @@ class Oscillator extends Component {
       this.scaleLabel = textLabel;
       let index = freqToIndex(freq, resolutionMax, resolutionMin, height);
 
-      // if (!this.goldIndices.includes(index)){
         this.goldIndices[this.state.currentVoice] = index;
-      // }
 
     }
     return Math.round(freq);

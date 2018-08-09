@@ -210,6 +210,8 @@ handleHeadphoneModeToggle=()=>{
       release={this.props.release}
       reverbOn={this.props.reverbOn}
       reverbLevel={this.props.reverbLevel}
+      delayOn={this.props.delayOn}
+      delayLevel={this.props.delayLevel}
       ref={this.updateNoteLines}
       handleResize={this.props.handleResize}/>
       </React.Fragment>
@@ -234,6 +236,8 @@ handleHeadphoneModeToggle=()=>{
       noteLinesOn={this.props.noteLinesOn}
       reverbOn={this.props.reverbOn}
       reverbLevel={this.props.reverbLevel}
+      delayOn={this.props.delayOn}
+      delayLevel={this.props.delayLevel}
       handleResize={this.props.handleResize}/>
     );
       let style={'backgroundColor': ''}

@@ -36,6 +36,8 @@ class MyProvider extends Component {
     headphoneMode: false,
     reverbOn: false,
     reverbLevel: 0,
+    delayOn: false,
+    delayLevel: 0,
     //hidePanes: false,
     isStarted: false,
   }
@@ -206,6 +208,12 @@ class MyProvider extends Component {
         handleReverbLevelChange: value => {
           if(this.state.reverbOn){
             this.setState({reverbLevel: Math.round(value*100)/100});
+          }
+        },
+        handleDelayToggle: () => this.setState({delayOn: !this.state.delayOn}),
+        handleDelayLevelChange: value => {
+          if(this.state.delayOn){
+            this.setState({delayLevel: Math.round(value*100)/100});
           }
         },
         start: ()=> this.setState({isStarted: true}),

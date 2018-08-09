@@ -296,11 +296,11 @@ onPointerOut(e){
                     disable={context.state.isStarted}
                   />
                   <EffectModule
-                    name="Decay"
-                    toggle={context.state.reverbOn}
-                    toggleChange={context.handleReverbToggle}
-                    level={context.state.reverbLevel}
-                    levelChange={context.handleReverbLevelChange}
+                    name="Delay"
+                    toggle={context.state.delayOn}
+                    toggleChange={context.handleDelayToggle}
+                    level={context.state.delayLevel}
+                    levelChange={context.handleDelayLevelChange}
                     disable={context.state.isStarted}
                   />
                   </div>
