@@ -291,17 +291,28 @@ onPointerOut(e){
                     name="Reverb"
                     toggle={context.state.reverbOn}
                     toggleChange={context.handleReverbToggle}
-                    level={context.state.reverbLevel}
-                    levelChange={context.handleReverbLevelChange}
+                    controlNames={["Decay Time"]}
+                    controls={[context.state.reverbDecay]}
+                    controlChanges={[context.handleReverbDecayChange]}
                     disable={context.state.isStarted}
                   />
                   <EffectModule
                     name="Delay"
                     toggle={context.state.delayOn}
                     toggleChange={context.handleDelayToggle}
-                    level={context.state.delayLevel}
-                    levelChange={context.handleDelayLevelChange}
+                    controlNames={["Delay Time", "Feedback"]}
+                    controls={[context.state.delayTime, context.state.delayFeedback]}
+                    controlChanges={[context.handleDelayTimeChange, context.handleDelayFeedbackChange]}
                     disable={context.state.isStarted}
+                  />
+                  <EffectModule
+                  name="AM"
+                  toggle={context.state.amOn}
+                  toggleChange={context.handleAmToggle}
+                  controlNames={["Harmonicity"]}
+                  controls={[context.state.amRate]}
+                  controlChanges={[context.handleAmRateChange]}
+                  disable={context.state.isStarted}
                   />
                   </div>
                 </Menu.Item>

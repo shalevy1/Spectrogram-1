@@ -95,11 +95,8 @@ class GraphControls extends Component {
                     checked={context.state.graphPreset === 'orchestra'}
                     onChange={context.handleGraphPresetChange}
                   />
-
                   </div>
                 </Menu.Item>
-
-
               </Menu>
               <div className="graph-close-menu">
                 <Button icon onClick={this.props.reset} className="icon-button">

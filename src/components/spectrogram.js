@@ -208,10 +208,12 @@ handleHeadphoneModeToggle=()=>{
       scale={this.props.scale}
       attack={this.props.attack}
       release={this.props.release}
+      headphoneMode={this.props.headphoneMode}
       reverbOn={this.props.reverbOn}
-      reverbLevel={this.props.reverbLevel}
+      reverbDecay={this.props.reverbDecay}
       delayOn={this.props.delayOn}
-      delayLevel={this.props.delayLevel}
+      delayTime={this.props.delayTime}
+      delayFeedback={this.props.delayFeedback}
       ref={this.updateNoteLines}
       handleResize={this.props.handleResize}/>
       </React.Fragment>
@@ -235,9 +237,12 @@ handleHeadphoneModeToggle=()=>{
       headphoneMode={this.props.headphoneMode}
       noteLinesOn={this.props.noteLinesOn}
       reverbOn={this.props.reverbOn}
-      reverbLevel={this.props.reverbLevel}
+      reverbDecay={this.props.reverbDecay}
       delayOn={this.props.delayOn}
-      delayLevel={this.props.delayLevel}
+      delayTime={this.props.delayTime}
+      delayFeedback={this.props.delayFeedback}
+      amOn={this.props.amOn}
+      amRate={this.props.amRate}
       handleResize={this.props.handleResize}/>
     );
       let style={'backgroundColor': ''}

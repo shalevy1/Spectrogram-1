@@ -88,9 +88,12 @@ class App extends Component {
       tuningMode={context.state.tuningMode}
       freqControls={context.state.freqControls}
       reverbOn={context.state.reverbOn}
-      reverbLevel={context.state.reverbLevel}
+      reverbDecay={context.state.reverbDecay}
       delayOn={context.state.delayOn}
-      delayLevel={context.state.delayLevel}
+      delayTime={context.state.delayTime}
+      delayFeedback={context.state.delayFeedback}
+      amOn={context.state.amOn}
+      amRate={context.state.amRate}
       start={context.start}
       />
       </React.Fragment>

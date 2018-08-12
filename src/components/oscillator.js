@@ -41,7 +41,7 @@ class Oscillator extends Component {
     this.ctx = this.canvas.getContext('2d');
     let options = {
       oscillator: {
-        type: "sine"
+        type: this.props.timbre.toLowerCase()
       }
     };
     // For each voice, create a synth and connect it to the master volume
@@ -52,15 +52,15 @@ class Oscillator extends Component {
     this.goldIndices = []; // Array to hold indices on the screen of gold note lines (touched/clicked lines)
     this.masterVolume.connect(Tone.Master); // Master volume receives all of the synthesizer inputs and sends them to the speakers
 
-    this.reverb = new Tone.Reverb(); // Reverb unit. Runs in parallel to masterVolume
-    this.masterVolume.connect(this.reverb);
+    this.reverb = new Tone.Reverb(this.props.reverbDecay*10+0.1); // Reverb unit. Runs in parallel to masterVolume
     this.reverbVolume = new Tone.Volume(0);
     this.reverbVolume.connect(Tone.Master);
+    this.masterVolume.connect(this.reverb);
     this.reverb.generate().then(()=>{
       this.reverb.connect(this.reverbVolume);
     });
-    this.delay = new Tone.FeedbackDelay(); // delay unit. Runs in parallel to masterVolume
-    this.masterVolume.connect(this.delay)
+    this.delay = new Tone.FeedbackDelay(this.props.delayTime+0.01, this.props.delayFeedback); // delay unit. Runs in parallel to masterVolume
+    this.masterVolume.connect(this.delay);
     this.delayVolume = new Tone.Volume(0);
     this.delay.connect(this.delayVolume);
 
@@ -123,31 +123,32 @@ class Oscillator extends Component {
     }
     if(nextProps.reverbOn){
       this.reverbVolume.mute = false;
-      let reverb;
-      if(nextProps.reverbLevel === 0){
-        reverb = -Infinity;
-      } else {
-        reverb = - (1 - nextProps.reverbLevel) * 30;
-
-      }
-      this.reverbVolume.volume.value = reverb;
+      this.masterVolume.disconnect(this.reverb);
+      this.reverb = null;
+      this.reverb = new Tone.Reverb(this.props.reverbDecay*10+0.1); // Reverb unit. Runs in parallel to masterVolume
+      this.masterVolume.connect(this.reverb);
+      this.reverb.generate().then(()=>{
+        this.reverb.connect(this.reverbVolume);
+        // this.reverb.decay = this.props.reverbDecay*15;
+      });
     } else {
       this.reverbVolume.mute = true;
-
     }
     if(nextProps.delayOn){
       this.delayVolume.mute = false;
-      let delay;
-      if(nextProps.delayLevel === 0){
-        delay = -Infinity;
-      } else {
-        delay = - (1 - nextProps.delayLevel) * 30;
-
-      }
-      this.delayVolume.volume.value = delay;
+      this.masterVolume.disconnect(this.delay);
+      this.delay = null;
+      this.delay = new Tone.FeedbackDelay(nextProps.delayTime+0.01, nextProps.delayFeedback);
+      this.masterVolume.connect(this.delay);
+      this.delay.connect(this.delayVolume);
     } else {
       this.delayVolume.mute = true;
-
+    }
+    if(nextProps.amOn){
+      for (let i = 0; i < NUM_VOICES; i++) {
+        this.synths[i].oscillator.type = "am"+this.props.timbre.toLowerCase();
+        this.synths[i].oscillator.harmonicity.value = nextProps.amRate + 0.5;
+      }
     }
   }
   componentWillUnmount() {

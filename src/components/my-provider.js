@@ -35,9 +35,12 @@ class MyProvider extends Component {
     graphPreset: 'default',
     headphoneMode: false,
     reverbOn: false,
-    reverbLevel: 0,
+    reverbDecay: 0.5,
     delayOn: false,
-    delayLevel: 0,
+    delayTime: 0.25,
+    delayFeedback: 0.25,
+    amOn: false,
+    amRate: 0,
     //hidePanes: false,
     isStarted: false,
   }
@@ -205,15 +208,26 @@ class MyProvider extends Component {
           this.setState({headphoneMode: !this.state.headphoneMode});
         },
         handleReverbToggle: () => this.setState({reverbOn: !this.state.reverbOn}),
-        handleReverbLevelChange: value => {
+        handleReverbDecayChange: value => {
           if(this.state.reverbOn){
-            this.setState({reverbLevel: Math.round(value*100)/100});
+            this.setState({reverbDecay: Math.round(value*100)/100});
           }
         },
         handleDelayToggle: () => this.setState({delayOn: !this.state.delayOn}),
-        handleDelayLevelChange: value => {
+        handleDelayTimeChange: value => {
           if(this.state.delayOn){
-            this.setState({delayLevel: Math.round(value*100)/100});
+            this.setState({delayTime: Math.round(value*100)/100});
+          }
+        },
+        handleDelayFeedbackChange: value => {
+          if(this.state.delayOn){
+            this.setState({delayFeedback: Math.round(value*100)/100});
+          }
+        },
+        handleAmToggle: () => this.setState({amOn: !this.state.amOn}),
+        handleAmRateChange: value => {
+          if(this.state.amOn){
+            this.setState({amRate: Math.round(value*100)/100});
           }
         },
         start: ()=> this.setState({isStarted: true}),
@@ -224,6 +238,7 @@ class MyProvider extends Component {
           limitMin: 29, // Range slider Min
           min: 20, // Temp Min for Input
           max: 20000, // Temp Max for Input
+          graphPreset: 'default'
         })
 
         // reset: ()=> this.setState({ ...defaultState, isStarted: this.state.isStarted})
