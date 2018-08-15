@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import "../styles/axes.css";
-import { newFreqAlgorithm } from "../util/conversions";
+import { getFreq } from "../util/conversions";
 
 class Axes extends Component {
 
@@ -21,14 +21,13 @@ class Axes extends Component {
     window.removeEventListener("resize", this.handleResize);
   }
 
-
-
-
   handleResize = () => {
     this.props.handleResize();
     this.renderAxesLabels();
   }
 
+  // Renders axes for this.state.ticks number of ticks, spacing them out Based
+  // on props.resolutionMax/Min and the height of the container
   renderAxesLabels = () => {
     let {height, width, resolutionMax, resolutionMin} = this.props;
     this.ctx.clearRect(0, 0, width, height);
@@ -46,14 +45,14 @@ class Axes extends Component {
       if (i === this.state.ticks) {
         y += 10;
       }
+      // Renders the position of the label 60 pixels from the right
       var x = width - 60;
-      // Get the value for the current y coordinate.
 
       // if (this.log) {
       // Handle a logarithmic scale.
       // var logIndex = this.logScale(index, maxSample)+minSample;
       // Never show 0 Hz.
-      let freq = Math.max(1, newFreqAlgorithm(percent, resolutionMax, resolutionMin));
+      let freq = Math.max(1, getFreq(percent, resolutionMax, resolutionMin));
       this.ctx.font = '18px Inconsolata';
       // Draw the value.
       this.ctx.textAlign = 'right';

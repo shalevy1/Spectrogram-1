@@ -31,7 +31,7 @@ class MyProvider extends Component {
     min: 20, // Temp Min for Input
     max: 20000, // Temp Max for Input
     tuningMode: false,// Mode Switcher
-    freqControls: false,
+    freqControls: false, // Graph Limit controls toggle
     graphPreset: 'default',
     headphoneMode: false,
     reverbOn: false,
@@ -39,7 +39,7 @@ class MyProvider extends Component {
     delayOn: false,
     delayTime: 0.25,
     delayFeedback: 0.25,
-    amOn: false,
+    amOn: false, // Amplitude Modulation
     amRate: 0,
     //hidePanes: false,
     isStarted: false,

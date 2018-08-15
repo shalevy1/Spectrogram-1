@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import "../styles/scale-controls.css";
-import { getMousePos, newFreqAlgorithm, calculateNewMax, calculateNewMin, freqToIndex } from "../util/conversions";
+import { getMousePos, getFreq, calculateNewMax, calculateNewMin, freqToIndex } from "../util/conversions";
 import generateScale from '../util/generateScale';
 
-const CHROMATIC_INDEX = 3;
+const CHROMATIC_INDEX = 3; // Default to "C" Chromatic Scale
 
+// Class that creates the touch/mouse zoom input when scale controls are on
 class Scales extends Component {
   constructor(props) {
     super();
@@ -24,9 +25,11 @@ class Scales extends Component {
       direction: "", // Up = true, down = false
     }
   }
+
   componentDidMount() {
     window.addEventListener("resize", this.handleResize);
     this.ctx = this.canvas.getContext('2d');
+    // Only render when note lines are off
     if(!this.props.noteLinesOn){
       this.renderNoteLines();
     }
@@ -53,7 +56,7 @@ class Scales extends Component {
     this.ctx.fillStyle = '#d6d1d5';
     this.ctx.fillRect(0, pos.y, this.canvas.width, 20);
 
-    let freq = newFreqAlgorithm(1-pos.y/this.props.height, this.props.resolutionMax, this.props.resolutionMin);
+    let freq = getFreq(1-pos.y/this.props.height, this.props.resolutionMax, this.props.resolutionMin);
     this.ctx.font = '24px Inconsolata';
     this.ctx.fillStyle = 'white';
     this.ctx.fillText(freq + ' Hz', 100, pos.y);
@@ -117,7 +120,7 @@ class Scales extends Component {
           }
 
           // Color each pointer
-          let freq1 = newFreqAlgorithm(1-this.state.topFreq/this.props.height, this.state.zoomMax, this.state.zoomMin);
+          let freq1 = getFreq(1-this.state.topFreq/this.props.height, this.state.zoomMax, this.state.zoomMin);
           this.ctx.clearRect(0, 0, width, height);
           this.ctx.fillStyle = '#d6d1d5';
           this.ctx.fillRect(0, this.state.bottomFreq, this.canvas.width, 20);
@@ -128,7 +131,7 @@ class Scales extends Component {
           if (this.state.direction === "Up") {
               let A0 = this.state.zoomMin;
               let yPercent = 1 - this.state.topFreq / this.props.height;
-              let freq = newFreqAlgorithm(yPercent, this.state.zoomMax, this.state.zoomMin)
+              let freq = getFreq(yPercent, this.state.zoomMax, this.state.zoomMin)
               let newYPercent = 1 - this.state.bottomFreq/this.props.height;
               if (newYPercent > 1) newYPercent = 1;
               if (newYPercent < 0) newYPercent = 0;
@@ -138,7 +141,7 @@ class Scales extends Component {
             } else {
               let A0 = this.state.zoomMin;
               let yPercent = 1 - this.state.topFreq / this.props.height;
-              let freq = newFreqAlgorithm(yPercent, this.state.zoomMax, this.state.zoomMin)
+              let freq = getFreq(yPercent, this.state.zoomMax, this.state.zoomMin)
               let newYPercent = 1 - this.state.bottomFreq/this.props.height;
               if (newYPercent > 1) newYPercent = 1;
               if (newYPercent < 0) newYPercent = 0;
@@ -170,8 +173,8 @@ class Scales extends Component {
         bottom = finger2;
       }
       // Color each pointer
-      let freq1 = newFreqAlgorithm(1-this.state.topFreq/this.props.height, this.state.zoomMax, this.state.zoomMin);
-      let freq2 = newFreqAlgorithm(1-this.state.bottomFreq/this.props.height, this.state.zoomMax, this.state.zoomMin);
+      let freq1 = getFreq(1-this.state.topFreq/this.props.height, this.state.zoomMax, this.state.zoomMin);
+      let freq2 = getFreq(1-this.state.bottomFreq/this.props.height, this.state.zoomMax, this.state.zoomMin);
       this.ctx.clearRect(0, 0, width, height);
       this.ctx.fillStyle = '#d6d1d5';
       this.ctx.fillRect(0, finger1, this.canvas.width, 20);
@@ -192,8 +195,8 @@ class Scales extends Component {
           let A0 = this.state.zoomMin;
           let yPercent1 = 1 - this.state.topFreq / this.props.height;
           let yPercent2 = 1 - this.state.bottomFreq / this.props.height;
-          let freq1 = newFreqAlgorithm(yPercent1, this.state.zoomMax, this.state.zoomMin)
-          let freq2 = newFreqAlgorithm(yPercent2, this.state.zoomMax, this.state.zoomMin)
+          let freq1 = getFreq(yPercent1, this.state.zoomMax, this.state.zoomMin)
+          let freq2 = getFreq(yPercent2, this.state.zoomMax, this.state.zoomMin)
           let newYPercent1 = 1 - top/this.props.height;
           let newYPercent2 = 1 - bottom/this.props.height;
 
@@ -215,6 +218,7 @@ class Scales extends Component {
 
   }
 
+  // Delete the appropriate pointer from the event cache
   onPointerUp(e) {
     this.remove_event(e);
     let length = Object.keys(this.state.evCache).length;
@@ -232,10 +236,13 @@ class Scales extends Component {
         direction: ""
       });
     }
+    // Only render when note lines are off
     if(!this.props.noteLinesOn){
       this.renderNoteLines();
     }
   }
+
+  // Reset everything
   onPointerOut(e) {
     let {height, width} = this.props;
     this.ctx.clearRect(0, 0, width, height);
@@ -250,6 +257,7 @@ class Scales extends Component {
       pointerDown: false,
       direction: ""
     });
+    // Only render when note lines are off
     if(!this.props.noteLinesOn){
       this.renderNoteLines();
     }
@@ -265,7 +273,6 @@ class Scales extends Component {
   }
 
   renderNoteLines = () => {
-
     let {height, width, resolutionMax, resolutionMin} = this.props;
     this.ctx.clearRect(0, 0, width, height);
 
@@ -298,8 +305,8 @@ class Scales extends Component {
           bottom = finger2;
         }
         // Color each pointer
-        let freq1 = newFreqAlgorithm(1-this.state.topFreq/this.props.height, this.state.zoomMax, this.state.zoomMin);
-        let freq2 = newFreqAlgorithm(1-this.state.bottomFreq/this.props.height, this.state.zoomMax, this.state.zoomMin);
+        let freq1 = getFreq(1-this.state.topFreq/this.props.height, this.state.zoomMax, this.state.zoomMin);
+        let freq2 = getFreq(1-this.state.bottomFreq/this.props.height, this.state.zoomMax, this.state.zoomMin);
 
         this.ctx.fillStyle = '#d6d1d5';
         this.ctx.fillRect(0, finger1, this.canvas.width, 20);

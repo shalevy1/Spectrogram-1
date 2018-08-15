@@ -279,7 +279,8 @@ onPointerOut(e){
                     disabled={!context.state.isStarted || !context.state.scaleOn}/>
                   </div>
                   <div>
-                  {context.state.musicKey.name}{context.state.accidental.name}{context.state.scale.name}
+                  {/* Render Scale Name to screen. Don't render 'chromatic' scale name or accidental */}
+                  {(context.state.scale.name == "Chromatic")? "" : context.state.musicKey.name}{(context.state.scale.name == "Chromatic")? "" : context.state.accidental.name}{context.state.scale.name}
                   </div>
                   </div>
                 </Menu.Item>

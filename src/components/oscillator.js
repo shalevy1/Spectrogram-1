@@ -3,7 +3,7 @@ import Tone from 'tone';
 import "../styles/oscillator.css"
 import generateScale from '../util/generateScale';
 
-import { newFreqAlgorithm, getGain, freqToIndex, getMousePos } from "../util/conversions";
+import { getFreq, getGain, freqToIndex, getMousePos } from "../util/conversions";
 
 const NUM_VOICES = 6;
 const RAMPVALUE = 0.2;
@@ -29,7 +29,8 @@ class Oscillator extends Component {
     }
   }
 
-  // Setup Tone and all of its needed dependencies
+  // Setup Tone and all of its needed dependencies.
+  // To view signal flow, check out signal_flow.png
   componentDidMount() {
     Tone.context = this.props.context;
     // Array to hold synthesizer objects. Implemented in a circular way
@@ -151,6 +152,7 @@ class Oscillator extends Component {
       }
     }
   }
+  
   componentWillUnmount() {
     this.masterVolume.mute = true;
     window.removeEventListener("resize", this.handleResize);
@@ -166,7 +168,7 @@ class Oscillator extends Component {
     // The value goes from 0 to 1. (0, 0) = Bottom Left corner
     let yPercent = 1 - pos.y / this.props.height;
     let xPercent = 1 - pos.x / this.props.width;
-    let freq = this.newFreqAlgorithm(yPercent);
+    let freq = this.getFreq(yPercent);
     let gain = getGain(xPercent);
     // newVoice = implementation of circular array discussed above.
     let newVoice = (this.state.currentVoice + 1) % NUM_VOICES; // Mouse always changes to new "voice"
@@ -193,7 +195,7 @@ class Oscillator extends Component {
       let yPercent = 1 - pos.y / height;
       let xPercent = 1 - pos.x / width;
       let gain = getGain(xPercent);
-      let freq = this.newFreqAlgorithm(yPercent);
+      let freq = this.getFreq(yPercent);
       // Remove previous gold indices and update them to new positions
       this.goldIndices.splice(this.state.currentVoice - 1, 1);
       if(this.props.scaleOn){
@@ -257,6 +259,7 @@ class Oscillator extends Component {
   */
   onTouchStart(e) {
     e.preventDefault(); // Always need to prevent default browser choices
+    e.stopPropagation();
     if(e.touches.length > NUM_VOICES ){
       return;
     }
@@ -266,7 +269,7 @@ class Oscillator extends Component {
       let yPercent = 1 - pos.y / this.props.height;
       let xPercent = 1 - pos.x / this.props.width;
       let gain = getGain(xPercent);
-      let freq = this.newFreqAlgorithm(yPercent);
+      let freq = this.getFreq(yPercent);
       let newVoice = (this.state.currentVoice + 1) % NUM_VOICES;
       this.setState({
         touch: true,
@@ -301,7 +304,7 @@ class Oscillator extends Component {
         let xPercent = 1 - pos.x / this.props.width;
         let gain = getGain(xPercent);
 
-        let freq = this.newFreqAlgorithm(yPercent);
+        let freq = this.getFreq(yPercent);
         // Determines index of the synth needing to change volume/frequency
         let index = (voiceToChange + e.changedTouches[i].identifier) % NUM_VOICES;
         // Wraps the array
@@ -334,7 +337,7 @@ class Oscillator extends Component {
       for (let i = 0; i < e.touches.length; i++) {
         let pos = getMousePos(this.canvas, e.touches[i]);
         let yPercent = 1 - pos.y / this.props.height;
-        let freq = this.newFreqAlgorithm(yPercent);
+        let freq = this.getFreq(yPercent);
         this.label(freq, pos.x, pos.y);
       }
       if(this.props.noteLinesOn){
@@ -386,9 +389,9 @@ class Oscillator extends Component {
 
   // Helper function that determines the frequency to play based on the mouse/finger position
   // Also deals with snapping it to a scale if scale mode is on
-  newFreqAlgorithm(index) {
+  getFreq(index) {
     let {resolutionMax, resolutionMin, height} = this.props;
-    let freq = newFreqAlgorithm(index, resolutionMax, resolutionMin)
+    let freq = getFreq(index, resolutionMax, resolutionMin)
     if (this.props.scaleOn) {
       //  Maps to one of the 12 keys of the piano based on note and accidental
       let newIndexedKey = this.props.musicKey.value;
@@ -443,7 +446,9 @@ class Oscillator extends Component {
   handleResize = () => {
     this.props.handleResize();
     this.ctx.clearRect(0, 0, this.props.width, this.props.height);
-    this.renderNoteLines();
+    if(this.props.noteLinesOn){
+      this.renderNoteLines();
+    }
   }
 
   // Helper method that generates a label for the frequency or the scale note

@@ -98,6 +98,7 @@ class App extends Component {
       />
       </React.Fragment>
       )}
+
       </MyContext.Consumer>
 
 
@@ -109,11 +110,12 @@ class App extends Component {
         </h4>*/}
         <a href="https://github.com/ListeningToWaves/SpectrogramTesting" target="_blank" rel="noopener noreferrer" >about</a>
       </p>
+
+      {/* Full Screen Button */}
       <Button icon onClick={this.toggleFullScreen} className="fullscreenbutton">
       {!this.state.fullScreen ?  <Icon fitted name="expand" color="orange" size="large"/> :
       <Icon fitted name="compress" color="orange" size="large"/> }
       </Button>
-
 
       </MyProvider>
       </div>

@@ -27,7 +27,7 @@ function getMousePos(canvas, evt) {
   }
 }
 
-function newFreqAlgorithm(index, max, min) {
+function getFreq(index, max, min) {
   let logResolution = Math.log(max / min);
   let freq = min * Math.pow(Math.E, index * logResolution);
   return Math.round(freq);
@@ -67,4 +67,4 @@ function freqToIndex(freq, max, min, height) {
   return 0;
 }
 
-export {convertToLog, convertToLinear, getMousePos, newFreqAlgorithm, getGain, calculateNewMax, calculateNewMin, freqToIndex}
+export {convertToLog, convertToLinear, getMousePos, getFreq, getGain, calculateNewMax, calculateNewMin, freqToIndex}

@@ -38,7 +38,6 @@ class MyMenu extends Component {
         } else {
           name = null;
         }
-
         break;
 
       default:
@@ -49,6 +48,7 @@ class MyMenu extends Component {
 
   }
 
+  // Function that handles the close of the menu
   closeMenu = () => this.setState({pane: null, activeItem: null});
 
   // Function that switches to the signal generator on click
@@ -76,6 +76,7 @@ class MyMenu extends Component {
   //   this.props.reset();
   // }
 
+// Function that toggles the frequency controls
   showFreqControls = () =>{
     if(this.state.activeItem !== 'graph'){
       this.setState({
@@ -125,6 +126,7 @@ class MyMenu extends Component {
           <Menu.Item name='sound-making' active={activeItem === 'sound-making'} onClick={this.handleItemClick} className="tab-item" style={soundStyle}/>
           {/*<Menu.Item name='advanced' active={activeItem === 'advanced'} onClick={this.handleItemClick} className="tab-item"/>*/}
 
+          {/* Microphone Gain */}
           <Menu.Item className="microphone-positioning">
             Microphone Gain&nbsp;&nbsp;
             <div className="gain-container">
@@ -137,12 +139,14 @@ class MyMenu extends Component {
               className="gain-slider"/>
             </div>
           </Menu.Item>
+          {/* Scale Controls */}
+          <Menu.Item position="right" className="no-margin">
+            <button onClick={this.showFreqControls} className="freq-button">Scale Controls</button>
+          </Menu.Item>
 
-              <Menu.Item position="right" className="no-margin">
-                <button onClick={this.showFreqControls} className="freq-button">Scale Controls</button>
-                </Menu.Item>
           <Menu.Header className="menu-title" active="false">Spectrogram</Menu.Header>
         </Menu>
+        {/* Renders the current pane beneath the menu */}
         {this.state.pane}
 
       </div>

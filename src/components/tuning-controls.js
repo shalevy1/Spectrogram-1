@@ -15,7 +15,6 @@ import { Button, Icon } from 'semantic-ui-react';
 // Which passes the controls down to Spectrogram
 class TuningControls extends Component {
 
-
   render() {
     return (
       <MyContext.Consumer>
@@ -92,9 +91,8 @@ class TuningControls extends Component {
                   {context.state.musicKey.name}{context.state.accidental.name}{context.state.scale.name}
                   </div>
                 </Menu.Item>
-
-
               </Menu>
+              {/* Close Menu Button */}
               <div className="tuning-close-menu">
                 <Button icon onClick={this.props.closeMenu} className="close-menu">
                 <Icon fitted name="angle double up" size="large"/>

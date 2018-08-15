@@ -6,7 +6,7 @@ import ScaleControls from './scale-controls'
 import NoteLines from './note-lines';
 import Oscillator from './oscillator';
 
-import { convertToLog, newFreqAlgorithm } from '../util/conversions';
+import { convertToLog, getFreq } from '../util/conversions';
 import { Button, Icon } from 'semantic-ui-react';
 
 const ReactAnimationFrame = require('react-animation-frame');
@@ -145,7 +145,7 @@ class Spectrogram extends Component {
       // Gets the height and creates a log scale of the index
       if (log) {
         let myPercent = (i / height);
-        var logPercent = newFreqAlgorithm(myPercent, resolutionMax, resolutionMin);
+        var logPercent = getFreq(myPercent, resolutionMax, resolutionMin);
         let logIndex = Math.round(logPercent * freq.length / (audioContext.sampleRate / 2));
         value = freq[logIndex];
 
@@ -180,9 +180,6 @@ class Spectrogram extends Component {
     // return 'rgb(V, V, V)'.replace(/V/g, 255 - value);
     return 'hsl(H, 100%, P%)'.replace(/H/g, 255 - value).replace(/P/g, percent);
   }
-
-
-
 
 handleHeadphoneModeToggle=()=>{
   this.props.handleHeadphoneModeToggle();
@@ -288,8 +285,9 @@ handleHeadphoneModeToggle=()=>{
               Soft<span>Loud</span>
             </div>
           </div>
-
+            {/* Renders sound or tuning mode based on variable above */}
             {soundOrTuning}
+            
             <Axes
             resolutionMax={this.props.resolutionMax}
             resolutionMin={this.props.resolutionMin}

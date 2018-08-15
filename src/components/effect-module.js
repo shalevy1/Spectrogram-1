@@ -7,14 +7,8 @@ import Slider from 'react-rangeslider';
 // To include the default styles
 import 'react-rangeslider/lib/index.css';
 
+// Class that renderes the effects. Each module has a toggle and controls
 class EffectModule extends Component {
-  renderControls(){
-    let controlsList = [];
-    for(let i=0; i<this.props.controlNames.length; i++){
-      controlsList.push(<div>"HI"</div>)
-    }
-    return controlsList;
-  }
 
   render(){
     return(

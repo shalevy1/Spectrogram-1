@@ -10,6 +10,8 @@ import 'rc-slider/assets/index.css';
 // To include the default styles
 // import 'react-rangeslider/lib/index.css';
 import Range from 'rc-slider/lib/Range';
+
+// Class the renders the Scale Controls when the button is pushed
 class GraphControls extends Component {
   render(){
     return (
@@ -98,10 +100,13 @@ class GraphControls extends Component {
                   </div>
                 </Menu.Item>
               </Menu>
+              
+              {/* Reset Button */}
               <div className="graph-close-menu">
                 <Button icon onClick={this.props.reset} className="icon-button">
                   <Icon fitted name="redo alternate"/>
                 </Button>
+                {/* Close Menu */}
                 <Button icon onClick={this.props.closeMenu} className="icon-button close-menu">
                   <Icon fitted name="angle double up" size="large"/>
                 </Button>
