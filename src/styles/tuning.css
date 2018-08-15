@@ -1,8 +1,8 @@
 .tuning-container {
   width: 46%;
   display: flex;
-
 }
+
 .tuning-close-menu{
     display: flex!important;
     justify-content: flex-end;

@@ -2,13 +2,9 @@ import React, {Component} from 'react';
 import {Button, Icon, Form, Segment, Menu, Input, Radio} from 'semantic-ui-react';
 import {MyContext} from './my-provider';
 
-import "../styles/graph.css";
-// Using an ES6 transpiler like Babel
-// import Slider from 'react-rangeslider';
+import "../styles/graph-controls.css";
 import 'rc-slider/assets/index.css';
 
-// To include the default styles
-// import 'react-rangeslider/lib/index.css';
 import Range from 'rc-slider/lib/Range';
 
 // Class the renders the Scale Controls when the button is pushed
@@ -100,7 +96,7 @@ class GraphControls extends Component {
                   </div>
                 </Menu.Item>
               </Menu>
-              
+
               {/* Reset Button */}
               <div className="graph-close-menu">
                 <Button icon onClick={this.props.reset} className="icon-button">

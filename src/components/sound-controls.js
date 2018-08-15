@@ -4,7 +4,7 @@ import {MyContext} from './my-provider';
 import EffectModule from './effect-module';
 
 import {Segment, Menu, Dropdown, Checkbox, Button, Icon} from 'semantic-ui-react';
-import "../styles/sound.css";
+import "../styles/sound-controls.css";
 // Using an ES6 transpiler like Babel
 import Slider from 'react-rangeslider';
 // To include the default styles

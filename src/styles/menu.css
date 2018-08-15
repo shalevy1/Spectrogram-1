@@ -1,10 +1,7 @@
 .menu-container {
   position: absolute;
   left: 0%;
-  /*display: flex;
-  flex-direction: column;*/
 }
-
 
 .menu-title {
   font-size: 24px;
@@ -16,17 +13,15 @@
   user-select: none;
 }
 
+.menu-header {
+  font-weight: 700;
+}
+
 .menu-menu {
   height: 10vh;
   margin: 0!important;
   border-bottom: 1px solid black!important;
   width: 100vw!important;
-  /*display: flex;*/
-  /*flex-direction: column;*/
-}
-
-.tab-item:hover {
-  /* background-color: #d7dde5!important; */
 }
 
 .rangeslider__handle {
@@ -35,21 +30,22 @@
 
 .gain-slider {
   width: 100px;
-  /* margin-bottom: 10%!important; */
 }
-
 
 .flex {
   display: flex;
   flex-direction: column;
 }
+
 .item {
   font-size: 16px!important;
 }
+
 .icon-button {
   background: none!important;
 }
-.function-switch-button-container{
+
+.function-switch-button-container {
   padding-left: 0!important;
 }
 
@@ -73,8 +69,6 @@
 }
 
 .function-switch-button:hover {
-  /* background-color: #a291fb; */
-  /* color: white; */
   outline: none;
   cursor: pointer;
 }
@@ -96,7 +90,7 @@
   color: black;
   font-weight: 400;
   line-height: 1;
-  font-family: Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;
+  font-family: Lato, 'Helvetica Neue', Arial, Helvetica, sans-serif;
   font-size: 16px;
   min-height: 1em;
   vertical-align: baseline;
@@ -106,35 +100,7 @@
   transition-property: color, background-color;
   user-select: none;
 }
-.tuning-button:hover {
 
-  outline: none;
-  cursor: pointer;
-}
-.menu-header {
-  font-weight: 700;
-}
-
-
-.ui.slider.checkbox input:focus:checked~.box:before, .ui.slider.checkbox input:focus:checked~label:before {
-  background-color: #ABE2FB!important;
-
-}
-.ui.slider.checkbox input:checked~.box:before, .ui.slider.checkbox input:checked~label:before {
-  background-color: #ABE2FB!important;
-}
-.ui.slider.checkbox input:focus~.box:before, .ui.slider.checkbox input:focus~label:before {
-  background-color:#7CB342!important;
-
-}
-.ui.slider.checkbox .box:before, .ui.slider.checkbox label:before {
-  background-color:#7CB342!important;
-
-}
-.no-margin{
-  margin: 0!important;
-  padding: 0!important;
-}
 .freq-button {
   border: 2px solid #ff695e;
   outline: none;
@@ -153,9 +119,8 @@
   -webkit-transition-property: color, background-color;
   transition-property: color, background-color;
 }
+
 .freq-button:hover {
-  /* background-color: #ff695e;
-  color: white; */
   outline: none;
   cursor: pointer;
 }
@@ -166,6 +131,34 @@
   outline: none;
   cursor: pointer;
 }
+
+
+.tuning-button:hover {
+  outline: none;
+  cursor: pointer;
+}
+
+.ui.slider.checkbox input:focus:checked~.box:before, .ui.slider.checkbox input:focus:checked~label:before {
+  background-color: #ABE2FB!important;
+}
+
+.ui.slider.checkbox input:checked~.box:before, .ui.slider.checkbox input:checked~label:before {
+  background-color: #ABE2FB!important;
+}
+
+.ui.slider.checkbox input:focus~.box:before, .ui.slider.checkbox input:focus~label:before {
+  background-color: #7CB342!important;
+}
+
+.ui.slider.checkbox .box:before, .ui.slider.checkbox label:before {
+  background-color: #7CB342!important;
+}
+
+.no-margin {
+  margin: 0!important;
+  padding: 0!important;
+}
+
 .microphone-positioning {
   position: absolute;
   left: 30%;

@@ -3,20 +3,19 @@
   margin: 0!important;
   border: 0!important;
 }
+
 .multi-slider-container {
   width: 200px;
   min-height: 125px;
-
 }
+
 .multi-slider {
   width: 80%!important;
   margin: 20px 10px;
   display: flex;
   padding: 0!important;
-  /* height: 50px; */
-  /* color: black!important; */
-  /* background-color: black; */
 }
+
 .graph-limit-container {
   display: flex;
   flex-direction: column;
@@ -28,10 +27,12 @@
 .multi-slider * {
   height: 12px!important;
 }
+
 .rc-slider-handle {
   width: 24px!important;
   height: 24px!important;
 }
+
 .rc-slider {
   height: 0px!important;
 }
@@ -40,18 +41,13 @@ display: flex;
 justify-content: center;
 align-items: center;
 }
+
 .resolution-input {
   width: 40%;
   margin: 0!important;
 }
-/* .resolution-input input {
-  padding: .5em 1em;
-
-} */
 
 .close-menu {
-  /* width: 5%; */
-  /* float: right; */
   background: none!important;
   padding: 0!important;
   margin-top: -12px!important;
@@ -67,8 +63,8 @@ align-items: center;
 .graph-container {
   width: 38%;
   display: flex;
-
 }
+
 .graph-close-menu {
   display: flex!important;
   flex-direction: column;
