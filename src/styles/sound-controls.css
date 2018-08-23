@@ -48,6 +48,10 @@
   display: flex;
 }
 
+.effects-stretch {
+  width: 40%!important;
+}
+
 .sound-close-menu {
   display: flex!important;
   justify-content: flex-end;

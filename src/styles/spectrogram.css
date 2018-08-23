@@ -44,11 +44,22 @@
     border: 2px solid #ABE2FB!important;
     border-radius: 3rem!important;
   }
+  .microphone-mode-button {
+    position: absolute;
+    left: 8%;
+    top: 11%;
+    margin: 2px 2px!important;
+    min-width: 3%;
+    z-index: 21;
+    /* opacity: 0.5; */
+    border: 2px solid #ABE2FB!important;
+    border-radius: 3rem!important;
+  }
 
   .color-map-container {
     width: 20%;
     position: absolute;
-    left: 8%;
+    left: 12%;
     top: 10%;
     padding: 2px;
     z-index: 21;

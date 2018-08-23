@@ -34,13 +34,17 @@ class MyProvider extends Component {
     freqControls: false, // Graph Limit controls toggle
     graphPreset: 'default',
     headphoneMode: false,
+    microphone: true,
     reverbOn: false,
     reverbDecay: 0.5,
     delayOn: false,
     delayTime: 0.25,
     delayFeedback: 0.25,
     amOn: false, // Amplitude Modulation
-    amRate: 0,
+    amRate: 0.2,
+    amLevel: 0.5,
+    fmRate: 0.2,
+    fmLevel: 0.5,
     //hidePanes: false,
     isStarted: false,
   }
@@ -200,13 +204,8 @@ class MyProvider extends Component {
             this.setState({speed: this.state.prevSpeed});
           }
         },
-        handleHeadphoneModeToggle: () =>{
-          if(this.state.headphoneMode){
-
-          } else {
-          }
-          this.setState({headphoneMode: !this.state.headphoneMode});
-        },
+        handleHeadphoneModeToggle: () => this.setState({headphoneMode: !this.state.headphoneMode}),
+        handleMicrophoneToggle: () => this.setState({microphone: !this.state.microphone}),
         handleReverbToggle: () => this.setState({reverbOn: !this.state.reverbOn}),
         handleReverbDecayChange: value => {
           if(this.state.reverbOn){
@@ -228,6 +227,22 @@ class MyProvider extends Component {
         handleAmRateChange: value => {
           if(this.state.amOn){
             this.setState({amRate: Math.round(value*100)/100});
+          }
+        },
+        handleAmLevelChange: value => {
+          if(this.state.amOn){
+            this.setState({amLevel: Math.round(value*100)/100});
+          }
+        },
+        handleFmToggle: () => this.setState({fmOn: !this.state.fmOn}),
+        handleFmRateChange: value => {
+          if(this.state.fmOn){
+            this.setState({fmRate: Math.round(value*100)/100});
+          }
+        },
+        handleFmLevelChange: value => {
+          if(this.state.fmOn){
+            this.setState({fmLevel: Math.round(value*100)/100});
           }
         },
         start: ()=> this.setState({isStarted: true}),

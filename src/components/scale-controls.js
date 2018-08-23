@@ -56,7 +56,7 @@ class Scales extends Component {
     this.ctx.fillStyle = '#d6d1d5';
     this.ctx.fillRect(0, pos.y, this.canvas.width, 20);
 
-    let freq = getFreq(1-pos.y/this.props.height, this.props.resolutionMax, this.props.resolutionMin);
+    let freq = getFreq(1-pos.y/this.props.height, this.props.resolutionMin, this.props.resolutionMax);
     this.ctx.font = '24px Inconsolata';
     this.ctx.fillStyle = 'white';
     this.ctx.fillText(freq + ' Hz', 100, pos.y);
@@ -120,7 +120,7 @@ class Scales extends Component {
           }
 
           // Color each pointer
-          let freq1 = getFreq(1-this.state.topFreq/this.props.height, this.state.zoomMax, this.state.zoomMin);
+          let freq1 = getFreq(1-this.state.topFreq/this.props.height, this.state.zoomMin, this.state.zoomMax);
           this.ctx.clearRect(0, 0, width, height);
           this.ctx.fillStyle = '#d6d1d5';
           this.ctx.fillRect(0, this.state.bottomFreq, this.canvas.width, 20);
@@ -131,7 +131,7 @@ class Scales extends Component {
           if (this.state.direction === "Up") {
               let A0 = this.state.zoomMin;
               let yPercent = 1 - this.state.topFreq / this.props.height;
-              let freq = getFreq(yPercent, this.state.zoomMax, this.state.zoomMin)
+              let freq = getFreq(yPercent, this.state.zoomMin, this.state.zoomMax)
               let newYPercent = 1 - this.state.bottomFreq/this.props.height;
               if (newYPercent > 1) newYPercent = 1;
               if (newYPercent < 0) newYPercent = 0;
@@ -141,11 +141,11 @@ class Scales extends Component {
             } else {
               let A0 = this.state.zoomMin;
               let yPercent = 1 - this.state.topFreq / this.props.height;
-              let freq = getFreq(yPercent, this.state.zoomMax, this.state.zoomMin)
+              let freq = getFreq(yPercent, this.state.zoomMin, this.state.zoomMax)
               let newYPercent = 1 - this.state.bottomFreq/this.props.height;
               if (newYPercent > 1) newYPercent = 1;
               if (newYPercent < 0) newYPercent = 0;
-              let newMin = calculateNewMin(freq, A0, newYPercent, this.state.zoomMax, this.state.zoomMin);
+              let newMin = calculateNewMin(freq, A0, newYPercent, this.state.zoomMin, this.state.zoomMax);
               if (newMin < 1) newMin = 1;
               this.props.handleZoom(this.state.zoomMax, newMin);
 
@@ -173,8 +173,8 @@ class Scales extends Component {
         bottom = finger2;
       }
       // Color each pointer
-      let freq1 = getFreq(1-this.state.topFreq/this.props.height, this.state.zoomMax, this.state.zoomMin);
-      let freq2 = getFreq(1-this.state.bottomFreq/this.props.height, this.state.zoomMax, this.state.zoomMin);
+      let freq1 = getFreq(1-this.state.topFreq/this.props.height, this.state.zoomMin, this.state.zoomMax);
+      let freq2 = getFreq(1-this.state.bottomFreq/this.props.height, this.state.zoomMin, this.state.zoomMax);
       this.ctx.clearRect(0, 0, width, height);
       this.ctx.fillStyle = '#d6d1d5';
       this.ctx.fillRect(0, finger1, this.canvas.width, 20);
@@ -195,8 +195,8 @@ class Scales extends Component {
           let A0 = this.state.zoomMin;
           let yPercent1 = 1 - this.state.topFreq / this.props.height;
           let yPercent2 = 1 - this.state.bottomFreq / this.props.height;
-          let freq1 = getFreq(yPercent1, this.state.zoomMax, this.state.zoomMin)
-          let freq2 = getFreq(yPercent2, this.state.zoomMax, this.state.zoomMin)
+          let freq1 = getFreq(yPercent1, this.state.zoomMin, this.state.zoomMax)
+          let freq2 = getFreq(yPercent2, this.state.zoomMin, this.state.zoomMax)
           let newYPercent1 = 1 - top/this.props.height;
           let newYPercent2 = 1 - bottom/this.props.height;
 
@@ -205,7 +205,7 @@ class Scales extends Component {
           if (newYPercent1 < 0) newYPercent1 = 0;
           if (newYPercent2 < 0) newYPercent2 = 0;
           let newMax = calculateNewMax(freq1, A0, newYPercent1);
-          let newMin = calculateNewMin(freq2, A0, newYPercent2, this.state.zoomMax, this.state.zoomMin);
+          let newMin = calculateNewMin(freq2, A0, newYPercent2, this.state.zoomMin, this.state.zoomMax);
           if (newMax > 20000) newMax = 20000;
           if (newMin < 1) newMin = 1;
           this.props.handleZoom(newMax, newMin);
@@ -305,8 +305,8 @@ class Scales extends Component {
           bottom = finger2;
         }
         // Color each pointer
-        let freq1 = getFreq(1-this.state.topFreq/this.props.height, this.state.zoomMax, this.state.zoomMin);
-        let freq2 = getFreq(1-this.state.bottomFreq/this.props.height, this.state.zoomMax, this.state.zoomMin);
+        let freq1 = getFreq(1-this.state.topFreq/this.props.height, this.state.zoomMin, this.state.zoomMax);
+        let freq2 = getFreq(1-this.state.bottomFreq/this.props.height, this.state.zoomMin, this.state.zoomMax);
 
         this.ctx.fillStyle = '#d6d1d5';
         this.ctx.fillRect(0, finger1, this.canvas.width, 20);

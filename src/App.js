@@ -83,8 +83,10 @@ class App extends Component {
       menuClose={context.menuClose}
       handleZoom={context.handleZoom}
       handlePause={context.handlePause}
-      handleHeadphoneModeToggle={context.handleHeadphoneModeToggle}
       headphoneMode={context.state.headphoneMode}
+      handleHeadphoneModeToggle={context.handleHeadphoneModeToggle}
+      microphone={context.state.microphone}
+      handleMicrophoneToggle={context.handleMicrophoneToggle}
       tuningMode={context.state.tuningMode}
       freqControls={context.state.freqControls}
       reverbOn={context.state.reverbOn}
@@ -94,6 +96,10 @@ class App extends Component {
       delayFeedback={context.state.delayFeedback}
       amOn={context.state.amOn}
       amRate={context.state.amRate}
+      fmLevel={context.state.fmLevel}
+      fmOn={context.state.fmOn}
+      fmRate={context.state.fmRate}
+      amLevel={context.state.amLevel}
       start={context.start}
       />
       </React.Fragment>

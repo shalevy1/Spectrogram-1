@@ -89,7 +89,7 @@ class NoteLines extends Component {
     let yPercent = 1 - pos.y / height;
     let xPercent = 1 - pos.x / width;
     let gain = getGain(xPercent);
-    let freq = getFreq(yPercent, resolutionMax, resolutionMin);
+    let freq = getFreq(yPercent, resolutionMin, resolutionMax);
     let newVoice = (this.state.currentVoice + 1) % NUM_VOICES; // Mouse always changes to new "voice"
 
       for(let j in this.frequencies){
@@ -129,7 +129,7 @@ class NoteLines extends Component {
         let yPercent = 1 - pos.y / height;
         let xPercent = 1 - pos.x / width;
         let gain = getGain(xPercent);
-        let freq = getFreq(yPercent, resolutionMax, resolutionMin);
+        let freq = getFreq(yPercent, resolutionMin, resolutionMax);
         if(soundOn){
           for(let j in this.frequencies){
             if(Math.abs(this.frequencies[j] - freq) < 0.01 * freq){
@@ -191,7 +191,7 @@ class NoteLines extends Component {
     let yPercent = 1 - pos.y / height;
     let xPercent = 1 - pos.x / width;
     let gain = getGain(xPercent);
-    let freq = getFreq(yPercent, resolutionMax, resolutionMin);
+    let freq = getFreq(yPercent, resolutionMin, resolutionMax);
 
     if(soundOn){
       for(let j in this.frequencies){
@@ -231,7 +231,7 @@ class NoteLines extends Component {
         let yPercent = 1 - pos.y / height;
         let xPercent = 1 - pos.x / width;
         let gain = getGain(xPercent);
-        let freq = getFreq(yPercent, resolutionMax, resolutionMin);
+        let freq = getFreq(yPercent, resolutionMin, resolutionMax);
         if(soundOn){
           for(let j in this.frequencies){
             if(Math.abs(this.frequencies[j] - freq) < 0.01 * freq){

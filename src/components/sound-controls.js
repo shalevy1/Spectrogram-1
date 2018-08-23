@@ -280,12 +280,12 @@ onPointerOut(e){
                   </div>
                   <div>
                   {/* Render Scale Name to screen. Don't render 'chromatic' scale name or accidental */}
-                  {(context.state.scale.name == "Chromatic")? "" : context.state.musicKey.name}{(context.state.scale.name == "Chromatic")? "" : context.state.accidental.name}{context.state.scale.name}
+                  {(context.state.scale.name === "Chromatic")? "" : context.state.musicKey.name}{(context.state.scale.name === "Chromatic")? "" : context.state.accidental.name}{context.state.scale.name}
                   </div>
                   </div>
                 </Menu.Item>
                   {/* Effects */}
-                <Menu.Item className="vert">
+                <Menu.Item className="vert effects-stretch">
                 <div className="menu-header">Effects</div>
                 <div className="effects-container">
                   <EffectModule
@@ -295,7 +295,7 @@ onPointerOut(e){
                     controlNames={["Decay Time"]}
                     controls={[context.state.reverbDecay]}
                     controlChanges={[context.handleReverbDecayChange]}
-                    disable={context.state.isStarted}
+                    disable={!context.state.isStarted}
                   />
                   <EffectModule
                     name="Delay"
@@ -304,16 +304,25 @@ onPointerOut(e){
                     controlNames={["Delay Time", "Feedback"]}
                     controls={[context.state.delayTime, context.state.delayFeedback]}
                     controlChanges={[context.handleDelayTimeChange, context.handleDelayFeedbackChange]}
-                    disable={context.state.isStarted}
+                    disable={!context.state.isStarted}
                   />
                   <EffectModule
                   name="AM"
                   toggle={context.state.amOn}
                   toggleChange={context.handleAmToggle}
-                  controlNames={["Harmonicity"]}
-                  controls={[context.state.amRate]}
-                  controlChanges={[context.handleAmRateChange]}
-                  disable={context.state.isStarted}
+                  controlNames={["Rate", "Level"]}
+                  controls={[context.state.amRate, context.state.amLevel]}
+                  controlChanges={[context.handleAmRateChange, context.handleAmLevelChange]}
+                  disable={!context.state.isStarted || context.state.fmOn}
+                  />
+                  <EffectModule
+                  name="FM"
+                  toggle={context.state.fmOn}
+                  toggleChange={context.handleFmToggle}
+                  controlNames={["Rate", "Level"]}
+                  controls={[context.state.fmRate, context.state.fmLevel]}
+                  controlChanges={[context.handleFmRateChange, context.handleFmLevelChange]}
+                  disable={!context.state.isStarted || context.state.amOn}
                   />
                   </div>
                 </Menu.Item>

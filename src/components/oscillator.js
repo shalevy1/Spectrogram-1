@@ -25,7 +25,9 @@ class Oscillator extends Component {
       touch: false,
       currentVoice: 0,
       voices: 0, //voices started with on event
-      feedback: false
+      feedback: false,
+      amOn: false,
+      fmOn: false
     }
   }
 
@@ -146,13 +148,72 @@ class Oscillator extends Component {
       this.delayVolume.mute = true;
     }
     if(nextProps.amOn){
+      let options = {
+        oscillator: {
+          type: this.props.timbre.toLowerCase()
+        }
+      };
       for (let i = 0; i < NUM_VOICES; i++) {
-        this.synths[i].oscillator.type = "am"+this.props.timbre.toLowerCase();
-        this.synths[i].oscillator.harmonicity.value = nextProps.amRate + 0.5;
+        // this.synths[i].oscillator.type = "am"+this.props.timbre.toLowerCase();
+        if(!this.state.amOn) {
+          let release = 0.01;
+          let endTime =  this.props.context.currentTime + release;
+          this.synths[i].volume.cancelAndHoldAtTime(this.props.context.currentTime);
+          this.synths[i].volume.exponentialRampToValueAtTime(-80, endTime);
+          this.synths[i].oscillator.stop(this.props.context.currentTime + release);
+          this.synths[i] = null;
+          this.synths[i] = new Tone.AMSynth(options);
+          this.synths[i].connect(this.masterVolume);
+
+        }
+        this.synths[i].modulation.frequency.value = getFreq(nextProps.amRate, 1, 50);
+        this.synths[i].modulation.volume.value = getGain(1 - nextProps.amLevel) + 20;
+        this.synths[i].modulationEnvelope.attack = 0;
+
+        this.setState({amOn: true, fmOn: false});
       }
+    } else if (nextProps.fmOn){
+      let options = {
+        oscillator: {
+          type: this.props.timbre.toLowerCase()
+        }
+      };
+      for (let i = 0; i < NUM_VOICES; i++) {
+        // this.synths[i].oscillator.type = "am"+this.props.timbre.toLowerCase();
+        if(!this.state.fmOn) {
+          let release = 0.01;
+          let endTime =  this.props.context.currentTime + release;
+          this.synths[i].volume.cancelAndHoldAtTime(this.props.context.currentTime);
+          this.synths[i].volume.exponentialRampToValueAtTime(-80, endTime);
+          this.synths[i].oscillator.stop(this.props.context.currentTime + release);
+          this.synths[i] = null;
+          this.synths[i] = new Tone.FMSynth(options);
+          this.synths[i].connect(this.masterVolume);
+
+        }
+        this.synths[i].modulation.frequency.value = getFreq(1 - nextProps.fmRate, 20, 20000);
+        this.synths[i].modulationIndex.value = getFreq(nextProps.fmLevel, 0.5, 100);
+        this.synths[i].modulationEnvelope.attack = 0;
+
+        this.setState({fmOn: true, amOn: false});
+      }
+    } else{
+      let options = {
+        oscillator: {
+          type: this.props.timbre.toLowerCase()
+        }
+      };
+      for (let i = 0; i < NUM_VOICES; i++) {
+        this.synths[i] = null;
+        this.synths[i] = new Tone.Synth(options);
+        this.synths[i].connect(this.masterVolume);
+      }
+      this.setState({amOn: false, fmOn: false});
+
     }
+
   }
-  
+
   componentWillUnmount() {
     this.masterVolume.mute = true;
     window.removeEventListener("resize", this.handleResize);
@@ -391,7 +452,7 @@ class Oscillator extends Component {
   // Also deals with snapping it to a scale if scale mode is on
   getFreq(index) {
     let {resolutionMax, resolutionMin, height} = this.props;
-    let freq = getFreq(index, resolutionMax, resolutionMin)
+    let freq = getFreq(index, resolutionMin, resolutionMax)
     if (this.props.scaleOn) {
       //  Maps to one of the 12 keys of the piano based on note and accidental
       let newIndexedKey = this.props.musicKey.value;

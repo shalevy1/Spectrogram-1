@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import {MyContext} from './my-provider';
 
 import {Checkbox} from 'semantic-ui-react';
 import "../styles/effect-module.css";
@@ -20,7 +19,7 @@ class EffectModule extends Component {
             toggle
             checked={this.props.toggle}
             onChange={this.props.toggleChange}
-            disabled={!this.props.disable}
+            disabled={this.props.disable}
             />
             </div>
             <div className="effect-controls">
@@ -33,7 +32,7 @@ class EffectModule extends Component {
                 step={0.05}
                 value={this.props.controls[index]}
                 onChange={this.props.controlChanges[index]}
-                tooltip={this.props.disable}
+                tooltip={!this.props.disable}
                 className="slider"/>
               </div>
             ))}

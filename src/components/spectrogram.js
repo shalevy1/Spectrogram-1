@@ -10,15 +10,17 @@ import { convertToLog, getFreq } from '../util/conversions';
 import { Button, Icon } from 'semantic-ui-react';
 
 const ReactAnimationFrame = require('react-animation-frame');
-// TODO: Tap anywhere to start (ipad bug)
 
 let audioContext = null;
 let analyser = null;
 let gainNode = null;
-
+let audioTrack = null;
+let streamObj = null;
 const fftSize = 8192;
 
-// Spectrogram Graph that renders itself and 2 children canvases (Oscillator and Axes)
+// Spectrogram Graph that renders itself and 3 children canvases
+// (Oscillator/NoteLines, Axes and ScaleControls)
+
 class Spectrogram extends Component {
   constructor(props) {
     super(props);
@@ -32,6 +34,7 @@ class Spectrogram extends Component {
       musicKey: {name: 'C', value: 0 },
       accidental: {name: ' ', value: 0},
       scale: {name: 'Major', value: 0},
+      microphone: true
     }
   }
   componentDidMount() {
@@ -49,6 +52,23 @@ class Spectrogram extends Component {
       if (gain !== gainNode.gain.value) {
         gainNode.gain.setTargetAtTime(gain, audioContext.currentTime, 0.01);
       }
+    }
+    // Turn on/off the microphone by calling audioTrack.stop() and then restarting the stream
+    // This checks the readyState of the audioTrack for status of the microphone
+    if(!nextProps.microphone && audioTrack.readyState === "live"){
+      audioTrack.stop();
+      this.setState({microphone: !this.state.microphone});
+    } else if(audioTrack && nextProps.microphone && audioTrack.readyState === "ended") {
+      if (navigator.mozGetUserMedia) {
+        navigator.mozGetUserMedia({
+          audio: true
+        }, this.onStream.bind(this), this.onStreamError.bind(this));
+      } else if (navigator.webkitGetUserMedia) {
+        navigator.webkitGetUserMedia({
+          audio: true
+        }, this.onStream.bind(this), this.onStreamError.bind(this));
+      }
+      this.setState({microphone: !this.state.microphone});
     }
   }
 
@@ -85,6 +105,8 @@ class Spectrogram extends Component {
 // It connects the graph by connecting the microphone to gain and gain to
 // the analyser. The gain is used as microphoneGain
   onStream(stream) {
+    streamObj = stream;
+    audioTrack = stream.getTracks()[0];
     let input = audioContext.createMediaStreamSource(stream);
     input.connect(gainNode);
     gainNode.connect(analyser);
@@ -129,44 +151,44 @@ class Spectrogram extends Component {
   // Main Graph function. Renders the frequencies, then copies them to a temporary
   // canvas and shifts that canvas by 1
   renderFreqDomain = () => {
-    let { width, height, log, resolutionMax, resolutionMin, speed } = this.props
-    let freq = new Uint8Array(analyser.frequencyBinCount);
-    analyser.getByteFrequencyData(freq);
-    this.tempCtx = this.tempCanvas.getContext('2d');
-    this.tempCanvas.width = width;
-    this.tempCanvas.height = height;
-    this.tempCtx.drawImage(this.canvas, 0, 0, width, height);
+      let { width, height, log, resolutionMax, resolutionMin, speed } = this.props
+      let freq = new Uint8Array(analyser.frequencyBinCount);
+      analyser.getByteFrequencyData(freq);
+      this.tempCtx = this.tempCanvas.getContext('2d');
+      this.tempCanvas.width = width;
+      this.tempCanvas.height = height;
+      this.tempCtx.drawImage(this.canvas, 0, 0, width, height);
 
-    // Iterate over the frequencies.
-    for (var i = 0; i < height; i++) {
-      var value;
-      // Draw each pixel with the specific color.
+      // Iterate over the frequencies.
+      for (var i = 0; i < height; i++) {
+        var value;
+        // Draw each pixel with the specific color.
 
-      // Gets the height and creates a log scale of the index
-      if (log) {
-        let myPercent = (i / height);
-        var logPercent = getFreq(myPercent, resolutionMax, resolutionMin);
-        let logIndex = Math.round(logPercent * freq.length / (audioContext.sampleRate / 2));
-        value = freq[logIndex];
+        // Gets the height and creates a log scale of the index
+        if (log) {
+          let myPercent = (i / height);
+          var logPercent = getFreq(myPercent, resolutionMin, resolutionMax);
+          let logIndex = Math.round(logPercent * freq.length / (audioContext.sampleRate / 2));
+          value = freq[logIndex];
 
-      } else {
-        let myPercent = (i / height);
-        let newPercent = Math.floor(myPercent * (resolutionMax - resolutionMin) + resolutionMin) + 1;
-        let logIndex = Math.round(newPercent * freq.length / (audioContext.sampleRate / 2));
-        value = freq[logIndex];
+        } else {
+          let myPercent = (i / height);
+          let newPercent = Math.floor(myPercent * (resolutionMax - resolutionMin) + resolutionMin) + 1;
+          let logIndex = Math.round(newPercent * freq.length / (audioContext.sampleRate / 2));
+          value = freq[logIndex];
+        }
+
+        this.ctx.fillStyle = this.getColor(value);
+        var percent = i / height;
+        var y = Math.round(percent * height);
+        this.ctx.fillRect(width - speed, height - y, speed, speed);
+
       }
-
-      this.ctx.fillStyle = this.getColor(value);
-      var percent = i / height;
-      var y = Math.round(percent * height);
-      this.ctx.fillRect(width - speed, height - y, speed, speed);
-
-    }
-    // Shifts to left by speed
-    this.ctx.translate(-speed, 0);
-    this.ctx.drawImage(this.tempCanvas, 0, 0, width, height, 0, 0, width, height);
-    // Resets transformation
-    this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+      // Shifts to left by speed
+      this.ctx.translate(-speed, 0);
+      this.ctx.drawImage(this.tempCanvas, 0, 0, width, height, 0, 0, width, height);
+      // Resets transformation
+      this.ctx.setTransform(1, 0, 0, 1, 0, 0);
 
   }
 
@@ -185,6 +207,9 @@ handleHeadphoneModeToggle=()=>{
   this.props.handleHeadphoneModeToggle();
 }
 
+handleMicrophoneToggle=()=>{
+  this.props.handleMicrophoneToggle();
+}
 
   render() {
     const soundOrTuning = this.props.tuningMode ? (
@@ -240,18 +265,21 @@ handleHeadphoneModeToggle=()=>{
       delayFeedback={this.props.delayFeedback}
       amOn={this.props.amOn}
       amRate={this.props.amRate}
+      amLevel={this.props.amLevel}
+      fmOn={this.props.fmOn}
+      fmRate={this.props.fmRate}
+      fmLevel={this.props.fmLevel}
       handleResize={this.props.handleResize}/>
     );
-      let style={'backgroundColor': ''}
+      let headphoneStyle={'backgroundColor': ''}
+      let microphoneStyle={'backgroundColor': ''}
     if(this.props.headphoneMode){
-      style = {'backgroundColor': '#2769d8'}
+      headphoneStyle = {'backgroundColor': '#2769d8'}
     }
-    // let borderStyle={'border': '' }
-    // let snackbarStyle={'opacity': 0}
-  // if(this.props.tuningMode){
-    // borderStyle = {'border': '2px solid #ff8177'}
-    // snackbarStyle={'opacity': 1}
-  // }
+    if(this.props.microphone){
+      microphoneStyle = {'backgroundColor': '#2769d8'}
+    }
+
     return (
       <div onClick={this.startSpectrogram} >
 
@@ -275,8 +303,12 @@ handleHeadphoneModeToggle=()=>{
           {!this.props.speed  ?  <Icon fitted name="play" color="orange"/> :
             <Icon fitted name="pause" color="orange"/>}
           </Button>
-          <Button icon onClick={this.handleHeadphoneModeToggle} className="headphone-mode-button" style={style}>
+          <Button icon onClick={this.handleHeadphoneModeToggle} className="headphone-mode-button" style={headphoneStyle}>
             <Icon fitted name="headphones" color="orange"/>
+          </Button>
+          <Button icon onClick={this.handleMicrophoneToggle} className="microphone-mode-button" style={microphoneStyle}>
+            {this.props.microphone ? <Icon name="microphone" color="orange"/> :
+            <Icon name="microphone slash" color="orange"/>}
           </Button>
           <div className="color-map-container">
             <div className="color-map-text">Graph Scale</div>
@@ -287,7 +319,7 @@ handleHeadphoneModeToggle=()=>{
           </div>
             {/* Renders sound or tuning mode based on variable above */}
             {soundOrTuning}
-            
+
             <Axes
             resolutionMax={this.props.resolutionMax}
             resolutionMin={this.props.resolutionMin}

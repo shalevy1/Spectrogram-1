@@ -27,7 +27,7 @@ function getMousePos(canvas, evt) {
   }
 }
 
-function getFreq(index, max, min) {
+function getFreq(index, min, max) {
   let logResolution = Math.log(max / min);
   let freq = min * Math.pow(Math.E, index * logResolution);
   return Math.round(freq);
@@ -49,7 +49,7 @@ function calculateNewMax(y, A0, newYPercent){
     return newMax;
 }
 
-function calculateNewMin(y, A0, newYPercent, zoomMax, zoomMin){
+function calculateNewMin(y, A0, newYPercent, zoomMin, zoomMax){
   // A1e^b1 = A0e^b0
     let logResolution = Math.log(zoomMax / zoomMin); //b0
     let intermediate = Math.log(y/A0)-logResolution;
