@@ -12,19 +12,19 @@ This project uses your microphone data to plot frequency over time in a moving w
 
 Once the sound is "On", you can draw on the spectrogram graph using your mouse or touch input to create a sine wave at the frequency specified. You can change volume/amplitude of the sine wave by sweeping left and right. Other controls include timbre choices, a scale mode to snap your notes to a scale, and various effects. There's also a tuning mode packed in to make it easier to tune instruments. 
 
-Square:
+Square:\
 ![
 ](https://lh3.googleusercontent.com/xGo5dNOvAAhOwFu2eUjYHOAEn8GE1l_y1p80ENIRG4HIcsbtPgl7iAqd7JcUZDS33gaW_Kfgropl "Square_Wave")
 
-Sawtooth:
+Sawtooth:\
 ![
 ](https://lh3.googleusercontent.com/8qVazrwbPwQ_C44UbO-nO0r5ITF6nEVKcosLHP0PCwr8tX2ZIBWrIfP2dTwhVWCbTGyIqUQbFzgL "Sawtooth Wave")
 
-Triangle:
+Triangle:\
 ![
 ](https://lh3.googleusercontent.com/DnLepvlCREk4FXiKaHhPb1flFiOer36DWRejN650HAETR-3y5HX-UweyaFPw7E1lXxw2XwJFNfLZ "Triangle_Wave")
 
-Tuning Mode Example (also showing changing the graph limits): 
+Tuning Mode Example (also showing changing the graph limits):\
 ![
 ](https://lh3.googleusercontent.com/wkzPuWJbNyl4CV2gcuorc-nF_n4-St8B66KsldDXmR8QBS2Yaz8Ym_bVAGsiwPA_2NMbTdRtv0h7 "Tuning_Mode")
 
