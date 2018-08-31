@@ -3,7 +3,7 @@ import Tone from 'tone';
 import "../styles/oscillator.css"
 import generateScale from '../util/generateScale';
 
-import { getFreq, getGain, freqToIndex, getMousePos } from "../util/conversions";
+import { getFreq, getGain, freqToIndex, getMousePos, convertToLog } from "../util/conversions";
 
 const NUM_VOICES = 6;
 const RAMPVALUE = 0.2;
@@ -39,6 +39,9 @@ class Oscillator extends Component {
     // so that each new voice (touch input) is allocated, it is appended to the
     // array until the array is full and it then appends the next voice to array[0]
     this.synths = new Array(NUM_VOICES);
+    this.amSignals = new Array(NUM_VOICES);
+    this.fmSignals = new Array(NUM_VOICES);
+
     // Start master volume at -20 dB
     this.masterVolume = new Tone.Volume(0);
     this.ctx = this.canvas.getContext('2d');
@@ -47,11 +50,22 @@ class Oscillator extends Component {
         type: this.props.timbre.toLowerCase()
       }
     };
+
+
     // For each voice, create a synth and connect it to the master volume
     for (let i = 0; i < NUM_VOICES; i++) {
       this.synths[i] = new Tone.Synth(options);
       this.synths[i].connect(this.masterVolume);
+      this.amSignals[i] = new Tone.Synth();
+      this.amSignals[i].connect(this.synths[i].volume)
+      this.amSignals[i].type ="sine";
+      this.fmSignals[i] = new Tone.Synth();
+      this.fmSignals[i].connect(this.synths[i].frequency)
+      this.fmSignals[i].type ="sine";
+      // this.amSignal.frequency.value = 1;
+      // this.amSignal.volume.value = 10;
     }
+
     this.goldIndices = []; // Array to hold indices on the screen of gold note lines (touched/clicked lines)
     this.masterVolume.connect(Tone.Master); // Master volume receives all of the synthesizer inputs and sends them to the speakers
 
@@ -64,6 +78,9 @@ class Oscillator extends Component {
     });
     this.delay = new Tone.FeedbackDelay(this.props.delayTime+0.01, this.props.delayFeedback); // delay unit. Runs in parallel to masterVolume
     this.masterVolume.connect(this.delay);
+
+    // this.amSignal.volume.value = -Infinity;
+
     this.delayVolume = new Tone.Volume(0);
     this.delay.connect(this.delayVolume);
 
@@ -147,70 +164,6 @@ class Oscillator extends Component {
     } else {
       this.delayVolume.mute = true;
     }
-    if(nextProps.amOn){
-      let options = {
-        oscillator: {
-          type: this.props.timbre.toLowerCase()
-        }
-      };
-      for (let i = 0; i < NUM_VOICES; i++) {
-        // this.synths[i].oscillator.type = "am"+this.props.timbre.toLowerCase();
-        if(!this.state.amOn) {
-          let release = 0.01;
-          let endTime =  this.props.context.currentTime + release;
-          this.synths[i].volume.cancelAndHoldAtTime(this.props.context.currentTime);
-          this.synths[i].volume.exponentialRampToValueAtTime(-80, endTime);
-          this.synths[i].oscillator.stop(this.props.context.currentTime + release);
-          this.synths[i] = null;
-          this.synths[i] = new Tone.AMSynth(options);
-          this.synths[i].connect(this.masterVolume);
-
-        }
-        this.synths[i].modulation.frequency.value = getFreq(nextProps.amRate, 1, 50);
-        this.synths[i].modulation.volume.value = getGain(1 - nextProps.amLevel) + 20;
-        this.synths[i].modulationEnvelope.attack = 0;
-
-        this.setState({amOn: true, fmOn: false});
-      }
-    } else if (nextProps.fmOn){
-      let options = {
-        oscillator: {
-          type: this.props.timbre.toLowerCase()
-        }
-      };
-      for (let i = 0; i < NUM_VOICES; i++) {
-        // this.synths[i].oscillator.type = "am"+this.props.timbre.toLowerCase();
-        if(!this.state.fmOn) {
-          let release = 0.01;
-          let endTime =  this.props.context.currentTime + release;
-          this.synths[i].volume.cancelAndHoldAtTime(this.props.context.currentTime);
-          this.synths[i].volume.exponentialRampToValueAtTime(-80, endTime);
-          this.synths[i].oscillator.stop(this.props.context.currentTime + release);
-          this.synths[i] = null;
-          this.synths[i] = new Tone.FMSynth(options);
-          this.synths[i].connect(this.masterVolume);
-
-        }
-        this.synths[i].modulation.frequency.value = getFreq(1 - nextProps.fmRate, 20, 20000);
-        this.synths[i].modulationIndex.value = getFreq(nextProps.fmLevel, 0.5, 100);
-        this.synths[i].modulationEnvelope.attack = 0;
-
-        this.setState({fmOn: true, amOn: false});
-      }
-    } else{
-      let options = {
-        oscillator: {
-          type: this.props.timbre.toLowerCase()
-        }
-      };
-      for (let i = 0; i < NUM_VOICES; i++) {
-        this.synths[i] = null;
-        this.synths[i] = new Tone.Synth(options);
-        this.synths[i].connect(this.masterVolume);
-      }
-      this.setState({amOn: false, fmOn: false});
-
-    }
 
   }
 
@@ -234,6 +187,19 @@ class Oscillator extends Component {
     // newVoice = implementation of circular array discussed above.
     let newVoice = (this.state.currentVoice + 1) % NUM_VOICES; // Mouse always changes to new "voice"
     this.synths[newVoice].triggerAttack(freq); // Starts the synth at frequency = freq
+    if(this.props.amOn){
+      let newVol = convertToLog(this.props.amLevel, 0, 1, 0.01, 15);
+      let newFreq = convertToLog(this.props.amRate, 0, 1, 0.5, 100);
+      this.amSignals[newVoice].volume.exponentialRampToValueAtTime(newVol, this.props.context.currentTime+1);
+      this.amSignals[newVoice].triggerAttack(newFreq);
+    }
+    if(this.props.fmOn){
+      let newVol = convertToLog(this.props.fmLevel, 0, 1, 30, 80);
+      let newFreq = convertToLog(this.props.fmRate, 0, 1, 0.5, 20);
+      this.fmSignals[newVoice].volume.exponentialRampToValueAtTime(newVol, this.props.context.currentTime+RAMPVALUE);
+      this.fmSignals[newVoice].triggerAttack(newFreq);
+    }
+
     this.synths[newVoice].volume.value = gain; // Starts the synth at volume = gain
     this.ctx.clearRect(0, 0, this.props.width, this.props.height); // Clears canvas for redraw of label
     this.label(freq, pos.x, pos.y); // Labels the point
@@ -285,6 +251,9 @@ class Oscillator extends Component {
     // Only need to trigger release if synth exists (a.k.a mouse is down)
     if (this.state.mouseDown) {
       this.synths[this.state.currentVoice].triggerRelease(); // Relase frequency, volume goes to -Infinity
+      this.amSignals[this.state.currentVoice].triggerRelease();
+      this.fmSignals[this.state.currentVoice].triggerRelease();
+
       this.setState({mouseDown: false, voices: 0});
       this.goldIndices = [];
 
@@ -295,13 +264,15 @@ class Oscillator extends Component {
       }
     }
 
-
   }
   /* This is a similar method to onMouseUp. Occurs when mouse exists canvas */
   onMouseOut(e) {
     e.preventDefault(); // Always need to prevent default browser choices
     if (this.state.mouseDown) {
       this.synths[this.state.currentVoice].triggerRelease();
+      this.amSignals[this.state.currentVoice].triggerRelease();
+      this.fmSignals[this.state.currentVoice].triggerRelease();
+
       this.setState({mouseDown: false, voices: 0});
       this.goldIndices = [];
 
@@ -309,6 +280,7 @@ class Oscillator extends Component {
       this.ctx.clearRect(0, 0, this.props.width, this.props.height);
       if(this.props.noteLinesOn){
         this.renderNoteLines();
+        // this.amSignals[this.state.currentVoice].stop();
       }
     }
   }
@@ -339,6 +311,19 @@ class Oscillator extends Component {
       });
       this.synths[newVoice].triggerAttack(freq);
       this.synths[newVoice].volume.value = gain;
+      if(this.props.amOn){
+        let newVol = convertToLog(this.props.amLevel, 0, 1, 0.01, 15);
+        let newFreq = convertToLog(this.props.amRate, 0, 1, 0.5, 100)
+        this.amSignals[newVoice].volume.exponentialRampToValueAtTime(newVol, this.props.context.currentTime+1);
+        this.amSignals[newVoice].triggerAttack(newFreq);
+      }
+
+      if(this.props.fmOn){
+        let newVol = convertToLog(this.props.fmLevel, 0, 1, 30, 80);
+        let newFreq = convertToLog(this.props.fmRate, 0, 1, 0.5, 20);
+        this.fmSignals[newVoice].volume.exponentialRampToValueAtTime(newVol, this.props.context.currentTime+RAMPVALUE);
+        this.fmSignals[newVoice].triggerAttack(newFreq);
+      }
 
       this.ctx.clearRect(0, 0, this.props.width, this.props.height);
       this.label(freq, pos.x, pos.y);
@@ -413,6 +398,8 @@ class Oscillator extends Component {
     if (e.changedTouches.length === e.touches.length + 1) {
       for (var i = 0; i < NUM_VOICES; i++) {
         this.synths[i].triggerRelease();
+        this.amSignals[i].triggerRelease();
+        this.fmSignals[i].triggerRelease();
       }
       this.goldIndices = []
 
@@ -429,6 +416,10 @@ class Oscillator extends Component {
 
           this.goldIndices.splice(index, 1);
         this.synths[index].triggerRelease();
+        this.amSignals[index].triggerRelease();
+        this.fmSignals[index].triggerRelease();
+
+        // this.amSignals[index].stop();
         this.setState({
           voices: this.state.voices - 1
         });

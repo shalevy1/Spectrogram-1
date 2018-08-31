@@ -1,5 +1,5 @@
 // Helper Function for Conversion to log for outputVolume, graph scale
-function convertToLog(value, originalMin, originalMax,newMin, newMax){
+function convertToLog(value, originalMin, originalMax, newMin, newMax){
   //solving y=Ae^bx for y
   let b = Math.log(newMax / newMin)/(originalMax-originalMin);
   let a = newMax /  Math.pow(Math.E,  originalMax* b);

@@ -313,7 +313,7 @@ onPointerOut(e){
                   controlNames={["Rate", "Level"]}
                   controls={[context.state.amRate, context.state.amLevel]}
                   controlChanges={[context.handleAmRateChange, context.handleAmLevelChange]}
-                  disable={!context.state.isStarted || context.state.fmOn}
+                  disable={!context.state.isStarted}
                   />
                   <EffectModule
                   name="FM"
@@ -322,7 +322,7 @@ onPointerOut(e){
                   controlNames={["Rate", "Level"]}
                   controls={[context.state.fmRate, context.state.fmLevel]}
                   controlChanges={[context.handleFmRateChange, context.handleFmLevelChange]}
-                  disable={!context.state.isStarted || context.state.amOn}
+                  disable={!context.state.isStarted}
                   />
                   </div>
                 </Menu.Item>
