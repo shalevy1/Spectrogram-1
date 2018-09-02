@@ -307,19 +307,19 @@ onPointerOut(e){
                     disable={!context.state.isStarted}
                   />
                   <EffectModule
-                  name="AM"
+                  name="Amplitude Modulation"
                   toggle={context.state.amOn}
                   toggleChange={context.handleAmToggle}
-                  controlNames={["Rate", "Level"]}
+                  controlNames={["Frequency", "Amplitude"]}
                   controls={[context.state.amRate, context.state.amLevel]}
                   controlChanges={[context.handleAmRateChange, context.handleAmLevelChange]}
                   disable={!context.state.isStarted}
                   />
                   <EffectModule
-                  name="FM"
+                  name="Frequency Modulation"
                   toggle={context.state.fmOn}
                   toggleChange={context.handleFmToggle}
-                  controlNames={["Rate", "Level"]}
+                  controlNames={["Frequency", "Amplitude"]}
                   controls={[context.state.fmRate, context.state.fmLevel]}
                   controlChanges={[context.handleFmRateChange, context.handleFmLevelChange]}
                   disable={!context.state.isStarted}
