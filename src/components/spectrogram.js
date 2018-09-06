@@ -9,13 +9,14 @@ import Oscillator from './oscillator';
 import { convertToLog, getFreq } from '../util/conversions';
 import { Button, Icon } from 'semantic-ui-react';
 
+import WebMidi from 'webmidi';
+
 const ReactAnimationFrame = require('react-animation-frame');
 
 let audioContext = null;
 let analyser = null;
 let gainNode = null;
 let audioTrack = null;
-let streamObj = null;
 const fftSize = 8192;
 
 // Spectrogram Graph that renders itself and 3 children canvases
@@ -68,6 +69,7 @@ class Spectrogram extends Component {
           audio: true
         }, this.onStream.bind(this), this.onStreamError.bind(this));
       }
+
       this.setState({microphone: !this.state.microphone});
     }
   }
@@ -92,6 +94,28 @@ class Spectrogram extends Component {
           audio: true
         }, this.onStream.bind(this), this.onStreamError.bind(this));
       }
+      // WebMidi.enable((err)=> {
+      //   if (err) {
+      //     console.log("WebMidi could not be enabled.", err);
+      //   } else {
+      //     console.log("WebMidi enabled!");
+      //     console.log(WebMidi.inputs);
+      //     console.log(WebMidi.outputs);
+      //     let input = WebMidi.inputs[0];
+      //     console.log(input);
+      //     input.addListener('noteon', "all", (e)=>{
+      //       let note = e.note;
+      //       let octave = e.octave;
+      //       note = 440;
+      //       let osc = audioContext.createOscillator();
+      //       osc.connect(audioContext.destination)
+      //       osc.frequency.value = note;
+      //       osc.start();
+      //       this.setState({midi: true, midiNote: note, midiVelocity: e.velocity})
+      //     })
+      //   }
+      //
+      // });
       // Calls the start function which lets the controls know it has started
       this.props.start();
       this.renderFreqDomain();
@@ -101,11 +125,22 @@ class Spectrogram extends Component {
 
   }
 
+  // onMIDISuccess = (midiAccess) =>{
+  //   console.log(midiAccess);
+  //   for (var input of midiAccess.inputs.values()){
+  //       input.onmidimessage = this.onMidiMessage;
+  //   }
+  //   var inputs = midiAccess.inputs;
+  //   var outputs = midiAccess.outputs;
+  // }
+  // onmidimessage = (m) =>{
+  //   console.log(m)
+  // }
+
 // Sets up the microphone stream after the Spectrogram is started
 // It connects the graph by connecting the microphone to gain and gain to
 // the analyser. The gain is used as microphoneGain
   onStream(stream) {
-    streamObj = stream;
     audioTrack = stream.getTracks()[0];
     let input = audioContext.createMediaStreamSource(stream);
     input.connect(gainNode);

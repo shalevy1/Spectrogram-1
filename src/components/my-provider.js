@@ -41,9 +41,9 @@ class MyProvider extends Component {
     delayTime: 0.25,
     delayFeedback: 0.25,
     amOn: false, // Amplitude Modulation
-    amRate: 0.2,
+    amRate: 0.5,
     amLevel: 0.5,
-    fmRate: 0.2,
+    fmRate: 0.5,
     fmLevel: 0.5,
     //hidePanes: false,
     isStarted: false,
