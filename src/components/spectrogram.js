@@ -8,6 +8,9 @@ import Oscillator from './oscillator';
 
 import { convertToLog, getFreq } from '../util/conversions';
 import { Button, Icon } from 'semantic-ui-react';
+import KeyHandler, { KEYUP } from 'react-key-handler';
+
+import Logo from '../headphoneSlash.svg';
 
 import WebMidi from 'webmidi';
 
@@ -246,6 +249,12 @@ handleMicrophoneToggle=()=>{
   this.props.handleMicrophoneToggle();
 }
 
+spacePressed = (e) =>{
+  e.preventDefault();
+  e.stopPropagation();
+  this.props.handlePause();
+}
+
   render() {
     const soundOrTuning = this.props.tuningMode ? (
       <React.Fragment>
@@ -318,7 +327,7 @@ handleMicrophoneToggle=()=>{
     return (
       <div onClick={this.startSpectrogram} >
 
-        <canvas width={this.props.width} height={this.props.height} ref={(c) => {
+        <canvas width={this.props.width} height={this.props.height} onKeyPress = {this.onKeyPress} ref={(c) => {
           this.canvas = c;
         }}/>
         {this.props.isStarted &&
@@ -339,7 +348,8 @@ handleMicrophoneToggle=()=>{
             <Icon fitted name="pause" color="orange"/>}
           </Button>
           <Button icon onClick={this.handleHeadphoneModeToggle} className="headphone-mode-button" style={headphoneStyle}>
-            <Icon fitted name="headphones" color="orange"/>
+            {this.props.headphoneMode ? <Icon fitted name="headphones" color="orange"/>:
+            <img src={Logo} height={12.5} width={13.25} className="headphone-slash-logo"/>}
           </Button>
           <Button icon onClick={this.handleMicrophoneToggle} className="microphone-mode-button" style={microphoneStyle}>
             {this.props.microphone ? <Icon name="microphone" color="orange"/> :
@@ -352,6 +362,11 @@ handleMicrophoneToggle=()=>{
               Soft<span>Loud</span>
             </div>
           </div>
+          <KeyHandler
+          keyEventName={KEYUP}
+          keyValue=" "
+          onKeyHandle={this.spacePressed}
+          />
             {/* Renders sound or tuning mode based on variable above */}
             {soundOrTuning}
 

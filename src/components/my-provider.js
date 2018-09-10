@@ -33,7 +33,7 @@ class MyProvider extends Component {
     tuningMode: false,// Mode Switcher
     freqControls: false, // Graph Limit controls toggle
     graphPreset: 'default',
-    headphoneMode: false,
+    headphoneMode: true,
     microphone: true,
     reverbOn: false,
     reverbDecay: 0.5,
@@ -66,7 +66,13 @@ class MyProvider extends Component {
           }
         },
         handleSoundToggle: () => this.setState({soundOn: !this.state.soundOn}),
-        handleScaleToggle: () => this.setState({scaleOn: !this.state.scaleOn}),
+        handleScaleToggle: () => {
+          let { scaleOn, tuningMode, noteLinesOn } = this.state;
+          this.setState({scaleOn: !scaleOn});
+          if(scaleOn && noteLinesOn){
+            this.setState({noteLinesOn: false});
+          }
+        },
         handleNoteLinesToggle: () => this.setState({noteLinesOn: !this.state.noteLinesOn}),
         handleOutputVolumeChange: value => {
           if(this.state.isStarted){

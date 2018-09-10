@@ -50,18 +50,23 @@ class Oscillator extends Component {
         type: this.props.timbre.toLowerCase()
       }
     };
+    let options2 = {
+      oscillator: {
+        type: 'sine'
+      }
+    }
 
 
     // For each voice, create a synth and connect it to the master volume
     for (let i = 0; i < NUM_VOICES; i++) {
       this.synths[i] = new Tone.Synth(options);
       this.synths[i].connect(this.masterVolume);
-      this.amSignals[i] = new Tone.Synth();
+      this.amSignals[i] = new Tone.Synth(options2);
       this.amSignals[i].connect(this.synths[i].volume)
-      this.amSignals[i].type ="sine";
-      this.fmSignals[i] = new Tone.Synth();
+      // this.amSignals[i].type ="sine";
+      this.fmSignals[i] = new Tone.Synth(options2);
       this.fmSignals[i].connect(this.synths[i].frequency)
-      this.fmSignals[i].type ="sine";
+      // this.fmSignals[i].type ="square";
       // this.amSignal.frequency.value = 1;
       // this.amSignal.volume.value = 10;
     }
@@ -191,13 +196,14 @@ class Oscillator extends Component {
     if(this.props.amOn){
       let newVol = convertToLog(this.props.amLevel, 0, 1, 0.01, 15); // AM amplitud;e set between 0.01 and 15 (arbitray choices)
       let newFreq = convertToLog(this.props.amRate, 0, 1, 0.5, 50); // AM frequency set between 0.5 and 50 hz (arbitray choices)
+      console.log(newVol)
       this.amSignals[newVoice].volume.exponentialRampToValueAtTime(newVol, this.props.context.currentTime+1); // Ramps to AM amplitude in 1 sec
       this.amSignals[newVoice].triggerAttack(newFreq);
     }
     // FM
     if(this.props.fmOn){
-      let modIndex = this.props.fmLevel * 2; // FM index ranges from 0 - 2
-      let newVol = convertToLog(yPercent, 0, 1, 30, 85); // FM amplitude set between 30 and 85 (arbitrary choices)
+      let modIndex = yPercent * 2; // FM index ranges from 0 - 2
+      let newVol = convertToLog(this.props.fmLevel, 0, 1, 30, 60); // FM amplitude set between 30 and 60 (arbitrary choices)
       let newFreq = convertToLog(this.props.fmRate, 0, 1, 0.5, 50); // FM Frequency set between 0.5 and 50 (arbitray choices)
       // let newFreq = convertToLog(yPercent, 0, 1, 0.5, 20); // FM Frequency set between 0.5 and 20 (arbitray choices)
       this.fmSignals[newVoice].volume.exponentialRampToValueAtTime(newVol*modIndex, this.props.context.currentTime+RAMPVALUE); // Ramps to FM amplitude*modIndex in RAMPVALUE sec
@@ -242,8 +248,8 @@ class Oscillator extends Component {
       }
       // Change FM Amplitude based on frequency
       if(this.props.fmOn){
-        let modIndex = this.props.fmLevel * 2;
-        let newVol = convertToLog(yPercent, 0, 1, 30, 85); // Find new Amplitude
+        let modIndex = yPercent * 2; // FM index ranges from 0 - 2
+        let newVol = convertToLog(this.props.fmLevel, 0, 1, 30, 60); // FM amplitude set between 30 and 60 (arbitrary choices)
         // let newFreq = convertToLog(yPercent, 0, 1, 0.5, 20); // Find new Frequency
 
         this.fmSignals[this.state.currentVoice].volume.exponentialRampToValueAtTime(newVol*modIndex, this.props.context.currentTime+RAMPVALUE);
@@ -334,8 +340,8 @@ class Oscillator extends Component {
       }
       // FM
       if(this.props.fmOn){
-        let modIndex = this.props.fmLevel * 2; // FM index ranges from 0 - 2
-        let newVol = convertToLog(yPercent, 0, 1, 30, 85); // FM amplitude set between 30 and 85 (arbitrary choices)
+        let modIndex = yPercent * 2; // FM index ranges from 0 - 2
+        let newVol = convertToLog(this.props.fmLevel, 0, 1, 30, 60); // FM amplitude set between 30 and 60 (arbitrary choices)
         let newFreq = convertToLog(this.props.fmRate, 0, 1, 0.5, 50); // FM Frequency set between 0.5 and 50 (arbitray choices)
         // let newFreq = convertToLog(yPercent, 0, 1, 0.5, 20); // FM Frequency set between 0.5 and 20 (arbitray choices)
         this.fmSignals[newVoice].volume.exponentialRampToValueAtTime(newVol*modIndex, this.props.context.currentTime+RAMPVALUE); // Ramps to FM amplitude*modIndex in RAMPVALUE sec
@@ -396,8 +402,8 @@ class Oscillator extends Component {
           }
           // Change FM Amplitude based on frequency
           if(this.props.fmOn){
-            let modIndex = this.props.fmLevel * 2;
-            let newVol = convertToLog(yPercent, 0, 1, 30, 85); // Find new Amplitude
+            let modIndex = yPercent * 2; // FM index ranges from 0 - 2
+            let newVol = convertToLog(this.props.fmLevel, 0, 1, 30, 60); // FM amplitude set between 30 and 60 (arbitrary choices)
             // let newFreq = convertToLog(yPercent, 0, 1, 0.5, 20); // Find new Frequency
 
             this.fmSignals[index].volume.exponentialRampToValueAtTime(newVol*modIndex, this.props.context.currentTime+RAMPVALUE);

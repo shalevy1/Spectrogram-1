@@ -44,6 +44,11 @@
     border: 2px solid #ABE2FB!important;
     border-radius: 3rem!important;
   }
+  .headphone-slash-icon {
+    height: .85714286em;
+    width: 1.18em;
+  }
+
   .microphone-mode-button {
     position: absolute;
     left: 8%;

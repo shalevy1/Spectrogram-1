@@ -1,5 +1,6 @@
 .menu-pane-container {
   z-index: 22;
+  opacity: 0.75;
 }
 
 .menu-pane {
@@ -53,7 +54,7 @@
 
 .effects-stretch {
   min-width: 50%!important;
-  
+
   /* width: 40%!important; */
   display: flex!important;
   justify-content: flex-start!important;
