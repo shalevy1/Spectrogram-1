@@ -51,7 +51,7 @@ First Release!
  - None
 
 ## Contributing
-We welcome
+We welcome contributors.
 
 ## Authors
 
