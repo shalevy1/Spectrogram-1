@@ -60,10 +60,11 @@
   justify-content: flex-start!important;
 }
 
-.what {
-  width: 100px;
-
+.effects-dropdown{
+  margin-top: 2px;
 }
+
+
 
 .sound-close-menu {
   display: flex!important;

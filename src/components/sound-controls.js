@@ -9,30 +9,10 @@ import "../styles/sound-controls.css";
 import Slider from 'react-rangeslider';
 // To include the default styles
 import 'react-rangeslider/lib/index.css';
-import {timbreOptions, scaleOptions, keyOptions, accidentalOptions} from '../util/dropdownOptions';
+import {timbreOptions, scaleOptions, keyOptions, accidentalOptions, effectOptions} from '../util/dropdownOptions';
 
 
 import { getMousePos } from '../util/conversions'
-
-const options = [
-  {
-    text: "Reverb",
-    value: "Reverb",
-  },
-  {
-    text: "Delay",
-    value: "Delay",
-  },
-  {
-    text: "Amplitude Modulation",
-    value: "Amplitude Modulation",
-  },
-  {
-    text: "Frequency Modulation",
-    value: "Frequency Modulation",
-  }
-
-]
 
 function EffectRender(props){
   let name, toggle, toggleChange, controlNames, controls, controlChanges, disable;
@@ -90,9 +70,6 @@ function EffectRender(props){
     } else {
       return <div></div>
     }
-
-
-
 
 }
 
@@ -265,10 +242,9 @@ class SoundControls extends Component {
                   {/* Effects */}
                 <Menu.Item className="vert effects-stretch">
                 <div className="menu-header">Effects</div>
-
-                <Dropdown placeholder= "Select Effect" selection fluid options={options} onChange={(e, data)=>this.setState({effectValue: data.value})}/>
+                <Dropdown className="effects-dropdown" placeholder= "Select Effect" selection fluid options={effectOptions} onChange={(e, data)=>this.setState({effectValue: data.value})}/>
                 <EffectRender effectValue={this.state.effectValue} context={context} />
-              
+
                 </Menu.Item>
 
               </Menu>

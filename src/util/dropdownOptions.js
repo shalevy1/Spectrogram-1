@@ -104,4 +104,24 @@ const accidentalOptions = [
   },
 ]
 
-export {timbreOptions, scaleOptions, keyOptions, accidentalOptions};
+const effectOptions = [
+  {
+    text: "Reverb",
+    value: "Reverb",
+  },
+  {
+    text: "Delay",
+    value: "Delay",
+  },
+  {
+    text: "Amplitude Modulation",
+    value: "Amplitude Modulation",
+  },
+  {
+    text: "Frequency Modulation",
+    value: "Frequency Modulation",
+  }
+
+]
+
+export {timbreOptions, scaleOptions, keyOptions, accidentalOptions, effectOptions};
