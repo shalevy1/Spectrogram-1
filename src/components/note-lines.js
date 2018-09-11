@@ -326,11 +326,13 @@ class NoteLines extends Component {
           this.frequencies[name] = freq;
           if(this.goldIndices.includes(index) && this.props.soundOn){
             this.ctx.fillStyle = 'gold';
-            this.ctx.fillRect(0, index, width, 1.5);
-          } else {
-            this.ctx.fillStyle = 'white';
-            this.ctx.fillRect(0, index, width, 1.5);
+          } else if(s.scaleNames[i] === s.scaleNames[0]){
+            this.ctx.fillStyle = '#a291fb';
           }
+          else {
+            this.ctx.fillStyle = 'white';
+          }
+          this.ctx.fillRect(0, index, width, 1.5);
           freq = freq * 2;
         }
       }

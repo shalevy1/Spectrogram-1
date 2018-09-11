@@ -3,7 +3,7 @@ import {MyContext} from './my-provider';
 
 import EffectModule from './effect-module';
 
-import {Segment, Menu, Dropdown, Checkbox, Button, Icon} from 'semantic-ui-react';
+import {Segment, Menu, Dropdown, Checkbox, Button, Icon, Tab} from 'semantic-ui-react';
 import "../styles/sound-controls.css";
 // Using an ES6 transpiler like Babel
 import Slider from 'react-rangeslider';
@@ -11,11 +11,101 @@ import Slider from 'react-rangeslider';
 import 'react-rangeslider/lib/index.css';
 import {timbreOptions, scaleOptions, keyOptions, accidentalOptions} from '../util/dropdownOptions';
 
+
 import { getMousePos } from '../util/conversions'
+
+const options = [
+  {
+    text: "Reverb",
+    value: "Reverb",
+  },
+  {
+    text: "Delay",
+    value: "Delay",
+  },
+  {
+    text: "Amplitude Modulation",
+    value: "Amplitude Modulation",
+  },
+  {
+    text: "Frequency Modulation",
+    value: "Frequency Modulation",
+  }
+
+]
+
+function EffectRender(props){
+  let name, toggle, toggleChange, controlNames, controls, controlChanges, disable;
+  switch (props.effectValue) {
+    case "Reverb":
+      name = "Reverb";
+      toggle=props.context.state.reverbOn
+      toggleChange=props.context.handleReverbToggle
+      controlNames=["Decay Time"]
+      controls=[props.context.state.reverbDecay]
+      controlChanges=[props.context.handleReverbDecayChange]
+      disable=!props.context.state.isStarted
+      break;
+    case "Delay":
+      name="Delay"
+      toggle=props.context.state.delayOn
+      toggleChange=props.context.handleDelayToggle
+      controlNames=["Delay Time", "Feedback"]
+      controls=[props.context.state.delayTime, props.context.state.delayFeedback]
+      controlChanges=[props.context.handleDelayTimeChange, props.context.handleDelayFeedbackChange]
+      disable=!props.context.state.isStarted
+      break;
+    case "Amplitude Modulation":
+      name="Amplitude Modulation"
+      toggle=props.context.state.amOn
+      toggleChange=props.context.handleAmToggle
+      controlNames=["Frequency", "Amplitude"]
+      controls=[props.context.state.amRate, props.context.state.amLevel]
+      controlChanges=[props.context.handleAmRateChange, props.context.handleAmLevelChange]
+      disable=!props.context.state.isStarted
+      break;
+    case "Frequency Modulation":
+      name="Frequency Modulation"
+      toggle=props.context.state.fmOn
+      toggleChange=props.context.handleFmToggle
+      controlNames=["Frequency", "Amplitude"]
+      controls=[props.context.state.fmRate, props.context.state.fmLevel]
+      controlChanges=[props.context.handleFmRateChange, props.context.handleFmLevelChange]
+      disable=!props.context.state.isStarted
+      break;
+
+  }
+    if(typeof(name) !== "undefined"){
+      return (
+        <EffectModule
+        name={name}
+        toggle={toggle}
+        toggleChange={toggleChange}
+        controlNames={controlNames}
+        controls={controls}
+        controlChanges={controlChanges}
+        disable={disable}
+        />
+      )
+    } else {
+      return <div></div>
+    }
+
+
+
+
+}
+
 // Sound Controls Class that renders all of the sound controls and uses the
 // React Context API to hook up their functionality to the main state in app.js
 // Which passes the controls down to Spectrogram
 class SoundControls extends Component {
+  constructor(){
+    super();
+    this.state = {
+      effectValue: ""
+    }
+  }
 
   render() {
     return (
@@ -175,44 +265,10 @@ class SoundControls extends Component {
                   {/* Effects */}
                 <Menu.Item className="vert effects-stretch">
                 <div className="menu-header">Effects</div>
-                <div className="effects-container">
-                  <EffectModule
-                    name="Reverb"
-                    toggle={context.state.reverbOn}
-                    toggleChange={context.handleReverbToggle}
-                    controlNames={["Decay Time"]}
-                    controls={[context.state.reverbDecay]}
-                    controlChanges={[context.handleReverbDecayChange]}
-                    disable={!context.state.isStarted}
-                  />
-                  <EffectModule
-                    name="Delay"
-                    toggle={context.state.delayOn}
-                    toggleChange={context.handleDelayToggle}
-                    controlNames={["Delay Time", "Feedback"]}
-                    controls={[context.state.delayTime, context.state.delayFeedback]}
-                    controlChanges={[context.handleDelayTimeChange, context.handleDelayFeedbackChange]}
-                    disable={!context.state.isStarted}
-                  />
-                  <EffectModule
-                  name="Amplitude Modulation"
-                  toggle={context.state.amOn}
-                  toggleChange={context.handleAmToggle}
-                  controlNames={["Frequency", "Amplitude"]}
-                  controls={[context.state.amRate, context.state.amLevel]}
-                  controlChanges={[context.handleAmRateChange, context.handleAmLevelChange]}
-                  disable={!context.state.isStarted}
-                  />
-                  <EffectModule
-                  name="Frequency Modulation"
-                  toggle={context.state.fmOn}
-                  toggleChange={context.handleFmToggle}
-                  controlNames={["Frequency", "Amplitude"]}
-                  controls={[context.state.fmRate, context.state.fmLevel]}
-                  controlChanges={[context.handleFmRateChange, context.handleFmLevelChange]}
-                  disable={!context.state.isStarted}
-                  />
-                  </div>
+
+                <Dropdown placeholder= "Select Effect" selection fluid options={options} onChange={(e, data)=>this.setState({effectValue: data.value})}/>
+                <EffectRender effectValue={this.state.effectValue} context={context} />
+              
                 </Menu.Item>
 
               </Menu>

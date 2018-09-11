@@ -596,15 +596,15 @@ class Oscillator extends Component {
           let index = freqToIndex(freq, resolutionMax, resolutionMin, height);
           this.frequencies[name] = freq;
 
-          // console.log("NOTELINES GOLD: "+this.goldIndices);
-          // console.log("NOTELINES INDEX: "+index);
           if(this.goldIndices.includes(index) && this.props.soundOn){
             this.ctx.fillStyle = 'gold';
-            this.ctx.fillRect(0, index, width, 1.5);
-          } else {
-            this.ctx.fillStyle = 'white';
-            this.ctx.fillRect(0, index, width, 1.5);
+          } else if(s.scaleNames[i] === s.scaleNames[0]){
+            this.ctx.fillStyle = '#a291fb';
           }
+          else {
+            this.ctx.fillStyle = 'white';
+          }
+          this.ctx.fillRect(0, index, width, 1.5);
           freq = freq * 2;
         }
       }

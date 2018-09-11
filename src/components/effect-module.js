@@ -12,7 +12,6 @@ class EffectModule extends Component {
   render(){
     return(
           <div className="effect-module">
-            <h5 className="effect-name">{this.props.name}</h5>
             <div className="effect-on">
             On:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <Checkbox

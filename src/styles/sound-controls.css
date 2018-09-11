@@ -48,16 +48,21 @@
 .effects-container {
   display: flex;
   align-self: flex-start!important;
-  width: 100%;
+  /* width: 100%; */
 
 }
 
 .effects-stretch {
-  min-width: 50%!important;
+  min-width: 235px!important;
 
   /* width: 40%!important; */
   display: flex!important;
   justify-content: flex-start!important;
+}
+
+.what {
+  width: 100px;
+
 }
 
 .sound-close-menu {
