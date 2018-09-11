@@ -1,12 +1,10 @@
 .tuning-container {
-  width: 46%;
+  /* width: 46%; */
   display: flex;
 }
 
 .tuning-close-menu{
-    display: flex!important;
-    justify-content: flex-end;
-    flex-direction: column;
-    align-items: center;
-    margin-left: 1%!important;
+  display: flex!important;
+  justify-content: flex-end;
+  align-items: center;
 }

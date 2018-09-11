@@ -20,7 +20,7 @@ class TuningControls extends Component {
       <MyContext.Consumer>
         {(context) => (
           <React.Fragment>
-            <Segment className="menu-pane-container tuning-container">
+            <Segment compact className="menu-pane-container tuning-container">
               <Menu className="menu-pane">
                 {/** Sound Toggle **/}
                 <Menu.Item className="vert">
@@ -57,10 +57,9 @@ class TuningControls extends Component {
                 <Menu.Item className="vert">
                   <div className="menu-header">Scales</div>
                   <Menu.Menu className="horiz">
-
-                    <Menu.Item>
+                    <Menu.Item className="scale-choice">
                       <Dropdown
-                      fluid
+                      compact
                       text='Key'
                       options={keyOptions}
                       onChange={context.handleKeyChange}
@@ -68,7 +67,7 @@ class TuningControls extends Component {
                       >
                       </Dropdown>
                     </Menu.Item>
-                    <Menu.Item>
+                    <Menu.Item className="scale-choice">
                       <Dropdown
                       text='#/b'
                       compact
@@ -76,7 +75,7 @@ class TuningControls extends Component {
                       onChange={context.handleAccidentalChange}
                       disabled={!context.state.isStarted}/>
                     </Menu.Item>
-                    <Menu.Item>
+                    <Menu.Item className="scale-choice">
                       <Dropdown
                       text='Scale'
                       compact
@@ -84,7 +83,6 @@ class TuningControls extends Component {
                       onChange={context.handleScaleChange}
                       disabled={!context.state.isStarted}/>
                     </Menu.Item>
-
                   </Menu.Menu>
 
                   <div>

@@ -1,10 +1,15 @@
 .menu-pane-container {
   z-index: 22;
-  opacity: 0.75;
+  opacity: 0.85;
+  padding: 0.5em!important;
 }
 
 .menu-pane {
   margin: 0!important;
+}
+
+.sound-pane-container {
+  min-width: 780px;
 }
 
 .slider {
@@ -45,6 +50,24 @@
   margin: 10px 0px 10px 0px;
 }
 
+.scales-bottom {
+  width: 100%;
+  display: flex;
+  padding: 0.1em 0.5em
+}
+
+.scale-choice {
+  padding: 0.5em!important;
+}
+
+.note-lines {
+  margin-right: 25%;
+}
+
+.no-padding {
+  padding: 0px!important;
+}
+
 .effects-container {
   display: flex;
   align-self: flex-start!important;
@@ -52,12 +75,19 @@
 
 }
 
-.effects-stretch {
-  min-width: 235px!important;
+.effects-stretch::before {
+  display: none;
+}
 
-  /* width: 40%!important; */
+.effects-stretch {
+  min-width: 28%;
+  padding-bottom: 0px!important;
   display: flex!important;
   justify-content: flex-start!important;
+}
+
+.effects-stretch::after {
+  display: none;
 }
 
 .effects-dropdown{
@@ -80,6 +110,7 @@
 
 .vert {
   flex-direction: column;
+  padding: 0.1em 0.5em!important;
 }
 
 .extra-margin {

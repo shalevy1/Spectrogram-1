@@ -53,6 +53,15 @@ function EffectRender(props){
       controlChanges=[props.context.handleFmRateChange, props.context.handleFmLevelChange]
       disable=!props.context.state.isStarted
       break;
+    default:
+      name = "Reverb";
+      toggle=props.context.state.reverbOn
+      toggleChange=props.context.handleReverbToggle
+      controlNames=["Decay Time"]
+      controls=[props.context.state.reverbDecay]
+      controlChanges=[props.context.handleReverbDecayChange]
+      disable=!props.context.state.isStarted
+      break;
 
   }
     if(typeof(name) !== "undefined"){
@@ -89,7 +98,7 @@ class SoundControls extends Component {
       <MyContext.Consumer>
         {(context) => (
           <React.Fragment>
-            <Segment className="menu-pane-container">
+            <Segment compact className="menu-pane-container sound-pane-container">
               <Menu className="menu-pane">
                 {/** Sound Toggle **/}
                 <Menu.Item className="vert">
@@ -186,7 +195,7 @@ class SoundControls extends Component {
                 <Menu.Item className="vert">
                   <div className="menu-header">Scales</div>
                   <Menu.Menu className="horiz">
-                    <Menu.Item className="vert no-line no-bot-padding">
+                    <Menu.Item className="vert no-line no-padding">
                       <div>Scale Mode</div>
                       <Checkbox
                       toggle
@@ -195,9 +204,9 @@ class SoundControls extends Component {
                       onChange={context.handleScaleToggle}
                       disabled={!context.state.isStarted || context.state.tuningMode}/>
                     </Menu.Item>
-                    <Menu.Item>
+                    <Menu.Item className="scale-choice">
                       <Dropdown
-                      fluid
+                      compact
                       text='Key'
                       options={keyOptions}
                       onChange={context.handleKeyChange}
@@ -205,7 +214,7 @@ class SoundControls extends Component {
                       >
                       </Dropdown>
                     </Menu.Item>
-                    <Menu.Item>
+                    <Menu.Item className="scale-choice">
                       <Dropdown
                       text='#/b'
                       compact
@@ -213,7 +222,7 @@ class SoundControls extends Component {
                       onChange={context.handleAccidentalChange}
                       disabled={!context.state.isStarted}/>
                     </Menu.Item>
-                    <Menu.Item>
+                    <Menu.Item className="scale-choice">
                       <Dropdown
                       text='Scale'
                       compact
@@ -242,7 +251,15 @@ class SoundControls extends Component {
                   {/* Effects */}
                 <Menu.Item className="vert effects-stretch">
                 <div className="menu-header">Effects</div>
-                <Dropdown className="effects-dropdown" placeholder= "Select Effect" selection fluid options={effectOptions} onChange={(e, data)=>this.setState({effectValue: data.value})}/>
+                <Dropdown
+                className="effects-dropdown"
+                placeholder= "Select Effect"
+                defaultValue={"Reverb"}
+                selection
+                fluid
+                options={effectOptions}
+                onChange={(e, data)=>this.setState({effectValue: data.value})}
+                />
                 <EffectRender effectValue={this.state.effectValue} context={context} />
 
                 </Menu.Item>
