@@ -14,7 +14,7 @@ class GraphControls extends Component {
       <MyContext.Consumer>
         {(context) => (
           <React.Fragment>
-            <Segment className="menu-pane-container graph-container">
+            <Segment className="menu-pane-container compact graph-container">
               <Menu compact>
                 <Menu.Item className="vert graph-limit-container">
                   <div className="multi-slider-container">
