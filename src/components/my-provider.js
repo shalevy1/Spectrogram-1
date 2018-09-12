@@ -35,6 +35,7 @@ class MyProvider extends Component {
     graphPreset: 'default',
     headphoneMode: true,
     microphone: true,
+    effectValue: "Reverb",
     reverbOn: false,
     reverbDecay: 0.5,
     delayOn: false,
@@ -67,7 +68,7 @@ class MyProvider extends Component {
         },
         handleSoundToggle: () => this.setState({soundOn: !this.state.soundOn}),
         handleScaleToggle: () => {
-          let { scaleOn, tuningMode, noteLinesOn } = this.state;
+          let { scaleOn, noteLinesOn } = this.state;
           this.setState({scaleOn: !scaleOn});
           if(scaleOn && noteLinesOn){
             this.setState({noteLinesOn: false});
@@ -212,6 +213,7 @@ class MyProvider extends Component {
         },
         handleHeadphoneModeToggle: () => this.setState({headphoneMode: !this.state.headphoneMode}),
         handleMicrophoneToggle: () => this.setState({microphone: !this.state.microphone}),
+        handleEffectChoiceChange: choice => this.setState({effectValue: choice}),
         handleReverbToggle: () => this.setState({reverbOn: !this.state.reverbOn}),
         handleReverbDecayChange: value => {
           if(this.state.reverbOn){

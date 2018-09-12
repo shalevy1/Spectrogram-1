@@ -3,7 +3,7 @@ import {MyContext} from './my-provider';
 
 import EffectModule from './effect-module';
 
-import {Segment, Menu, Dropdown, Checkbox, Button, Icon, Tab} from 'semantic-ui-react';
+import {Segment, Menu, Dropdown, Checkbox, Button, Icon} from 'semantic-ui-react';
 import "../styles/sound-controls.css";
 // Using an ES6 transpiler like Babel
 import Slider from 'react-rangeslider';
@@ -11,12 +11,9 @@ import Slider from 'react-rangeslider';
 import 'react-rangeslider/lib/index.css';
 import {timbreOptions, scaleOptions, keyOptions, accidentalOptions, effectOptions} from '../util/dropdownOptions';
 
-
-import { getMousePos } from '../util/conversions'
-
 function EffectRender(props){
   let name, toggle, toggleChange, controlNames, controls, controlChanges, disable;
-  switch (props.effectValue) {
+  switch (props.context.state.effectValue) {
     case "Reverb":
       name = "Reverb";
       toggle=props.context.state.reverbOn
@@ -86,13 +83,6 @@ function EffectRender(props){
 // React Context API to hook up their functionality to the main state in app.js
 // Which passes the controls down to Spectrogram
 class SoundControls extends Component {
-  constructor(){
-    super();
-    this.state = {
-      effectValue: ""
-    }
-  }
-
   render() {
     return (
       <MyContext.Consumer>
@@ -254,13 +244,13 @@ class SoundControls extends Component {
                 <Dropdown
                 className="effects-dropdown"
                 placeholder= "Select Effect"
-                defaultValue={"Reverb"}
                 selection
                 fluid
                 options={effectOptions}
-                onChange={(e, data)=>this.setState({effectValue: data.value})}
+                value={context.state.effectValue}
+                onChange={(e, data)=>context.handleEffectChoiceChange(data.value)}
                 />
-                <EffectRender effectValue={this.state.effectValue} context={context} />
+                <EffectRender context={context} />
 
                 </Menu.Item>
 
