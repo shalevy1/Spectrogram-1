@@ -313,6 +313,13 @@ spacePressed = (e) =>{
       fmOn={this.props.fmOn}
       fmRate={this.props.fmRate}
       fmLevel={this.props.fmLevel}
+      intervalOn={this.props.intervalOn}
+      lowerIntervalValue={this.props.lowerIntervalValue}
+      midIntervalValue={this.props.midIntervalValue}
+      highIntervalValue={this.props.highIntervalValue}
+      lowerIntervalLevel={this.props.lowerIntervalLevel}
+      midIntervalLevel={this.props.midIntervalLevel}
+      highIntervalLevel={this.props.highIntervalLevel}      
       handleResize={this.props.handleResize}/>
     );
       let headphoneStyle={'backgroundColor': ''}

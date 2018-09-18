@@ -46,6 +46,13 @@ class MyProvider extends Component {
     amLevel: 0.5,
     fmRate: 0.5,
     fmLevel: 0.5,
+    intervalOn: false,
+    lowerIntervalValue: 3,
+    midIntervalValue: 5,
+    highIntervalValue: 8,
+    lowerIntervalLevel: 50,
+    midIntervalLevel: 50,
+    highIntervalLevel: 50,
     //hidePanes: false,
     isStarted: false,
   }
@@ -253,6 +260,38 @@ class MyProvider extends Component {
             this.setState({fmLevel: Math.round(value*100)/100});
           }
         },
+        handleIntervalToggle: () => this.setState({intervalOn: !this.state.intervalOn}),
+        changeInterval: (val, param, which) => {
+          let data = Number(param.value);
+          if(data > 1 && data < 10){
+            switch (which) {
+              case 0:
+                this.setState({lowerIntervalValue: data})
+                break;
+              case 1:
+                this.setState({midIntervalValue: data})
+                break;
+              case 2:
+                this.setState({highIntervalValue: data})
+                break;
+            }
+          }
+        },
+
+        changeIntervalLevel: (val, which) => {
+          switch (which) {
+            case 0:
+              this.setState({lowerIntervalValue: val})
+              break;
+            case 1:
+              this.setState({midIntervalValue: val})
+              break;
+            case 2:
+              this.setState({highIntervalValue: val})
+              break;
+          }
+        },
+
         start: ()=> this.setState({isStarted: true}),
         reset: ()=> this.setState({
           resolutionMax: 20000,//Real Max

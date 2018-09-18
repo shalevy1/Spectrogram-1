@@ -170,6 +170,10 @@ class Oscillator extends Component {
       this.delayVolume.mute = true;
     }
 
+    if(nextProps.intervalOn){
+      // console.log("Yay");
+    }
+
   }
 
   componentWillUnmount() {

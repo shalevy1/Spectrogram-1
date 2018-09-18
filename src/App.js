@@ -100,6 +100,13 @@ class App extends Component {
       fmOn={context.state.fmOn}
       fmRate={context.state.fmRate}
       amLevel={context.state.amLevel}
+      intervalOn={context.state.intervalOn}
+      lowerIntervalValue={context.state.lowerIntervalValue}
+      midIntervalValue={context.state.midIntervalValue}
+      highIntervalValue={context.state.highIntervalValue}
+      lowerIntervalLevel={context.state.lowerIntervalLevel}
+      midIntervalLevel={context.state.midIntervalLevel}
+      highIntervalLevel={context.state.highIntervalLevel}
       start={context.start}
       />
       </React.Fragment>

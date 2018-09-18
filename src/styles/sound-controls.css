@@ -9,7 +9,7 @@
 }
 
 .sound-pane-container {
-  min-width: 780px;
+  min-width: 1000px;
 }
 
 .slider {
@@ -76,18 +76,18 @@
 }
 
 .effects-stretch::before {
-  display: none;
+  /* display: none; */
 }
 
 .effects-stretch {
-  min-width: 28%;
+  min-width: 22%;
   padding-bottom: 0px!important;
   display: flex!important;
   justify-content: flex-start!important;
 }
 
 .effects-stretch::after {
-  display: none;
+  /* display: none; */
 }
 
 .effects-dropdown{
@@ -128,3 +128,70 @@
 .ui.toggle.checkbox input:checked~label:before {
   background-color: #7CB342!important;
 }
+
+.interval-container {
+  display: flex;
+  align-items: center;
+  /* justify-content: space-between; */
+
+}
+
+.interval-input {
+  width: 40px!important;
+  height: 35px!important;
+  outline: 0;
+  border: 0px;
+  margin-right: 5%;
+}
+
+.interval-input > input {
+  padding: 0px!important;
+  text-align: center!important;
+  border-radius: 50%!important;
+  color: transparent!important;
+  text-shadow: 0 0 0 gray;
+}
+
+.interval-slider {
+  width: 100px;
+  margin: 3%;
+  /* width: 50%; */
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+
+   opacity: 1;
+
+}
+
+/* {
+
+    font-size: 1em;
+    padding-top: .57142857em;
+    padding-bottom: .57142857em;
+}
+
+  .ui.input>input {
+    margin: 0;
+    max-width: 100%;
+    -ms-flex: 1 0 auto;
+    flex: 1 0 auto;
+    outline: 0;
+    -webkit-tap-highlight-color: rgba(255,255,255,0);
+    text-align: left;
+    line-height: 1.21428571em;
+    font-family: Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;
+    padding: .67857143em 1em;
+    background: #fff;
+    border: 1px solid rgba(34,36,38,.15);
+    color: rgba(0,0,0,.87);
+    border-radius: .28571429rem;
+    -webkit-transition: border-color .1s ease,-webkit-box-shadow .1s ease;
+    transition: border-color .1s ease,-webkit-box-shadow .1s ease;
+    -o-transition: box-shadow .1s ease,border-color .1s ease;
+    transition: box-shadow .1s ease,border-color .1s ease;
+    transition: box-shadow .1s ease,border-color .1s ease,-webkit-box-shadow .1s ease;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+} */

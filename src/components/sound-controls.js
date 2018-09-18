@@ -3,7 +3,7 @@ import {MyContext} from './my-provider';
 
 import EffectModule from './effect-module';
 
-import {Segment, Menu, Dropdown, Checkbox, Button, Icon} from 'semantic-ui-react';
+import {Segment, Menu, Dropdown, Checkbox, Button, Icon, Input} from 'semantic-ui-react';
 import "../styles/sound-controls.css";
 // Using an ES6 transpiler like Babel
 import Slider from 'react-rangeslider';
@@ -79,10 +79,33 @@ function EffectRender(props){
 
 }
 
+
+
+function IntervalInput(props){
+  return (
+    <div className="interval-container">
+      <Input type="number" className="interval-input" value={props.intervalValue} onChange={props.changeInterval}/>
+      <Slider
+      min={1}
+      max={100}
+      value={props.level}
+      onChange={props.changeIntervalLevel}
+      tooltip={props.isStarted}
+      className="interval-slider"/>
+    </div>
+  )
+}
+
 // Sound Controls Class that renders all of the sound controls and uses the
 // React Context API to hook up their functionality to the main state in app.js
 // Which passes the controls down to Spectrogram
 class SoundControls extends Component {
+
+  changeInterval = (e, data) =>{
+    if(data.value > 0 && data.value < 10)
+    this.setState({value: Number(data.value)})
+  }
+
   render() {
     return (
       <MyContext.Consumer>
@@ -251,6 +274,36 @@ class SoundControls extends Component {
                 onChange={(e, data)=>context.handleEffectChoiceChange(data.value)}
                 />
                 <EffectRender context={context} />
+
+                </Menu.Item>
+                <Menu.Item className="vert">
+                <div className="menu-header">Chord Poly</div>
+                <div className="sound-toggle-container">
+                <Checkbox
+                toggle
+                checked={context.state.intervalOn}
+                onChange={context.handleIntervalToggle}
+                disabled={!context.state.isStarted}
+                />
+                </div>
+                <IntervalInput
+                intervalValue={context.state.lowerIntervalValue}
+                changeInterval={(e, data)=>context.changeInterval(e, data, 0)}
+                level={context.state.lowerIntervalLevel}
+                changeIntervalLevel={data=>context.changeIntervalLevel(data, 0)}
+                isStarted={context.state.isStarted}/>
+                <IntervalInput
+                intervalValue={context.state.midIntervalValue}
+                changeInterval={(e, data)=>context.changeInterval(e, data, 1)}
+                level={context.state.midIntervalLevel}
+                changeIntervalLevel={data=>context.changeIntervalLevel(data, 1)}
+                isStarted={context.state.isStarted}/>
+                <IntervalInput
+                intervalValue={context.state.highIntervalValue}
+                changeInterval={(e, data)=>context.changeInterval(e, data, 2)}
+                level={context.state.highIntervalLevel}
+                changeIntervalLevel={data=>context.changeIntervalLevel(data, 3)}
+                isStarted={context.state.isStarted}/>
 
                 </Menu.Item>
 
