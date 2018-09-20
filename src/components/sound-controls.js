@@ -90,7 +90,7 @@ function IntervalInput(props){
       max={100}
       value={props.level}
       onChange={props.changeIntervalLevel}
-      tooltip={props.isStarted}
+      tooltip={props.disabled}
       className="interval-slider"/>
     </div>
   )
@@ -283,7 +283,7 @@ class SoundControls extends Component {
                 toggle
                 checked={context.state.intervalOn}
                 onChange={context.handleIntervalToggle}
-                disabled={!context.state.isStarted}
+                disabled={!context.state.isStarted || !context.state.scaleOn}
                 />
                 </div>
                 <IntervalInput
@@ -291,19 +291,19 @@ class SoundControls extends Component {
                 changeInterval={(e, data)=>context.changeInterval(e, data, 0)}
                 level={context.state.lowerIntervalLevel}
                 changeIntervalLevel={data=>context.changeIntervalLevel(data, 0)}
-                isStarted={context.state.isStarted}/>
+                disabled={!context.state.isStarted || !context.state.scaleOn}/>
                 <IntervalInput
                 intervalValue={context.state.midIntervalValue}
                 changeInterval={(e, data)=>context.changeInterval(e, data, 1)}
                 level={context.state.midIntervalLevel}
                 changeIntervalLevel={data=>context.changeIntervalLevel(data, 1)}
-                isStarted={context.state.isStarted}/>
+                disabled={!context.state.isStarted || !context.state.scaleOn}/>
                 <IntervalInput
                 intervalValue={context.state.highIntervalValue}
                 changeInterval={(e, data)=>context.changeInterval(e, data, 2)}
                 level={context.state.highIntervalLevel}
-                changeIntervalLevel={data=>context.changeIntervalLevel(data, 3)}
-                isStarted={context.state.isStarted}/>
+                changeIntervalLevel={data=>context.changeIntervalLevel(data, 2)}
+                disabled={!context.state.isStarted || !context.state.scaleOn}/>
 
                 </Menu.Item>
 

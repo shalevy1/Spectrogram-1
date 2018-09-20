@@ -41,6 +41,9 @@ class Oscillator extends Component {
     this.synths = new Array(NUM_VOICES);
     this.amSignals = new Array(NUM_VOICES);
     this.fmSignals = new Array(NUM_VOICES);
+    this.lowChordSynths = new Array(NUM_VOICES);
+    this.midChordSynths = new Array(NUM_VOICES);
+    this.highChordSynths = new Array(NUM_VOICES);
 
     // Start master volume at -20 dB
     this.masterVolume = new Tone.Volume(0);
@@ -56,19 +59,28 @@ class Oscillator extends Component {
       }
     }
 
-
     // For each voice, create a synth and connect it to the master volume
     for (let i = 0; i < NUM_VOICES; i++) {
       this.synths[i] = new Tone.Synth(options);
-      this.synths[i].connect(this.masterVolume);
       this.amSignals[i] = new Tone.Synth(options2);
-      this.amSignals[i].connect(this.synths[i].volume)
-      // this.amSignals[i].type ="sine";
       this.fmSignals[i] = new Tone.Synth(options2);
-      this.fmSignals[i].connect(this.synths[i].frequency)
-      // this.fmSignals[i].type ="square";
-      // this.amSignal.frequency.value = 1;
-      // this.amSignal.volume.value = 10;
+      this.lowChordSynths[i] = new Tone.Synth(options);
+      this.midChordSynths[i] = new Tone.Synth(options);
+      this.highChordSynths[i] = new Tone.Synth(options);
+
+      this.synths[i].connect(this.masterVolume);
+      this.amSignals[i].connect(this.synths[i].volume);
+      this.amSignals[i].connect(this.lowChordSynths[i].volume);
+      this.amSignals[i].connect(this.midChordSynths[i].volume);
+      this.amSignals[i].connect(this.highChordSynths[i].volume);
+      this.fmSignals[i].connect(this.synths[i].frequency);
+      this.fmSignals[i].connect(this.lowChordSynths[i].frequency);
+      this.fmSignals[i].connect(this.midChordSynths[i].frequency);
+      this.fmSignals[i].connect(this.highChordSynths[i].frequency);
+      this.lowChordSynths[i].connect(this.masterVolume);
+      this.midChordSynths[i].connect(this.masterVolume);
+      this.highChordSynths[i].connect(this.masterVolume);
+
     }
 
     this.goldIndices = []; // Array to hold indices on the screen of gold note lines (touched/clicked lines)
@@ -170,10 +182,6 @@ class Oscillator extends Component {
       this.delayVolume.mute = true;
     }
 
-    if(nextProps.intervalOn){
-      // console.log("Yay");
-    }
-
   }
 
   componentWillUnmount() {
@@ -191,16 +199,27 @@ class Oscillator extends Component {
     // The value goes from 0 to 1. (0, 0) = Bottom Left corner
     let yPercent = 1 - pos.y / this.props.height;
     let xPercent = 1 - pos.x / this.props.width;
-    let freq = this.getFreq(yPercent);
+    let freqs = this.getFreq(yPercent);
+    // let freq = this.getFreq(yPercent)[0];
     let gain = getGain(xPercent);
     // newVoice = implementation of circular array discussed above.
     let newVoice = (this.state.currentVoice + 1) % NUM_VOICES; // Mouse always changes to new "voice"
-    this.synths[newVoice].triggerAttack(freq); // Starts the synth at frequency = freq
+    this.synths[newVoice].triggerAttack(freqs[0]); // Starts the synth at frequency = freq
+    this.synths[newVoice].volume.value = gain; // Starts the synth at volume = gain
+
+    if(this.props.intervalOn){
+      this.lowChordSynths[newVoice].triggerAttack(freqs[1]);
+      this.midChordSynths[newVoice].triggerAttack(freqs[2]);
+      this.highChordSynths[newVoice].triggerAttack(freqs[3]);
+      this.lowChordSynths[newVoice].volume.value = getGain(1 - this.props.lowerIntervalLevel/100);
+      this.midChordSynths[newVoice].volume.value = getGain(1 - this.props.midIntervalLevel/100);
+      this.highChordSynths[newVoice].volume.value = getGain(1 - this.props.highIntervalLevel/100);
+    }
+
     // Am
     if(this.props.amOn){
       let newVol = convertToLog(this.props.amLevel, 0, 1, 0.01, 15); // AM amplitud;e set between 0.01 and 15 (arbitray choices)
       let newFreq = convertToLog(this.props.amRate, 0, 1, 0.5, 50); // AM frequency set between 0.5 and 50 hz (arbitray choices)
-      console.log(newVol)
       this.amSignals[newVoice].volume.exponentialRampToValueAtTime(newVol, this.props.context.currentTime+1); // Ramps to AM amplitude in 1 sec
       this.amSignals[newVoice].triggerAttack(newFreq);
     }
@@ -214,9 +233,8 @@ class Oscillator extends Component {
       this.fmSignals[newVoice].triggerAttack(newFreq);
     }
 
-    this.synths[newVoice].volume.value = gain; // Starts the synth at volume = gain
     this.ctx.clearRect(0, 0, this.props.width, this.props.height); // Clears canvas for redraw of label
-    this.label(freq, pos.x, pos.y); // Labels the point
+    this.label(freqs[0], pos.x, pos.y); // Labels the point
     this.setState({
       mouseDown: true,
       currentVoice: newVoice,
@@ -236,16 +254,18 @@ class Oscillator extends Component {
       let yPercent = 1 - pos.y / height;
       let xPercent = 1 - pos.x / width;
       let gain = getGain(xPercent);
-      let freq = this.getFreq(yPercent);
+      // let freq = this.getFreq(yPercent)[0];
+      let freqs = this.getFreq(yPercent);
+
       // Remove previous gold indices and update them to new positions
       this.goldIndices.splice(this.state.currentVoice - 1, 1);
       if(this.props.scaleOn){
         // Jumps to new Frequency and Volume
-        this.synths[this.state.currentVoice].frequency.value = freq;
+        this.synths[this.state.currentVoice].frequency.value = freqs[0];
         this.synths[this.state.currentVoice].volume.value = gain;
       } else {
         // Ramps to new Frequency and Volume
-        this.synths[this.state.currentVoice].frequency.exponentialRampToValueAtTime(freq, this.props.context.currentTime+RAMPVALUE);
+        this.synths[this.state.currentVoice].frequency.exponentialRampToValueAtTime(freqs[0], this.props.context.currentTime+RAMPVALUE);
         // Ramp to new Volume
         this.synths[this.state.currentVoice].volume.exponentialRampToValueAtTime(gain,
           this.props.context.currentTime+RAMPVALUE);
@@ -260,10 +280,19 @@ class Oscillator extends Component {
         // this.fmSignals[this.state.currentVoice].frequency.exponentialRampToValueAtTime(newFreq, this.props.context.currentTime+RAMPVALUE);
       }
 
+      if(this.props.intervalOn){
+        this.lowChordSynths[this.state.currentVoice].frequency.value = freqs[1];
+        this.midChordSynths[this.state.currentVoice].frequency.value = freqs[2];
+        this.highChordSynths[this.state.currentVoice].frequency.value = freqs[3];
+        // this.lowChordSynths[newVoice].volume.value = getGain(this.props.lowerIntervalLevel/100);
+        // this.midChordSynths[newVoice].volume.value = getGain(this.props.midIntervalLevel/100);
+        // this.highChordSynths[newVoice].volume.value = getGain(this.props.highIntervalLevel/100);
+      }
+
 
       // Clears the label
       this.ctx.clearRect(0, 0, this.props.width, this.props.height);
-      this.label(freq, pos.x, pos.y);
+      this.label(freqs[0], pos.x, pos.y);
       if(this.props.noteLinesOn){
         this.renderNoteLines();
       }
@@ -277,6 +306,12 @@ class Oscillator extends Component {
       this.synths[this.state.currentVoice].triggerRelease(); // Relase frequency, volume goes to -Infinity
       this.amSignals[this.state.currentVoice].triggerRelease();
       this.fmSignals[this.state.currentVoice].triggerRelease();
+      if(this.props.intervalOn){
+        this.lowChordSynths[this.state.currentVoice].triggerRelease(); // Relase frequency, volume goes to -Infinity
+        this.midChordSynths[this.state.currentVoice].triggerRelease(); // Relase frequency, volume goes to -Infinity
+        this.highChordSynths[this.state.currentVoice].triggerRelease(); // Relase frequency, volume goes to -Infinity
+
+      }
 
       this.setState({mouseDown: false, voices: 0});
       this.goldIndices = [];
@@ -296,7 +331,12 @@ class Oscillator extends Component {
       this.synths[this.state.currentVoice].triggerRelease();
       this.amSignals[this.state.currentVoice].triggerRelease();
       this.fmSignals[this.state.currentVoice].triggerRelease();
+      if(this.props.intervalOn){
+        this.lowChordSynths[this.state.currentVoice].triggerRelease(); // Relase frequency, volume goes to -Infinity
+        this.midChordSynths[this.state.currentVoice].triggerRelease(); // Relase frequency, volume goes to -Infinity
+        this.highChordSynths[this.state.currentVoice].triggerRelease(); // Relase frequency, volume goes to -Infinity
 
+      }
       this.setState({mouseDown: false, voices: 0});
       this.goldIndices = [];
 
@@ -326,7 +366,7 @@ class Oscillator extends Component {
       let yPercent = 1 - pos.y / this.props.height;
       let xPercent = 1 - pos.x / this.props.width;
       let gain = getGain(xPercent);
-      let freq = this.getFreq(yPercent);
+      let freq = this.getFreq(yPercent)[0];
       let newVoice = (this.state.currentVoice + 1) % NUM_VOICES;
       this.setState({
         touch: true,
@@ -377,7 +417,7 @@ class Oscillator extends Component {
         let xPercent = 1 - pos.x / this.props.width;
         let gain = getGain(xPercent);
 
-        let freq = this.getFreq(yPercent);
+        let freq = this.getFreq(yPercent)[0];
         // Determines index of the synth needing to change volume/frequency
         let index = (voiceToChange + e.changedTouches[i].identifier) % NUM_VOICES;
         // Wraps the array
@@ -419,7 +459,7 @@ class Oscillator extends Component {
       for (let i = 0; i < e.touches.length; i++) {
         let pos = getMousePos(this.canvas, e.touches[i]);
         let yPercent = 1 - pos.y / this.props.height;
-        let freq = this.getFreq(yPercent);
+        let freq = this.getFreq(yPercent)[0];
         this.label(freq, pos.x, pos.y);
       }
       if(this.props.noteLinesOn){
@@ -479,7 +519,7 @@ class Oscillator extends Component {
   // Also deals with snapping it to a scale if scale mode is on
   getFreq(index) {
     let {resolutionMax, resolutionMin, height} = this.props;
-    let freq = getFreq(index, resolutionMin, resolutionMax)
+    let freq = getFreq(index, resolutionMin, resolutionMax);
     if (this.props.scaleOn) {
       //  Maps to one of the 12 keys of the piano based on note and accidental
       let newIndexedKey = this.props.musicKey.value;
@@ -504,15 +544,21 @@ class Oscillator extends Component {
       let dist = 20000;
       let harmonic = 0;
       //Sweeps through scale object and plays correct frequency
-      for (var j = 1; j < 1500; j = j * 2) {
 
-        for (var k = 0; k < s.scale.length; k++) {
+       let finalJ, finalK;
+      for (let j = 1; j < 1500; j = j * 2) {
+
+        for (let k = 0; k < s.scale.length; k++) {
 
           var check = j * s.scale[k];
           var checkDist = Math.abs(freq - check);
           if (checkDist < dist) {
             dist = checkDist;
             note = check;
+            finalJ = j;
+            finalK = k;
+
+
             name = s.scaleNames[k];
             harmonic = Math.round(Math.log2(j) - 1);
           } else {
@@ -521,14 +567,38 @@ class Oscillator extends Component {
         }
       }
       freq = note;
+
+
+
       let textLabel = name + '' + harmonic;
       this.scaleLabel = textLabel;
       let index = freqToIndex(freq, resolutionMax, resolutionMin, height);
 
-        this.goldIndices[this.state.currentVoice] = index;
-
+      this.goldIndices[this.state.currentVoice] = index;
+      if(this.props.intervalOn){
+        let lowerFreq, midFreq, highFreq;
+        if(finalK + this.props.lowerIntervalValue - 1 >= s.scale.length){
+          let lowerIndex = (finalK + this.props.lowerIntervalValue - 1) % s.scale.length;
+          lowerFreq = (finalJ*2)*s.scale[lowerIndex];
+        } else{
+          lowerFreq = finalJ*s.scale[finalK + this.props.lowerIntervalValue - 1];
+        }
+        if(finalK + this.props.midIntervalValue - 1 >= s.scale.length){
+          let midIndex = (finalK + this.props.midIntervalValue - 1) % s.scale.length;
+          midFreq = (finalJ*2)*s.scale[midIndex];
+        } else{
+          midFreq = finalJ*s.scale[finalK + this.props.midIntervalValue - 1];
+        }
+        if(finalK + this.props.highIntervalValue - 1 >= s.scale.length){
+          let highIndex = (finalK + this.props.highIntervalValue - 1) % s.scale.length;
+          highFreq = (finalJ*2)*s.scale[highIndex];
+        } else{
+          highFreq = finalJ*s.scale[finalK + this.props.highIntervalValue - 1];
+        }
+        return [Math.round(freq),Math.round(lowerFreq), Math.round(midFreq), Math.round(highFreq)];
+      }
     }
-    return Math.round(freq);
+    return [Math.round(freq)];
   }
 
   handleResize = () => {

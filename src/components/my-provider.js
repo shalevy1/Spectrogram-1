@@ -281,13 +281,13 @@ class MyProvider extends Component {
         changeIntervalLevel: (val, which) => {
           switch (which) {
             case 0:
-              this.setState({lowerIntervalValue: val})
+              this.setState({lowerIntervalLevel: val})
               break;
             case 1:
-              this.setState({midIntervalValue: val})
+              this.setState({midIntervalLevel: val})
               break;
             case 2:
-              this.setState({highIntervalValue: val})
+              this.setState({highIntervalLevel: val})
               break;
           }
         },
