@@ -101,6 +101,7 @@ class App extends Component {
       fmRate={context.state.fmRate}
       amLevel={context.state.amLevel}
       intervalOn={context.state.intervalOn}
+      chordPolyChromatic={context.state.chordPolyChromatic}
       lowerIntervalValue={context.state.lowerIntervalValue}
       midIntervalValue={context.state.midIntervalValue}
       highIntervalValue={context.state.highIntervalValue}

@@ -13,7 +13,7 @@ class EffectModule extends Component {
     return(
           <div className="effect-module">
             <div className="effect-on">
-            On:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            On&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <Checkbox
             toggle
             checked={this.props.toggle}
@@ -24,7 +24,7 @@ class EffectModule extends Component {
             <div className="effect-controls">
             {this.props.controlNames.map((name, index) =>(
               <div className="effect-control" key={index}>
-                {name}:&nbsp;
+                {name}&nbsp;
                 <Slider
                 min={0}
                 max={1}

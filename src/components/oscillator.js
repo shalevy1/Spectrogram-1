@@ -7,6 +7,7 @@ import { getFreq, getGain, freqToIndex, getMousePos, convertToLog } from "../uti
 
 const NUM_VOICES = 6;
 const RAMPVALUE = 0.2;
+const CHROMATIC = 3;
 
 // Main sound-making class. Can handle click and touch inputs
 class Oscillator extends Component {
@@ -51,6 +52,9 @@ class Oscillator extends Component {
     let options = {
       oscillator: {
         type: this.props.timbre.toLowerCase()
+      },
+      envelope: {
+        attack: 0.1
       }
     };
     let options2 = {
@@ -126,11 +130,11 @@ class Oscillator extends Component {
         this.synths[i].oscillator.type = newTimbre;
       }
     }
-    if (nextProps.attack !== this.synths[0].envelope.attack) {
-      for (let i = 0; i < NUM_VOICES; i++) {
-        this.synths[i].envelope.attack = nextProps.attack;
-      }
-    }
+    // if (nextProps.attack !== this.synths[0].envelope.attack) {
+    //   for (let i = 0; i < NUM_VOICES; i++) {
+    //     this.synths[i].envelope.attack = nextProps.attack;
+    //   }
+    // }
     if (nextProps.release !== this.synths[0].envelope.release) {
       for (let i = 0; i < NUM_VOICES; i++) {
         this.synths[i].envelope.release = nextProps.release;
@@ -361,8 +365,8 @@ class Oscillator extends Component {
       return;
     }
     // For each finger, do the same as above in onMouseDown
-    for (let i = 0; i < e.touches.length; i++) {
-      let pos = getMousePos(this.canvas, e.touches[i]);
+    for (let i = 0; i < e.changedTouches.length; i++) {
+      let pos = getMousePos(this.canvas, e.changedTouches[i]);
       let yPercent = 1 - pos.y / this.props.height;
       let xPercent = 1 - pos.x / this.props.width;
       let gain = getGain(xPercent);
@@ -373,8 +377,8 @@ class Oscillator extends Component {
         currentVoice: newVoice,
         voices: this.state.voices + 1
       });
-      this.synths[newVoice].triggerAttack(freq);
       this.synths[newVoice].volume.value = gain;
+      this.synths[newVoice].triggerAttack(freq);
       // Am
       if(this.props.amOn){
         let newVol = convertToLog(this.props.amLevel, 0, 1, 0.01, 15); // AM amplitud;e set between 0.01 and 15 (arbitray choices)
@@ -393,6 +397,11 @@ class Oscillator extends Component {
       }
 
       this.ctx.clearRect(0, 0, this.props.width, this.props.height);
+    }
+    for (let i = 0; i < e.touches.length; i++) {
+      let pos = getMousePos(this.canvas, e.touches[i]);
+      let yPercent = 1 - pos.y / this.props.height;
+      let freq = this.getFreq(yPercent)[0];
       this.label(freq, pos.x, pos.y);
     }
     if(this.props.noteLinesOn){
@@ -490,7 +499,7 @@ class Oscillator extends Component {
           ? (NUM_VOICES + index)
           : index;
 
-          this.goldIndices.splice(index, 1);
+        this.goldIndices.splice(index, 1);
         this.synths[index].triggerRelease();
         this.amSignals[index].triggerRelease();
         this.fmSignals[index].triggerRelease();
@@ -577,23 +586,48 @@ class Oscillator extends Component {
       this.goldIndices[this.state.currentVoice] = index;
       if(this.props.intervalOn){
         let lowerFreq, midFreq, highFreq;
-        if(finalK + this.props.lowerIntervalValue - 1 >= s.scale.length){
-          let lowerIndex = (finalK + this.props.lowerIntervalValue - 1) % s.scale.length;
-          lowerFreq = (finalJ*2)*s.scale[lowerIndex];
-        } else{
-          lowerFreq = finalJ*s.scale[finalK + this.props.lowerIntervalValue - 1];
+        if(this.props.chordPolyChromatic){
+          let finalNote = s.scale[finalK];
+          s = generateScale(newIndexedKey, CHROMATIC); //Reference Chromatic scale
+          finalK = s.scale.indexOf(finalNote); // Diatonic to chromatic note
+          if(finalK + this.props.lowerIntervalValue - 1 >= s.scale.length){
+            let lowerIndex = (finalK + this.props.lowerIntervalValue - 1) % s.scale.length;
+            lowerFreq = (finalJ*2)*s.scale[lowerIndex];
+          } else{
+            lowerFreq = finalJ*s.scale[finalK + this.props.lowerIntervalValue - 1];
+          }
+          if(finalK + this.props.midIntervalValue - 1 >= s.scale.length){
+            let midIndex = (finalK + this.props.midIntervalValue - 1) % s.scale.length;
+            midFreq = (finalJ*2)*s.scale[midIndex];
+          } else{
+            midFreq = finalJ*s.scale[finalK + this.props.midIntervalValue - 1];
+          }
+          if(finalK + this.props.highIntervalValue - 1 >= s.scale.length){
+            let highIndex = (finalK + this.props.highIntervalValue - 1) % s.scale.length;
+            highFreq = (finalJ*2)*s.scale[highIndex];
+          } else{
+            highFreq = finalJ*s.scale[finalK + this.props.highIntervalValue - 1];
+          }
         }
-        if(finalK + this.props.midIntervalValue - 1 >= s.scale.length){
-          let midIndex = (finalK + this.props.midIntervalValue - 1) % s.scale.length;
-          midFreq = (finalJ*2)*s.scale[midIndex];
-        } else{
-          midFreq = finalJ*s.scale[finalK + this.props.midIntervalValue - 1];
-        }
-        if(finalK + this.props.highIntervalValue - 1 >= s.scale.length){
-          let highIndex = (finalK + this.props.highIntervalValue - 1) % s.scale.length;
-          highFreq = (finalJ*2)*s.scale[highIndex];
-        } else{
-          highFreq = finalJ*s.scale[finalK + this.props.highIntervalValue - 1];
+        else {
+          if(finalK + this.props.lowerIntervalValue - 1 >= s.scale.length){
+            let lowerIndex = (finalK + this.props.lowerIntervalValue - 1) % s.scale.length;
+            lowerFreq = (finalJ*2)*s.scale[lowerIndex];
+          } else{
+            lowerFreq = finalJ*s.scale[finalK + this.props.lowerIntervalValue - 1];
+          }
+          if(finalK + this.props.midIntervalValue - 1 >= s.scale.length){
+            let midIndex = (finalK + this.props.midIntervalValue - 1) % s.scale.length;
+            midFreq = (finalJ*2)*s.scale[midIndex];
+          } else{
+            midFreq = finalJ*s.scale[finalK + this.props.midIntervalValue - 1];
+          }
+          if(finalK + this.props.highIntervalValue - 1 >= s.scale.length){
+            let highIndex = (finalK + this.props.highIntervalValue - 1) % s.scale.length;
+            highFreq = (finalJ*2)*s.scale[highIndex];
+          } else{
+            highFreq = finalJ*s.scale[finalK + this.props.highIntervalValue - 1];
+          }
         }
         return [Math.round(freq),Math.round(lowerFreq), Math.round(midFreq), Math.round(highFreq)];
       }

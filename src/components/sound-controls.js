@@ -261,31 +261,31 @@ class SoundControls extends Component {
                   </div>
                   </div>
                 </Menu.Item>
-                  {/* Effects */}
-                <Menu.Item className="vert effects-stretch">
-                <div className="menu-header">Effects</div>
-                <Dropdown
-                className="effects-dropdown"
-                placeholder= "Select Effect"
-                selection
-                fluid
-                options={effectOptions}
-                value={context.state.effectValue}
-                onChange={(e, data)=>context.handleEffectChoiceChange(data.value)}
-                />
-                <EffectRender context={context} />
-
-                </Menu.Item>
                 <Menu.Item className="vert">
                 <div className="menu-header">Chord Poly</div>
-                <div className="sound-toggle-container">
-                <Checkbox
-                toggle
-                checked={context.state.intervalOn}
-                onChange={context.handleIntervalToggle}
-                disabled={!context.state.isStarted || !context.state.scaleOn}
-                />
+                <div className="chord-toggle-container">
+                  <div className="chord-toggle">
+                    Chord Mode
+                      <Checkbox
+                      toggle
+                      checked={context.state.intervalOn}
+                      onChange={context.handleIntervalToggle}
+                      disabled={!context.state.isStarted || !context.state.scaleOn}
+                      style={{marginTop: "5%"}}
+                      />
+                  </div>
+                  <div className="chord-toggle">
+                    Chromatic
+                    <Checkbox
+                    toggle
+                    checked={context.state.chordPolyChromatic}
+                    onChange={context.handleChordPolyChromaticChange}
+                    disabled={!context.state.isStarted || !context.state.intervalOn}
+                    style={{marginTop: "5%"}}
+                    />
+                  </div>
                 </div>
+                {/* Intervals */}
                 <IntervalInput
                 intervalValue={context.state.lowerIntervalValue}
                 changeInterval={(e, data)=>context.changeInterval(e, data, 0)}
@@ -304,6 +304,22 @@ class SoundControls extends Component {
                 level={context.state.highIntervalLevel}
                 changeIntervalLevel={data=>context.changeIntervalLevel(data, 2)}
                 disabled={!context.state.isStarted || !context.state.scaleOn}/>
+
+                </Menu.Item>
+
+                  {/* Effects */}
+                <Menu.Item className="vert effects-stretch">
+                <div className="menu-header">Effects</div>
+                <Dropdown
+                className="effects-dropdown"
+                placeholder= "Select Effect"
+                selection
+                fluid
+                options={effectOptions}
+                value={context.state.effectValue}
+                onChange={(e, data)=>context.handleEffectChoiceChange(data.value)}
+                />
+                <EffectRender context={context} />
 
                 </Menu.Item>
 

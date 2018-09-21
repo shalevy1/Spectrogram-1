@@ -68,6 +68,21 @@
   padding: 0px!important;
 }
 
+
+.chord-toggle-container {
+  margin: 0 0;
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  min-width: 180px;
+}
+
+.chord-toggle {
+  display: flex;
+  flex-direction:column;
+  margin: 2% 2%;
+}
+
 .effects-container {
   display: flex;
   align-self: flex-start!important;
@@ -153,7 +168,7 @@
 }
 
 .interval-slider {
-  width: 100px;
+  width: 120px;
   margin: 3%;
   /* width: 50%; */
 }
@@ -164,34 +179,3 @@ input[type=number]::-webkit-outer-spin-button {
    opacity: 1;
 
 }
-
-/* {
-
-    font-size: 1em;
-    padding-top: .57142857em;
-    padding-bottom: .57142857em;
-}
-
-  .ui.input>input {
-    margin: 0;
-    max-width: 100%;
-    -ms-flex: 1 0 auto;
-    flex: 1 0 auto;
-    outline: 0;
-    -webkit-tap-highlight-color: rgba(255,255,255,0);
-    text-align: left;
-    line-height: 1.21428571em;
-    font-family: Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;
-    padding: .67857143em 1em;
-    background: #fff;
-    border: 1px solid rgba(34,36,38,.15);
-    color: rgba(0,0,0,.87);
-    border-radius: .28571429rem;
-    -webkit-transition: border-color .1s ease,-webkit-box-shadow .1s ease;
-    transition: border-color .1s ease,-webkit-box-shadow .1s ease;
-    -o-transition: box-shadow .1s ease,border-color .1s ease;
-    transition: box-shadow .1s ease,border-color .1s ease;
-    transition: box-shadow .1s ease,border-color .1s ease,-webkit-box-shadow .1s ease;
-    -webkit-box-shadow: none;
-    box-shadow: none;
-} */

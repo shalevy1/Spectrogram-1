@@ -47,6 +47,7 @@ class MyProvider extends Component {
     fmRate: 0.5,
     fmLevel: 0.5,
     intervalOn: false,
+    chordPolyChromatic: false,
     lowerIntervalValue: 3,
     midIntervalValue: 5,
     highIntervalValue: 8,
@@ -261,6 +262,7 @@ class MyProvider extends Component {
           }
         },
         handleIntervalToggle: () => this.setState({intervalOn: !this.state.intervalOn}),
+        handleChordPolyChromaticChange: () => this.setState({chordPolyChromatic: !this.state.chordPolyChromatic}),
         changeInterval: (val, param, which) => {
           let data = Number(param.value);
           if(data > 1 && data < 10){
