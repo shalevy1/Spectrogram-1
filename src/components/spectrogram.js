@@ -38,7 +38,7 @@ class Spectrogram extends Component {
       musicKey: {name: 'C', value: 0 },
       accidental: {name: ' ', value: 0},
       scale: {name: 'Major', value: 0},
-      microphone: true
+      microphoneReady: false
     }
   }
   componentDidMount() {
@@ -57,24 +57,29 @@ class Spectrogram extends Component {
         gainNode.gain.setTargetAtTime(gain, audioContext.currentTime, 0.01);
       }
     }
-    // Turn on/off the microphone by calling audioTrack.stop() and then restarting the stream
-    // This checks the readyState of the audioTrack for status of the microphone
-    if(!nextProps.microphone && audioTrack.readyState === "live"){
-      audioTrack.stop();
-      this.setState({microphone: !this.state.microphone});
-    } else if(audioTrack && nextProps.microphone && audioTrack.readyState === "ended") {
-      if (navigator.mozGetUserMedia) {
-        navigator.mozGetUserMedia({
-          audio: true
-        }, this.onStream.bind(this), this.onStreamError.bind(this));
-      } else if (navigator.webkitGetUserMedia) {
-        navigator.webkitGetUserMedia({
-          audio: true
-        }, this.onStream.bind(this), this.onStreamError.bind(this));
-      }
 
-      this.setState({microphone: !this.state.microphone});
+    if(audioTrack){
+      // Turn on/off the microphone by calling audioTrack.stop() and then restarting the stream
+      // This checks the readyState of the audioTrack for status of the microphone
+      if(!nextProps.microphone && audioTrack.readyState === "live"){
+        audioTrack.stop();
+      } else if(audioTrack && nextProps.microphone && audioTrack.readyState === "ended") {
+        if (navigator.mozGetUserMedia) {
+          navigator.mozGetUserMedia({
+            audio: true
+          }, this.onStream.bind(this), this.onStreamError.bind(this));
+        } else if (navigator.webkitGetUserMedia) {
+          navigator.webkitGetUserMedia({
+            audio: true
+          }, this.onStream.bind(this), this.onStreamError.bind(this));
+        }
+
+      }
+    } else {
+      this.setState({microphoneReady: false});
+
     }
+
   }
 
   // Starts the Spectrogram and Children Components when the user taps the screen
@@ -121,10 +126,7 @@ class Spectrogram extends Component {
       // });
       // Calls the start function which lets the controls know it has started
       this.props.start();
-      this.renderFreqDomain();
-    } //else {
-    //   this.props.menuClose();
-    // }
+    }
 
   }
 
@@ -149,6 +151,7 @@ class Spectrogram extends Component {
     input.connect(gainNode);
     gainNode.connect(analyser);
     gainNode.gain.setTargetAtTime(1, audioContext.currentTime, 0.01);
+    this.setState({microphoneReady: true});          
   }
 
   onStreamError(e) {
@@ -246,7 +249,9 @@ handleHeadphoneModeToggle=()=>{
 }
 
 handleMicrophoneToggle=()=>{
-  this.props.handleMicrophoneToggle();
+  if(this.state.microphoneReady){
+    this.props.handleMicrophoneToggle();
+  }
 }
 
 spacePressed = (e) =>{

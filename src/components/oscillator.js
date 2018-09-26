@@ -208,8 +208,8 @@ class Oscillator extends Component {
     let gain = getGain(xPercent);
     // newVoice = implementation of circular array discussed above.
     let newVoice = (this.state.currentVoice + 1) % NUM_VOICES; // Mouse always changes to new "voice"
-    this.synths[newVoice].triggerAttack(freqs[0]); // Starts the synth at frequency = freq
     this.synths[newVoice].volume.value = gain; // Starts the synth at volume = gain
+    this.synths[newVoice].triggerAttack(freqs[0]); // Starts the synth at frequency = freq
 
     if(this.props.intervalOn){
       this.lowChordSynths[newVoice].triggerAttack(freqs[1]);
@@ -288,9 +288,6 @@ class Oscillator extends Component {
         this.lowChordSynths[this.state.currentVoice].frequency.value = freqs[1];
         this.midChordSynths[this.state.currentVoice].frequency.value = freqs[2];
         this.highChordSynths[this.state.currentVoice].frequency.value = freqs[3];
-        // this.lowChordSynths[newVoice].volume.value = getGain(this.props.lowerIntervalLevel/100);
-        // this.midChordSynths[newVoice].volume.value = getGain(this.props.midIntervalLevel/100);
-        // this.highChordSynths[newVoice].volume.value = getGain(this.props.highIntervalLevel/100);
       }
 
 
