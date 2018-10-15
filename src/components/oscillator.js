@@ -28,7 +28,9 @@ class Oscillator extends Component {
       voices: 0, //voices started with on event
       feedback: false,
       amOn: false,
-      fmOn: false
+      fmOn: false,
+      noteLinesOn: false,
+      checkButton: false
     }
   }
 
@@ -46,9 +48,11 @@ class Oscillator extends Component {
     this.midChordSynths = new Array(NUM_VOICES);
     this.highChordSynths = new Array(NUM_VOICES);
 
+
     // Start master volume at -20 dB
     this.masterVolume = new Tone.Volume(0);
     this.ctx = this.canvas.getContext('2d');
+    this.drawButton(false);
     let options = {
       oscillator: {
         type: this.props.timbre.toLowerCase()
@@ -159,8 +163,14 @@ class Oscillator extends Component {
     if(nextProps.noteLinesOn){
       this.ctx.clearRect(0, 0, this.props.width, this.props.height);
       this.renderNoteLines();
+      this.drawButton(false);
+      this.setState({noteLinesOn: true});
     } else {
-      this.ctx.clearRect(0, 0, this.props.width, this.props.height);
+      if(this.state.noteLinesOn){
+        this.ctx.clearRect(0, 0, this.props.width, this.props.height);
+        this.drawButton(false);
+        this.setState({noteLinesOn: false});
+      }
     }
     if(nextProps.reverbOn){
       this.reverbVolume.mute = false;
@@ -201,51 +211,61 @@ class Oscillator extends Component {
     let pos = getMousePos(this.canvas, e);
     // Calculates x and y value in respect to width and height of screen
     // The value goes from 0 to 1. (0, 0) = Bottom Left corner
-    let yPercent = 1 - pos.y / this.props.height;
-    let xPercent = 1 - pos.x / this.props.width;
-    let freqs = this.getFreq(yPercent);
-    // let freq = this.getFreq(yPercent)[0];
-    let gain = getGain(xPercent);
-    // newVoice = implementation of circular array discussed above.
-    let newVoice = (this.state.currentVoice + 1) % NUM_VOICES; // Mouse always changes to new "voice"
-    this.synths[newVoice].volume.value = gain; // Starts the synth at volume = gain
-    this.synths[newVoice].triggerAttack(freqs[0]); // Starts the synth at frequency = freq
+    if (!this.checkButton(pos.x, pos.y)){
+      let yPercent = 1 - pos.y / this.props.height;
+      let xPercent = 1 - pos.x / this.props.width;
+      let freqs = this.getFreq(yPercent);
+      // let freq = this.getFreq(yPercent)[0];
+      let gain = getGain(xPercent);
+      // newVoice = implementation of circular array discussed above.
+      let newVoice = (this.state.currentVoice + 1) % NUM_VOICES; // Mouse always changes to new "voice"
+      this.synths[newVoice].volume.value = gain; // Starts the synth at volume = gain
+      this.synths[newVoice].triggerAttack(freqs[0]); // Starts the synth at frequency = freq
 
-    if(this.props.intervalOn){
-      this.lowChordSynths[newVoice].triggerAttack(freqs[1]);
-      this.midChordSynths[newVoice].triggerAttack(freqs[2]);
-      this.highChordSynths[newVoice].triggerAttack(freqs[3]);
-      this.lowChordSynths[newVoice].volume.value = getGain(1 - this.props.lowerIntervalLevel/100);
-      this.midChordSynths[newVoice].volume.value = getGain(1 - this.props.midIntervalLevel/100);
-      this.highChordSynths[newVoice].volume.value = getGain(1 - this.props.highIntervalLevel/100);
-    }
+      if(this.props.intervalOn){
+        this.lowChordSynths[newVoice].triggerAttack(freqs[1]);
+        this.midChordSynths[newVoice].triggerAttack(freqs[2]);
+        this.highChordSynths[newVoice].triggerAttack(freqs[3]);
+        this.lowChordSynths[newVoice].volume.value = getGain(1 - this.props.lowerIntervalLevel/100);
+        this.midChordSynths[newVoice].volume.value = getGain(1 - this.props.midIntervalLevel/100);
+        this.highChordSynths[newVoice].volume.value = getGain(1 - this.props.highIntervalLevel/100);
+      }
 
-    // Am
-    if(this.props.amOn){
-      let newVol = convertToLog(this.props.amLevel, 0, 1, 0.01, 15); // AM amplitud;e set between 0.01 and 15 (arbitray choices)
-      let newFreq = convertToLog(this.props.amRate, 0, 1, 0.5, 50); // AM frequency set between 0.5 and 50 hz (arbitray choices)
-      this.amSignals[newVoice].volume.exponentialRampToValueAtTime(newVol, this.props.context.currentTime+1); // Ramps to AM amplitude in 1 sec
-      this.amSignals[newVoice].triggerAttack(newFreq);
-    }
-    // FM
-    if(this.props.fmOn){
-      let modIndex = yPercent * 2; // FM index ranges from 0 - 2
-      let newVol = convertToLog(this.props.fmLevel, 0, 1, 30, 60); // FM amplitude set between 30 and 60 (arbitrary choices)
-      let newFreq = convertToLog(this.props.fmRate, 0, 1, 0.5, 50); // FM Frequency set between 0.5 and 50 (arbitray choices)
-      // let newFreq = convertToLog(yPercent, 0, 1, 0.5, 20); // FM Frequency set between 0.5 and 20 (arbitray choices)
-      this.fmSignals[newVoice].volume.exponentialRampToValueAtTime(newVol*modIndex, this.props.context.currentTime+RAMPVALUE); // Ramps to FM amplitude*modIndex in RAMPVALUE sec
-      this.fmSignals[newVoice].triggerAttack(newFreq);
-    }
+      // Am
+      if(this.props.amOn){
+        let newVol = convertToLog(this.props.amLevel, 0, 1, 0.01, 15); // AM amplitud;e set between 0.01 and 15 (arbitray choices)
+        let newFreq = convertToLog(this.props.amRate, 0, 1, 0.5, 50); // AM frequency set between 0.5 and 50 hz (arbitray choices)
+        this.amSignals[newVoice].volume.exponentialRampToValueAtTime(newVol, this.props.context.currentTime+1); // Ramps to AM amplitude in 1 sec
+        this.amSignals[newVoice].triggerAttack(newFreq);
+      }
+      // FM
+      if(this.props.fmOn){
+        let modIndex = yPercent * 2; // FM index ranges from 0 - 2
+        let newVol = convertToLog(this.props.fmLevel, 0, 1, 30, 60); // FM amplitude set between 30 and 60 (arbitrary choices)
+        let newFreq = convertToLog(this.props.fmRate, 0, 1, 0.5, 50); // FM Frequency set between 0.5 and 50 (arbitray choices)
+        // let newFreq = convertToLog(yPercent, 0, 1, 0.5, 20); // FM Frequency set between 0.5 and 20 (arbitray choices)
+        this.fmSignals[newVoice].volume.exponentialRampToValueAtTime(newVol*modIndex, this.props.context.currentTime+RAMPVALUE); // Ramps to FM amplitude*modIndex in RAMPVALUE sec
+        this.fmSignals[newVoice].triggerAttack(newFreq);
+      }
 
-    this.ctx.clearRect(0, 0, this.props.width, this.props.height); // Clears canvas for redraw of label
-    this.label(freqs[0], pos.x, pos.y); // Labels the point
-    this.setState({
-      mouseDown: true,
-      currentVoice: newVoice,
-      voices: this.state.voices + 1
-    });
-    if(this.props.noteLinesOn){
-      this.renderNoteLines();
+      this.ctx.clearRect(0, 0, this.props.width, this.props.height); // Clears canvas for redraw of label
+      this.drawButton(false);
+      this.label(freqs[0], pos.x, pos.y); // Labels the point
+      this.setState({
+        mouseDown: true,
+        currentVoice: newVoice,
+        voices: this.state.voices + 1
+      });
+      if(this.props.noteLinesOn){
+        this.renderNoteLines();
+      }
+    } else {
+      this.ctx.clearRect(0, 0, this.props.width, this.props.height); // Clears canvas for redraw of label
+      this.drawButton(true);
+      if(this.props.noteLinesOn){
+        this.renderNoteLines();
+      }
+      this.setState({checkButton: true, mouseDown: true});
     }
 
   }
@@ -293,6 +313,7 @@ class Oscillator extends Component {
 
       // Clears the label
       this.ctx.clearRect(0, 0, this.props.width, this.props.height);
+      this.drawButton(false);
       this.label(freqs[0], pos.x, pos.y);
       if(this.props.noteLinesOn){
         this.renderNoteLines();
@@ -314,11 +335,12 @@ class Oscillator extends Component {
 
       }
 
-      this.setState({mouseDown: false, voices: 0});
+      this.setState({mouseDown: false, voices: 0, checkButton: false});
       this.goldIndices = [];
 
       // Clears the label
       this.ctx.clearRect(0, 0, this.props.width, this.props.height);
+      this.drawButton(false);
       if(this.props.noteLinesOn){
         this.renderNoteLines();
       }
@@ -338,11 +360,12 @@ class Oscillator extends Component {
         this.highChordSynths[this.state.currentVoice].triggerRelease(); // Relase frequency, volume goes to -Infinity
 
       }
-      this.setState({mouseDown: false, voices: 0});
+      this.setState({mouseDown: false, voices: 0, checkButton: false});
       this.goldIndices = [];
 
       // Clears the label
       this.ctx.clearRect(0, 0, this.props.width, this.props.height);
+      this.drawButton(false);
       if(this.props.noteLinesOn){
         this.renderNoteLines();
         // this.amSignals[this.state.currentVoice].stop();
@@ -364,42 +387,51 @@ class Oscillator extends Component {
     // For each finger, do the same as above in onMouseDown
     for (let i = 0; i < e.changedTouches.length; i++) {
       let pos = getMousePos(this.canvas, e.changedTouches[i]);
-      let yPercent = 1 - pos.y / this.props.height;
-      let xPercent = 1 - pos.x / this.props.width;
-      let gain = getGain(xPercent);
-      let freq = this.getFreq(yPercent)[0];
-      let newVoice = (this.state.currentVoice + 1) % NUM_VOICES;
-      this.setState({
-        touch: true,
-        currentVoice: newVoice,
-        voices: this.state.voices + 1
-      });
-      this.synths[newVoice].volume.value = gain;
-      this.synths[newVoice].triggerAttack(freq);
-      // Am
-      if(this.props.amOn){
-        let newVol = convertToLog(this.props.amLevel, 0, 1, 0.01, 15); // AM amplitud;e set between 0.01 and 15 (arbitray choices)
-        let newFreq = convertToLog(this.props.amRate, 0, 1, 0.5, 50); // AM frequency set between 0.5 and 50 hz (arbitray choices)
-        this.amSignals[newVoice].volume.exponentialRampToValueAtTime(newVol, this.props.context.currentTime+1); // Ramps to AM amplitude in 1 sec
-        this.amSignals[newVoice].triggerAttack(newFreq);
-      }
-      // FM
-      if(this.props.fmOn){
-        let modIndex = yPercent * 2; // FM index ranges from 0 - 2
-        let newVol = convertToLog(this.props.fmLevel, 0, 1, 30, 60); // FM amplitude set between 30 and 60 (arbitrary choices)
-        let newFreq = convertToLog(this.props.fmRate, 0, 1, 0.5, 50); // FM Frequency set between 0.5 and 50 (arbitray choices)
-        // let newFreq = convertToLog(yPercent, 0, 1, 0.5, 20); // FM Frequency set between 0.5 and 20 (arbitray choices)
-        this.fmSignals[newVoice].volume.exponentialRampToValueAtTime(newVol*modIndex, this.props.context.currentTime+RAMPVALUE); // Ramps to FM amplitude*modIndex in RAMPVALUE sec
-        this.fmSignals[newVoice].triggerAttack(newFreq);
-      }
+      if (!this.checkButton(pos.x, pos.y)){
+        let yPercent = 1 - pos.y / this.props.height;
+        let xPercent = 1 - pos.x / this.props.width;
+        let gain = getGain(xPercent);
+        let freq = this.getFreq(yPercent)[0];
+        let newVoice = (this.state.currentVoice + 1) % NUM_VOICES;
+        this.setState({
+          touch: true,
+          currentVoice: newVoice,
+          voices: this.state.voices + 1
+        });
+        this.synths[newVoice].volume.value = gain;
+        this.synths[newVoice].triggerAttack(freq);
+        // Am
+        if(this.props.amOn){
+          let newVol = convertToLog(this.props.amLevel, 0, 1, 0.01, 15); // AM amplitud;e set between 0.01 and 15 (arbitray choices)
+          let newFreq = convertToLog(this.props.amRate, 0, 1, 0.5, 50); // AM frequency set between 0.5 and 50 hz (arbitray choices)
+          this.amSignals[newVoice].volume.exponentialRampToValueAtTime(newVol, this.props.context.currentTime+1); // Ramps to AM amplitude in 1 sec
+          this.amSignals[newVoice].triggerAttack(newFreq);
+        }
+        // FM
+        if(this.props.fmOn){
+          let modIndex = yPercent * 2; // FM index ranges from 0 - 2
+          let newVol = convertToLog(this.props.fmLevel, 0, 1, 30, 60); // FM amplitude set between 30 and 60 (arbitrary choices)
+          let newFreq = convertToLog(this.props.fmRate, 0, 1, 0.5, 50); // FM Frequency set between 0.5 and 50 (arbitray choices)
+          // let newFreq = convertToLog(yPercent, 0, 1, 0.5, 20); // FM Frequency set between 0.5 and 20 (arbitray choices)
+          this.fmSignals[newVoice].volume.exponentialRampToValueAtTime(newVol*modIndex, this.props.context.currentTime+RAMPVALUE); // Ramps to FM amplitude*modIndex in RAMPVALUE sec
+          this.fmSignals[newVoice].triggerAttack(newFreq);
+        }
 
-      this.ctx.clearRect(0, 0, this.props.width, this.props.height);
+        this.ctx.clearRect(0, 0, this.props.width, this.props.height);
+        this.drawButton(this.state.checkButton);
+      } else {
+        this.ctx.clearRect(0, 0, this.props.width, this.props.height);
+        this.drawButton(true);
+        this.setState({touch: true, checkButton: true});
+      }
     }
     for (let i = 0; i < e.touches.length; i++) {
       let pos = getMousePos(this.canvas, e.touches[i]);
       let yPercent = 1 - pos.y / this.props.height;
       let freq = this.getFreq(yPercent)[0];
-      this.label(freq, pos.x, pos.y);
+      if (!this.checkButton(pos.x, pos.y)){
+        this.label(freq, pos.x, pos.y);
+      }
     }
     if(this.props.noteLinesOn){
       this.renderNoteLines();
@@ -439,7 +471,7 @@ class Oscillator extends Component {
           }
           // These are the same as onMouseMove
           this.goldIndices.splice(index - 1, 1);
-          if(this.props.scaleOn){
+          if(this.props.scaleOn && !this.state.checkButton){
             // Jumps to new Frequency and Volume
             this.synths[index].frequency.value = freq;
             this.synths[index].volume.value = gain;
@@ -462,11 +494,14 @@ class Oscillator extends Component {
       }
       //Redraw Labels
         this.ctx.clearRect(0, 0, width, height);
+        this.drawButton(this.state.checkButton);
       for (let i = 0; i < e.touches.length; i++) {
         let pos = getMousePos(this.canvas, e.touches[i]);
         let yPercent = 1 - pos.y / this.props.height;
         let freq = this.getFreq(yPercent)[0];
-        this.label(freq, pos.x, pos.y);
+        if (!this.checkButton(pos.x, pos.y)){
+          this.label(freq, pos.x, pos.y);
+        }
       }
       if(this.props.noteLinesOn){
         this.renderNoteLines();
@@ -484,37 +519,52 @@ class Oscillator extends Component {
         this.fmSignals[i].triggerRelease();
       }
       this.goldIndices = []
-
-      this.setState({voices: 0, touch: false, notAllRelease: false, currentVoice: -1});
+      this.ctx.clearRect(0, 0, width, height);
+      this.drawButton(false);
+      this.setState({voices: 0, touch: false, notAllRelease: false, currentVoice: -1, checkButton: false});
     } else {
       // Does the same as onTouchMove, except instead of changing the voice, it deletes it.
+      let checkButton = false;
       let voiceToRemoveFrom = this.state.currentVoice - (this.state.voices - 1);
       for (let i = 0; i < e.changedTouches.length; i++) {
-        let index = (voiceToRemoveFrom + e.changedTouches[i].identifier) % NUM_VOICES;
-        // Wraps the array
-        index = (index < 0)
-          ? (NUM_VOICES + index)
-          : index;
 
-        this.goldIndices.splice(index, 1);
-        this.synths[index].triggerRelease();
-        this.amSignals[index].triggerRelease();
-        this.fmSignals[index].triggerRelease();
+        let pos = getMousePos(this.canvas, e.changedTouches[i]);
+        if(!this.checkButton(pos.x, pos.y)){
+          let index = (voiceToRemoveFrom + e.changedTouches[i].identifier) % NUM_VOICES;
+          // Wraps the array
+          index = (index < 0)
+            ? (NUM_VOICES + index)
+            : index;
 
-        // this.amSignals[index].stop();
-        this.setState({
-          voices: this.state.voices - 1
-        });
+          this.goldIndices.splice(index, 1);
+          this.synths[index].triggerRelease();
+          this.amSignals[index].triggerRelease();
+          this.fmSignals[index].triggerRelease();
+
+          // this.amSignals[index].stop();
+          this.setState({
+            voices: this.state.voices - 1
+          });
+          this.ctx.clearRect(0, 0, width, height);
+          this.drawButton(true);
+        } else {
+          this.setState({checkButton: false});
+          this.ctx.clearRect(0, 0, width, height);
+          this.drawButton(false);
+          checkButton = true;
+        }
       }
-      let newVoice = this.state.currentVoice - e.changedTouches.length;
-      newVoice = (newVoice < 0)
-        ? (NUM_VOICES + newVoice)
-        : newVoice;
-      this.setState({currentVoice: newVoice});
+      if(!checkButton){
+        let newVoice = this.state.currentVoice - e.changedTouches.length;
+        newVoice = (newVoice < 0)
+          ? (NUM_VOICES + newVoice)
+          : newVoice;
+        this.setState({currentVoice: newVoice});
+      }
 
     }
     // Clears the label
-    this.ctx.clearRect(0, 0, width, height);
+
     if(this.props.noteLinesOn){
       this.renderNoteLines();
     }
@@ -526,7 +576,7 @@ class Oscillator extends Component {
   getFreq(index) {
     let {resolutionMax, resolutionMin, height} = this.props;
     let freq = getFreq(index, resolutionMin, resolutionMax);
-    if (this.props.scaleOn) {
+    if (this.props.scaleOn && !this.state.checkButton) {
       //  Maps to one of the 12 keys of the piano based on note and accidental
       let newIndexedKey = this.props.musicKey.value;
       // Edge cases
@@ -635,6 +685,7 @@ class Oscillator extends Component {
   handleResize = () => {
     this.props.handleResize();
     this.ctx.clearRect(0, 0, this.props.width, this.props.height);
+    this.drawButton(false);
     if(this.props.noteLinesOn){
       this.renderNoteLines();
     }
@@ -646,7 +697,7 @@ class Oscillator extends Component {
     this.ctx.font = '20px Inconsolata';
     this.ctx.fillStyle = 'white';
     if(this.props.soundOn){
-      if (!this.props.scaleOn) {
+      if (!this.props.scaleOn || this.state.checkButton) {
         this.ctx.fillText(freq + ' Hz', x + offset, y - offset);
       } else {
         this.ctx.fillText(this.scaleLabel, x + offset, y - offset);
@@ -715,6 +766,39 @@ class Oscillator extends Component {
       }
     }
 
+  }
+
+  drawButton(buttonClicked){
+    if(buttonClicked){
+      this.ctx.fillStyle = "#6435C9";
+    } else {
+      this.ctx.fillStyle = "#A291FB";
+    }
+    const x = 10;
+    const y = this.props.height - this.props.height * 0.15;
+    const width = this.props.width * 0.05;
+    const height = width;
+    const arcsize = 25;
+    this.ctx.beginPath();
+    this.ctx.moveTo(x+arcsize, y);
+    this.ctx.lineTo(x+width-arcsize, y);
+    this.ctx.arcTo(x+width, y, x+width, y+arcsize, arcsize);
+    this.ctx.lineTo(x+width,y+height-arcsize);
+    this.ctx.arcTo(x+width, y+height, x+width-arcsize, y+height, arcsize);
+    this.ctx.lineTo(x+arcsize, y+height);
+    this.ctx.arcTo(x, y+height, x, y-arcsize, arcsize);
+    this.ctx.lineTo(x, y+arcsize);
+    this.ctx.arcTo(x, y, x+arcsize, y, arcsize);
+    this.ctx.lineTo(x+arcsize, y);
+    this.ctx.stroke();
+    this.ctx.fill();
+  }
+
+  checkButton(x, y){
+    let condition1 = x >=10 && x <=  this.props.width * 0.05 + 10;
+    let condition2 = y >= this.props.height - this.props.height * 0.15 && y <= this.props.width * 0.05 +
+      this.props.height - this.props.height * 0.15;
+    return condition1 && condition2;
   }
 
   render() {
