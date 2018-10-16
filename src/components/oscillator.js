@@ -400,6 +400,7 @@ class Oscillator extends Component {
         });
         this.synths[newVoice].volume.value = gain;
         this.synths[newVoice].triggerAttack(freq);
+
         // Am
         if(this.props.amOn){
           let newVol = convertToLog(this.props.amLevel, 0, 1, 0.01, 15); // AM amplitud;e set between 0.01 and 15 (arbitray choices)
@@ -420,6 +421,7 @@ class Oscillator extends Component {
         this.ctx.clearRect(0, 0, this.props.width, this.props.height);
         this.drawButton(this.state.checkButton);
       } else {
+        let newVoice = (this.state.currentVoice + 1) % NUM_VOICES;
         this.ctx.clearRect(0, 0, this.props.width, this.props.height);
         this.drawButton(true);
         this.setState({touch: true, checkButton: true});
@@ -459,6 +461,7 @@ class Oscillator extends Component {
         // Determines index of the synth needing to change volume/frequency
         let index = (voiceToChange + e.changedTouches[i].identifier) % NUM_VOICES;
         // Wraps the array
+        index = (index - 1);        
         index = (index < 0)
           ? (NUM_VOICES + index)
           : index;
