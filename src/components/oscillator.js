@@ -329,6 +329,8 @@ class Oscillator extends Component {
         currentVoice: newVoice,
         voices: this.state.voices + 1
       });
+      console.log(this.synths);
+      console.log(newVoice);
       this.synths[newVoice].triggerAttack(freq);
       this.synths[newVoice].volume.value = gain;
       // Am
@@ -366,6 +368,7 @@ class Oscillator extends Component {
     if (this.state.touch) {
       // Determines the current "starting" index to change
       let voiceToChange = this.state.currentVoice - (this.state.voices - 1);
+      // console.log("Voice to Change: ",voiceToChange);
       // For each changed touch, do the same as onMouseMove
       for (let i = 0; i < e.changedTouches.length; i++) {
         let pos = getMousePos(this.canvas, e.changedTouches[i]);
@@ -375,12 +378,13 @@ class Oscillator extends Component {
 
         let freq = this.getFreq(yPercent);
         // Determines index of the synth needing to change volume/frequency
-        let index = (voiceToChange + e.changedTouches[i].identifier) % NUM_VOICES;
+        let index = (voiceToChange + (e.changedTouches[i].identifier - 1)) % NUM_VOICES;
         // index = index - 1
         // Wraps the array
         index = (index < 0)
           ? (NUM_VOICES + index)
           : index;
+          // console.log(index);
           // Deals with rounding issues with the note lines
           let oldFreq = this.synths[index].frequency.value;
           for (let note in this.frequencies){
