@@ -196,7 +196,6 @@ class Oscillator extends Component {
     if(this.props.amOn){
       let newVol = convertToLog(this.props.amLevel, 0, 1, 0.01, 15); // AM amplitud;e set between 0.01 and 15 (arbitray choices)
       let newFreq = convertToLog(this.props.amRate, 0, 1, 0.5, 50); // AM frequency set between 0.5 and 50 hz (arbitray choices)
-      console.log(newVol)
       this.amSignals[newVoice].volume.exponentialRampToValueAtTime(newVol, this.props.context.currentTime+1); // Ramps to AM amplitude in 1 sec
       this.amSignals[newVoice].triggerAttack(newFreq);
     }
@@ -329,8 +328,6 @@ class Oscillator extends Component {
         currentVoice: newVoice,
         voices: this.state.voices + 1
       });
-      console.log(this.synths);
-      console.log(newVoice);
       this.synths[newVoice].triggerAttack(freq);
       this.synths[newVoice].volume.value = gain;
       // Am
@@ -368,7 +365,6 @@ class Oscillator extends Component {
     if (this.state.touch) {
       // Determines the current "starting" index to change
       let voiceToChange = this.state.currentVoice - (this.state.voices - 1);
-      // console.log("Voice to Change: ",voiceToChange);
       // For each changed touch, do the same as onMouseMove
       for (let i = 0; i < e.changedTouches.length; i++) {
         let pos = getMousePos(this.canvas, e.changedTouches[i]);
@@ -384,7 +380,6 @@ class Oscillator extends Component {
         index = (index < 0)
           ? (NUM_VOICES + index)
           : index;
-          // console.log(index);
           // Deals with rounding issues with the note lines
           let oldFreq = this.synths[index].frequency.value;
           for (let note in this.frequencies){
