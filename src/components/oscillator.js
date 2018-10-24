@@ -461,7 +461,6 @@ class Oscillator extends Component {
         // Determines index of the synth needing to change volume/frequency
         let index = (voiceToChange + e.changedTouches[i].identifier) % NUM_VOICES;
         // Wraps the array
-        index = (index - 1);        
         index = (index < 0)
           ? (NUM_VOICES + index)
           : index;
