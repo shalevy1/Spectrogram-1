@@ -30,7 +30,8 @@ class Oscillator extends Component {
       amOn: false,
       fmOn: false,
       noteLinesOn: false,
-      checkButton: false
+      checkButton: false,
+      bendStartPercent: 0
     }
   }
 
@@ -420,6 +421,9 @@ class Oscillator extends Component {
 
         this.ctx.clearRect(0, 0, this.props.width, this.props.height);
         this.drawButton(this.state.checkButton);
+        if(this.state.checkButton){
+          this.setState({bendStartPercent: yPercent});
+        }
       } else {
         let newVoice = (this.state.currentVoice + 1) % NUM_VOICES;
         this.ctx.clearRect(0, 0, this.props.width, this.props.height);
@@ -456,8 +460,15 @@ class Oscillator extends Component {
         let yPercent = 1 - pos.y / this.props.height;
         let xPercent = 1 - pos.x / this.props.width;
         let gain = getGain(xPercent);
+        let freq;
+        if(!this.state.checkButton){
+          freq = this.getFreq(yPercent)[0];
+        } else {
+          freq = getFreq(yPercent, this.props.resolutionMin, this.props.resolutionMax);
+          let dist = this.state.bendStartPercent - yPercent;
+          console.log(dist);
 
-        let freq = this.getFreq(yPercent)[0];
+        }
         // Determines index of the synth needing to change volume/frequency
         let index = (voiceToChange + e.changedTouches[i].identifier - 1) % NUM_VOICES;
         // Wraps the array
@@ -554,6 +565,9 @@ class Oscillator extends Component {
           this.ctx.clearRect(0, 0, width, height);
           this.drawButton(false);
           checkButton = true;
+          for (var i = 0; i < NUM_VOICES; i++) {
+            this.synths[i].frequency.value = this.getFreq(this.state.bendStartPercent)[0];  
+          }
         }
       }
       if(!checkButton){
@@ -681,6 +695,7 @@ class Oscillator extends Component {
         return [Math.round(freq),Math.round(lowerFreq), Math.round(midFreq), Math.round(highFreq)];
       }
     }
+
     return [Math.round(freq)];
   }
 
@@ -800,7 +815,10 @@ class Oscillator extends Component {
     let condition1 = x >=10 && x <=  this.props.width * 0.05 + 10;
     let condition2 = y >= this.props.height - this.props.height * 0.15 && y <= this.props.width * 0.05 +
       this.props.height - this.props.height * 0.15;
-    return condition1 && condition2;
+    if(condition1 && condition2){
+      return true;
+    }
+    return false;
   }
 
   render() {

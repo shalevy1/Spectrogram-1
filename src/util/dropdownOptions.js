@@ -39,7 +39,7 @@ const scaleOptions = [
     value: 3
   },
   {
-    text: "Major Blues",
+    text: "Blues",
     value: 4
   },
   {

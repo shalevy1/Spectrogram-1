@@ -29,7 +29,7 @@ export default function generateScale(startFreq, type) {
       scalePattern = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
       break;
     case 4:
-      // Major Blues
+      // Blues
       scalePattern = [0, 3, 5, 6, 7, 10];
       break;
     case 5:
