@@ -374,7 +374,7 @@ class Oscillator extends Component {
 
         let freq = this.getFreq(yPercent);
         // Determines index of the synth needing to change volume/frequency
-        let index = (voiceToChange + (e.changedTouches[i].identifier )) % NUM_VOICES;
+        let index = (voiceToChange + (e.changedTouches[i].identifier - 1 )) % NUM_VOICES;
         // index = index - 1
         // Wraps the array
         index = (index < 0)
@@ -440,7 +440,7 @@ class Oscillator extends Component {
       // Does the same as onTouchMove, except instead of changing the voice, it deletes it.
       let voiceToRemoveFrom = this.state.currentVoice - (this.state.voices - 1);
       for (let i = 0; i < e.changedTouches.length; i++) {
-        let index = (voiceToRemoveFrom + e.changedTouches[i].identifier) % NUM_VOICES;
+        let index = (voiceToRemoveFrom + e.changedTouches[i].identifier - 1) % NUM_VOICES;
         // Wraps the array
         index = (index < 0)
           ? (NUM_VOICES + index)
