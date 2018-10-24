@@ -31,7 +31,6 @@ class Oscillator extends Component {
       fmOn: false,
       noteLinesOn: false,
       checkButton: false,
-      bendStartPercent: 0
     }
   }
 
@@ -48,6 +47,7 @@ class Oscillator extends Component {
     this.lowChordSynths = new Array(NUM_VOICES);
     this.midChordSynths = new Array(NUM_VOICES);
     this.highChordSynths = new Array(NUM_VOICES);
+    this.bendStartPercents = new Array(NUM_VOICES);
 
 
     // Start master volume at -20 dB
@@ -89,6 +89,8 @@ class Oscillator extends Component {
       this.lowChordSynths[i].connect(this.masterVolume);
       this.midChordSynths[i].connect(this.masterVolume);
       this.highChordSynths[i].connect(this.masterVolume);
+
+      this.bendStartPercents[i] = 0;
 
     }
 
@@ -393,7 +395,7 @@ class Oscillator extends Component {
         let xPercent = 1 - pos.x / this.props.width;
         let gain = getGain(xPercent);
         let freq = this.getFreq(yPercent)[0];
-        let newVoice = (this.state.currentVoice + 1) % NUM_VOICES;
+        let newVoice = (e.changedTouches[i].identifier - 1) % NUM_VOICES;
         this.setState({
           touch: true,
           currentVoice: newVoice,
@@ -422,7 +424,7 @@ class Oscillator extends Component {
         this.ctx.clearRect(0, 0, this.props.width, this.props.height);
         this.drawButton(this.state.checkButton);
         if(this.state.checkButton){
-          this.setState({bendStartPercent: yPercent});
+          this.bendStartPercents[newVoice] = yPercent;
         }
       } else {
         let newVoice = (this.state.currentVoice + 1) % NUM_VOICES;
@@ -431,12 +433,14 @@ class Oscillator extends Component {
         this.setState({touch: true, checkButton: true});
       }
     }
+
     for (let i = 0; i < e.touches.length; i++) {
       let pos = getMousePos(this.canvas, e.touches[i]);
       let yPercent = 1 - pos.y / this.props.height;
       let freq = this.getFreq(yPercent)[0];
       if (!this.checkButton(pos.x, pos.y)){
         this.label(freq, pos.x, pos.y);
+
       }
     }
     if(this.props.noteLinesOn){
@@ -459,22 +463,24 @@ class Oscillator extends Component {
         let pos = getMousePos(this.canvas, e.changedTouches[i]);
         let yPercent = 1 - pos.y / this.props.height;
         let xPercent = 1 - pos.x / this.props.width;
+        // Determines index of the synth needing to change volume/frequency
+        // let index = (voiceToChange + e.changedTouches[i].identifier - 1) % NUM_VOICES;
+        let index = e.changedTouches[i].identifier - 1
+        // Wraps the array
+        // index = (index < 0)
+        // ? (NUM_VOICES + index)
+        // : index;
+
         let gain = getGain(xPercent);
         let freq;
-        if(!this.state.checkButton){
+        if(!this.props.scaleOn || !this.state.checkButton){
           freq = this.getFreq(yPercent)[0];
         } else {
-          freq = getFreq(yPercent, this.props.resolutionMin, this.props.resolutionMax);
-          let dist = this.state.bendStartPercent - yPercent;
-          console.log(dist);
 
+          freq = getFreq(this.bendStartPercents[index], this.props.resolutionMin, this.props.resolutionMax);
+          let dist = yPercent - this.bendStartPercents[index];
+          freq = freq + freq*dist;
         }
-        // Determines index of the synth needing to change volume/frequency
-        let index = (voiceToChange + e.changedTouches[i].identifier - 1) % NUM_VOICES;
-        // Wraps the array
-        index = (index < 0)
-          ? (NUM_VOICES + index)
-          : index;
           // Deals with rounding issues with the note lines
           let oldFreq = this.synths[index].frequency.value;
           for (let note in this.frequencies){
@@ -488,6 +494,8 @@ class Oscillator extends Component {
             // Jumps to new Frequency and Volume
             this.synths[index].frequency.value = freq;
             this.synths[index].volume.value = gain;
+            this.bendStartPercents[index] = yPercent;
+
           } else {
             // Ramps to new Frequency and Volume
             this.synths[index].frequency.exponentialRampToValueAtTime(freq, this.props.context.currentTime+RAMPVALUE);
@@ -527,9 +535,14 @@ class Oscillator extends Component {
     // Check if there are more touches changed than on the screen and release everything (mostly as an fail switch)
     if (e.changedTouches.length === e.touches.length + 1) {
       for (var i = 0; i < NUM_VOICES; i++) {
-        this.synths[i].triggerRelease();
-        this.amSignals[i].triggerRelease();
-        this.fmSignals[i].triggerRelease();
+        if(this.state.checkButton){
+          console.log("1", this.getFreq(this.bendStartPercents[i])[0])
+          this.synths[i].frequency.value = this.getFreq(this.bendStartPercents[i])[0];
+        } else {
+          this.synths[i].triggerRelease();
+          this.fmSignals[i].triggerRelease();
+          this.amSignals[i].triggerRelease();
+        }
       }
       this.goldIndices = []
       this.ctx.clearRect(0, 0, width, height);
@@ -542,12 +555,14 @@ class Oscillator extends Component {
       for (let i = 0; i < e.changedTouches.length; i++) {
 
         let pos = getMousePos(this.canvas, e.changedTouches[i]);
+        let index = (e.changedTouches[i].identifier - 1) % NUM_VOICES;
+
+        // Wraps the array
+        // index = (index < 0)
+        // ? (NUM_VOICES + index)
+        // : index;
+
         if(!this.checkButton(pos.x, pos.y)){
-          let index = (voiceToRemoveFrom + e.changedTouches[i].identifier) % NUM_VOICES;
-          // Wraps the array
-          index = (index < 0)
-            ? (NUM_VOICES + index)
-            : index;
 
           this.goldIndices.splice(index, 1);
           this.synths[index].triggerRelease();
@@ -559,16 +574,16 @@ class Oscillator extends Component {
             voices: this.state.voices - 1
           });
           this.ctx.clearRect(0, 0, width, height);
-          this.drawButton(true);
+          this.drawButton(this.state.checkButton);
         } else {
           this.setState({checkButton: false});
           this.ctx.clearRect(0, 0, width, height);
           this.drawButton(false);
           checkButton = true;
           for (var i = 0; i < NUM_VOICES; i++) {
-            this.synths[i].frequency.value = this.getFreq(this.state.bendStartPercent)[0];  
+              this.synths[i].frequency.value = this.getFreq(this.bendStartPercents[i])[0];
+            }
           }
-        }
       }
       if(!checkButton){
         let newVoice = this.state.currentVoice - e.changedTouches.length;
