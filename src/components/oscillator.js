@@ -459,7 +459,7 @@ class Oscillator extends Component {
 
         let freq = this.getFreq(yPercent)[0];
         // Determines index of the synth needing to change volume/frequency
-        let index = (voiceToChange + e.changedTouches[i].identifier) % NUM_VOICES;
+        let index = (voiceToChange + e.changedTouches[i].identifier - 1) % NUM_VOICES;
         // Wraps the array
         index = (index < 0)
           ? (NUM_VOICES + index)
