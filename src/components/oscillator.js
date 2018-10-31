@@ -395,7 +395,7 @@ class Oscillator extends Component {
         let xPercent = 1 - pos.x / this.props.width;
         let gain = getGain(xPercent);
         let freq = this.getFreq(yPercent)[0];
-        let newVoice = (e.changedTouches[i].identifier - 1) % NUM_VOICES;
+        let newVoice = e.changedTouches[i].identifier % NUM_VOICES;
         this.setState({
           touch: true,
           currentVoice: newVoice,
@@ -465,7 +465,7 @@ class Oscillator extends Component {
         let xPercent = 1 - pos.x / this.props.width;
         // Determines index of the synth needing to change volume/frequency
         // let index = (voiceToChange + e.changedTouches[i].identifier - 1) % NUM_VOICES;
-        let index = e.changedTouches[i].identifier - 1
+        let index = e.changedTouches[i].identifier;
         // Wraps the array
         // index = (index < 0)
         // ? (NUM_VOICES + index)
@@ -536,7 +536,6 @@ class Oscillator extends Component {
     if (e.changedTouches.length === e.touches.length + 1) {
       for (var i = 0; i < NUM_VOICES; i++) {
         if(this.state.checkButton){
-          console.log("1", this.getFreq(this.bendStartPercents[i])[0])
           this.synths[i].frequency.value = this.getFreq(this.bendStartPercents[i])[0];
         } else {
           this.synths[i].triggerRelease();
@@ -555,7 +554,7 @@ class Oscillator extends Component {
       for (let i = 0; i < e.changedTouches.length; i++) {
 
         let pos = getMousePos(this.canvas, e.changedTouches[i]);
-        let index = (e.changedTouches[i].identifier - 1) % NUM_VOICES;
+        let index = e.changedTouches[i].identifier % NUM_VOICES;
 
         // Wraps the array
         // index = (index < 0)
