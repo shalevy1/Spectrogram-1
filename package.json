@@ -8,7 +8,7 @@
     "node": "8.10.0"
   },
   "dependencies": {
-    "npm": "^6.0.1",
+    "npm": "^6.4.1",
     "rc-slider": "^8.6.1",
     "react": "^16.4.0",
     "react-animation-frame": "^1.0.1",

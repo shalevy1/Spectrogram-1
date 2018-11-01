@@ -48,6 +48,8 @@ class Oscillator extends Component {
     this.midChordSynths = new Array(NUM_VOICES);
     this.highChordSynths = new Array(NUM_VOICES);
     this.bendStartPercents = new Array(NUM_VOICES);
+    this.bendStartFreqs = new Array(NUM_VOICES);
+
 
 
     // Start master volume at -20 dB
@@ -91,6 +93,7 @@ class Oscillator extends Component {
       this.highChordSynths[i].connect(this.masterVolume);
 
       this.bendStartPercents[i] = 0;
+      this.bendStartFreqs[i] = 0;
 
     }
 
@@ -395,6 +398,7 @@ class Oscillator extends Component {
         let xPercent = 1 - pos.x / this.props.width;
         let gain = getGain(xPercent);
         let freq = this.getFreq(yPercent)[0];
+
         let newVoice = e.changedTouches[i].identifier % NUM_VOICES;
         this.setState({
           touch: true,
@@ -425,6 +429,7 @@ class Oscillator extends Component {
         this.drawButton(this.state.checkButton);
         if(this.state.checkButton){
           this.bendStartPercents[newVoice] = yPercent;
+          this.bendStartFreqs[newVoice] = freq;
         }
       } else {
         let newVoice = (this.state.currentVoice + 1) % NUM_VOICES;
@@ -475,11 +480,12 @@ class Oscillator extends Component {
         let freq;
         if(!this.props.scaleOn || !this.state.checkButton){
           freq = this.getFreq(yPercent)[0];
-        } else {
 
-          freq = getFreq(this.bendStartPercents[index], this.props.resolutionMin, this.props.resolutionMax);
+        } else {
           let dist = yPercent - this.bendStartPercents[index];
+          freq = this.bendStartFreqs[index];
           freq = freq + freq*dist;
+
         }
           // Deals with rounding issues with the note lines
           let oldFreq = this.synths[index].frequency.value;
@@ -495,6 +501,7 @@ class Oscillator extends Component {
             this.synths[index].frequency.value = freq;
             this.synths[index].volume.value = gain;
             this.bendStartPercents[index] = yPercent;
+            this.bendStartFreqs[index] = freq;
 
           } else {
             // Ramps to new Frequency and Volume
@@ -579,9 +586,6 @@ class Oscillator extends Component {
           this.ctx.clearRect(0, 0, width, height);
           this.drawButton(false);
           checkButton = true;
-          for (var i = 0; i < NUM_VOICES; i++) {
-              this.synths[i].frequency.value = this.getFreq(this.bendStartPercents[i])[0];
-            }
           }
       }
       if(!checkButton){
