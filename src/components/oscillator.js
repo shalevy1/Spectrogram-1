@@ -316,17 +316,15 @@ class Oscillator extends Component {
       return;
     }
     // For each finger, do the same as above in onMouseDown
-    for (let i = 0; i < e.touches.length; i++) {
+    for (let i = 0; i < e.changedTouches.length; i++) {
       let pos = getMousePos(this.canvas, e.touches[i]);
       let yPercent = 1 - pos.y / this.props.height;
       let xPercent = 1 - pos.x / this.props.width;
       let gain = getGain(xPercent);
       let freq = this.getFreq(yPercent);
-      let newVoice = (this.state.currentVoice + 1) % NUM_VOICES;
+      let newVoice = e.changedTouches[i].identifier % NUM_VOICES;
       this.setState({
         touch: true,
-        currentVoice: newVoice,
-        voices: this.state.voices + 1
       });
       this.synths[newVoice].triggerAttack(freq);
       this.synths[newVoice].volume.value = gain;
@@ -364,7 +362,6 @@ class Oscillator extends Component {
     // If touch is pressed (Similar to mouseDown = true, although there should never be a case where this is false)
     if (this.state.touch) {
       // Determines the current "starting" index to change
-      let voiceToChange = this.state.currentVoice - (this.state.voices - 1);
       // For each changed touch, do the same as onMouseMove
       for (let i = 0; i < e.changedTouches.length; i++) {
         let pos = getMousePos(this.canvas, e.changedTouches[i]);
@@ -374,12 +371,7 @@ class Oscillator extends Component {
 
         let freq = this.getFreq(yPercent);
         // Determines index of the synth needing to change volume/frequency
-        let index = (voiceToChange + (e.changedTouches[i].identifier - 1 )) % NUM_VOICES;
-        // index = index - 1
-        // Wraps the array
-        index = (index < 0)
-          ? (NUM_VOICES + index)
-          : index;
+        let index = e.changedTouches[i].identifier % NUM_VOICES;
           // Deals with rounding issues with the note lines
           let oldFreq = this.synths[index].frequency.value;
           for (let note in this.frequencies){
@@ -438,29 +430,18 @@ class Oscillator extends Component {
       this.setState({voices: 0, touch: false, notAllRelease: false, currentVoice: -1});
     } else {
       // Does the same as onTouchMove, except instead of changing the voice, it deletes it.
-      let voiceToRemoveFrom = this.state.currentVoice - (this.state.voices - 1);
       for (let i = 0; i < e.changedTouches.length; i++) {
-        let index = (voiceToRemoveFrom + e.changedTouches[i].identifier - 1) % NUM_VOICES;
-        // Wraps the array
-        index = (index < 0)
-          ? (NUM_VOICES + index)
-          : index;
+        let index = e.changedTouches[i].identifier % NUM_VOICES;
 
-          this.goldIndices.splice(index, 1);
+        this.goldIndices.splice(index, 1);
         this.synths[index].triggerRelease();
         this.amSignals[index].triggerRelease();
         this.fmSignals[index].triggerRelease();
 
         // this.amSignals[index].stop();
-        this.setState({
-          voices: this.state.voices - 1
-        });
+
       }
-      let newVoice = this.state.currentVoice - e.changedTouches.length;
-      newVoice = (newVoice < 0)
-        ? (NUM_VOICES + newVoice)
-        : newVoice;
-      this.setState({currentVoice: newVoice});
+
 
     }
     // Clears the label
