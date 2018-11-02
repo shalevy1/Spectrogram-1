@@ -402,8 +402,6 @@ class Oscillator extends Component {
         let newVoice = e.changedTouches[i].identifier % NUM_VOICES;
         this.setState({
           touch: true,
-          currentVoice: newVoice,
-          voices: this.state.voices + 1
         });
         this.synths[newVoice].volume.value = gain;
         this.synths[newVoice].triggerAttack(freq);
