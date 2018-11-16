@@ -293,6 +293,11 @@ class Oscillator extends Component {
         // Jumps to new Frequency and Volume
         this.synths[this.state.currentVoice].frequency.value = freqs[0];
         this.synths[this.state.currentVoice].volume.value = gain;
+        if(this.props.intervalOn){
+          this.lowChordSynths[this.state.currentVoice].frequency.value = freqs[1];
+          this.midChordSynths[this.state.currentVoice].frequency.value = freqs[2];
+          this.highChordSynths[this.state.currentVoice].frequency.value = freqs[3];
+        }
       } else {
         // Ramps to new Frequency and Volume
         this.synths[this.state.currentVoice].frequency.exponentialRampToValueAtTime(freqs[0], this.props.context.currentTime+RAMPVALUE);
@@ -308,12 +313,6 @@ class Oscillator extends Component {
 
         this.fmSignals[this.state.currentVoice].volume.exponentialRampToValueAtTime(newVol*modIndex, this.props.context.currentTime+RAMPVALUE);
         // this.fmSignals[this.state.currentVoice].frequency.exponentialRampToValueAtTime(newFreq, this.props.context.currentTime+RAMPVALUE);
-      }
-
-      if(this.props.intervalOn){
-        this.lowChordSynths[this.state.currentVoice].frequency.value = freqs[1];
-        this.midChordSynths[this.state.currentVoice].frequency.value = freqs[2];
-        this.highChordSynths[this.state.currentVoice].frequency.value = freqs[3];
       }
 
 
@@ -397,7 +396,8 @@ class Oscillator extends Component {
         let yPercent = 1 - pos.y / this.props.height;
         let xPercent = 1 - pos.x / this.props.width;
         let gain = getGain(xPercent);
-        let freq = this.getFreq(yPercent)[0];
+        let freqs = this.getFreq(yPercent)
+        let freq = freqs[0];
 
         let newVoice = e.changedTouches[i].identifier % NUM_VOICES;
         this.setState({
@@ -422,7 +422,14 @@ class Oscillator extends Component {
           this.fmSignals[newVoice].volume.exponentialRampToValueAtTime(newVol*modIndex, this.props.context.currentTime+RAMPVALUE); // Ramps to FM amplitude*modIndex in RAMPVALUE sec
           this.fmSignals[newVoice].triggerAttack(newFreq);
         }
-
+        if(this.props.intervalOn){        
+          this.lowChordSynths[newVoice].triggerAttack(freqs[1]);
+          this.midChordSynths[newVoice].triggerAttack(freqs[2]);
+          this.highChordSynths[newVoice].triggerAttack(freqs[3]);
+          this.lowChordSynths[newVoice].volume.value = getGain(1 - this.props.lowerIntervalLevel/100);
+          this.midChordSynths[newVoice].volume.value = getGain(1 - this.props.midIntervalLevel/100);
+          this.highChordSynths[newVoice].volume.value = getGain(1 - this.props.highIntervalLevel/100);
+        }
         this.ctx.clearRect(0, 0, this.props.width, this.props.height);
         this.drawButton(this.state.checkButton);
         if(this.state.checkButton){
@@ -476,11 +483,12 @@ class Oscillator extends Component {
 
         let gain = getGain(xPercent);
         let freq;
+        let freqs = this.getFreq(yPercent);
         if(!this.props.scaleOn || !this.state.checkButton){
-          freq = this.getFreq(yPercent)[0];
-
+          freq = freqs[0]
         } else {
           let dist = yPercent - this.bendStartPercents[index];
+
           freq = this.bendStartFreqs[index];
           freq = freq + freq*dist;
 
@@ -500,7 +508,11 @@ class Oscillator extends Component {
             this.synths[index].volume.value = gain;
             this.bendStartPercents[index] = yPercent;
             this.bendStartFreqs[index] = freq;
-
+            if(this.props.intervalOn){
+              this.lowChordSynths[index].frequency.value = freqs[1];
+              this.midChordSynths[index].frequency.value = freqs[2];
+              this.highChordSynths[index].frequency.value = freqs[3];
+            }
           } else {
             // Ramps to new Frequency and Volume
             this.synths[index].frequency.exponentialRampToValueAtTime(freq, this.props.context.currentTime+RAMPVALUE);
@@ -546,6 +558,11 @@ class Oscillator extends Component {
           this.synths[i].triggerRelease();
           this.fmSignals[i].triggerRelease();
           this.amSignals[i].triggerRelease();
+          if(this.props.intervalOn){
+            this.lowChordSynths[i].triggerRelease(); // Relase frequency, volume goes to -Infinity
+            this.midChordSynths[i].triggerRelease(); // Relase frequency, volume goes to -Infinity
+            this.highChordSynths[i].triggerRelease(); // Relase frequency, volume goes to -Infinity
+          }
         }
       }
       this.goldIndices = []
@@ -572,7 +589,12 @@ class Oscillator extends Component {
           this.synths[index].triggerRelease();
           this.amSignals[index].triggerRelease();
           this.fmSignals[index].triggerRelease();
+          if(this.props.intervalOn){
+            this.lowChordSynths[index].triggerRelease(); // Relase frequency, volume goes to -Infinity
+            this.midChordSynths[index].triggerRelease(); // Relase frequency, volume goes to -Infinity
+            this.highChordSynths[index].triggerRelease(); // Relase frequency, volume goes to -Infinity
 
+          }
           // this.amSignals[index].stop();
           this.setState({
             voices: this.state.voices - 1
