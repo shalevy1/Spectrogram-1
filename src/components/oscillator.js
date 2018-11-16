@@ -422,7 +422,7 @@ class Oscillator extends Component {
           this.fmSignals[newVoice].volume.exponentialRampToValueAtTime(newVol*modIndex, this.props.context.currentTime+RAMPVALUE); // Ramps to FM amplitude*modIndex in RAMPVALUE sec
           this.fmSignals[newVoice].triggerAttack(newFreq);
         }
-        if(this.props.intervalOn){        
+        if(this.props.intervalOn){
           this.lowChordSynths[newVoice].triggerAttack(freqs[1]);
           this.midChordSynths[newVoice].triggerAttack(freqs[2]);
           this.highChordSynths[newVoice].triggerAttack(freqs[3]);
@@ -552,9 +552,6 @@ class Oscillator extends Component {
     // Check if there are more touches changed than on the screen and release everything (mostly as an fail switch)
     if (e.changedTouches.length === e.touches.length + 1) {
       for (var i = 0; i < NUM_VOICES; i++) {
-        if(this.state.checkButton){
-          this.synths[i].frequency.value = this.getFreq(this.bendStartPercents[i])[0];
-        } else {
           this.synths[i].triggerRelease();
           this.fmSignals[i].triggerRelease();
           this.amSignals[i].triggerRelease();
@@ -562,7 +559,7 @@ class Oscillator extends Component {
             this.lowChordSynths[i].triggerRelease(); // Relase frequency, volume goes to -Infinity
             this.midChordSynths[i].triggerRelease(); // Relase frequency, volume goes to -Infinity
             this.highChordSynths[i].triggerRelease(); // Relase frequency, volume goes to -Infinity
-          }
+
         }
       }
       this.goldIndices = []
@@ -584,16 +581,19 @@ class Oscillator extends Component {
         // : index;
 
         if(!this.checkButton(pos.x, pos.y)){
-
-          this.goldIndices.splice(index, 1);
-          this.synths[index].triggerRelease();
-          this.amSignals[index].triggerRelease();
-          this.fmSignals[index].triggerRelease();
-          if(this.props.intervalOn){
-            this.lowChordSynths[index].triggerRelease(); // Relase frequency, volume goes to -Infinity
-            this.midChordSynths[index].triggerRelease(); // Relase frequency, volume goes to -Infinity
-            this.highChordSynths[index].triggerRelease(); // Relase frequency, volume goes to -Infinity
-
+          if(this.state.checkButton && e.touches.length == 1){
+            this.synths[index].frequency.value = this.bendStartFreqs[index];//this.getFreq(this.bendStartPercents[index])[0];
+          }
+          else {
+            this.goldIndices.splice(index, 1);
+            this.synths[index].triggerRelease();
+            this.amSignals[index].triggerRelease();
+            this.fmSignals[index].triggerRelease();
+            if(this.props.intervalOn){
+              this.lowChordSynths[index].triggerRelease(); // Relase frequency, volume goes to -Infinity
+              this.midChordSynths[index].triggerRelease(); // Relase frequency, volume goes to -Infinity
+              this.highChordSynths[index].triggerRelease(); // Relase frequency, volume goes to -Infinity
+            }
           }
           // this.amSignals[index].stop();
           this.setState({
@@ -602,6 +602,18 @@ class Oscillator extends Component {
           this.ctx.clearRect(0, 0, width, height);
           this.drawButton(this.state.checkButton);
         } else {
+          if(e.touches.length == 0){
+              for (var i = 0; i < NUM_VOICES; i++) {
+                this.synths[i].triggerRelease();
+                this.fmSignals[i].triggerRelease();
+                this.amSignals[i].triggerRelease();
+                if(this.props.intervalOn){
+                  this.lowChordSynths[i].triggerRelease(); // Relase frequency, volume goes to -Infinity
+                  this.midChordSynths[i].triggerRelease(); // Relase frequency, volume goes to -Infinity
+                  this.highChordSynths[i].triggerRelease(); // Relase frequency, volume goes to -Infinity
+                }
+              }
+          }
           this.setState({checkButton: false});
           this.ctx.clearRect(0, 0, width, height);
           this.drawButton(false);
