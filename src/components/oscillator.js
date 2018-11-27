@@ -48,6 +48,8 @@ class Oscillator extends Component {
     this.highChordSynths = new Array(NUM_VOICES);
     this.bendStartPercents = new Array(NUM_VOICES);
     this.bendStartFreqs = new Array(NUM_VOICES);
+    this.bendStartVolumes = new Array(NUM_VOICES);
+
 
 
 
@@ -60,9 +62,7 @@ class Oscillator extends Component {
         type: this.props.timbre.toLowerCase()
       },
       envelope: {
-        attack: 0,
-        decay: 0,
-        sustain: 1,
+        attack: 0.1
       }
     };
     let options2 = {
@@ -95,6 +95,7 @@ class Oscillator extends Component {
 
       this.bendStartPercents[i] = 0;
       this.bendStartFreqs[i] = 0;
+      this.bendStartVolumes[i] = 0;
 
     }
 
@@ -435,9 +436,23 @@ class Oscillator extends Component {
         if(this.state.checkButton){
           this.bendStartPercents[newVoice] = yPercent;
           this.bendStartFreqs[newVoice] = freq;
+          this.bendStartVolumes[newVoice] = gain;
         }
       } else {
         let newVoice = (this.state.currentVoice + 1) % NUM_VOICES;
+        for (let i = 0; i < e.touches.length; i++) {
+          let pos = getMousePos(this.canvas, e.touches[i]);
+          let yPercent = 1 - pos.y / this.props.height;
+          let xPercent = 1 - pos.x / this.props.width;
+          let gain = getGain(xPercent);
+          let freq = this.getFreq(yPercent)[0];
+          if (!this.checkButton(pos.x, pos.y)){
+            this.bendStartPercents[i] = yPercent;
+            this.bendStartFreqs[i] = freq;
+            this.bendStartVolumes[i] = gain;
+
+          }
+        }
         this.ctx.clearRect(0, 0, this.props.width, this.props.height);
         this.drawButton(true);
         this.setState({touch: true, checkButton: true});
@@ -483,7 +498,7 @@ class Oscillator extends Component {
         let freq;
         let freqs = this.getFreq(yPercent);
         if(!this.props.scaleOn || !this.state.checkButton){
-          freq = freqs[0]
+          freq = freqs[0];
         } else {
           let dist = yPercent - this.bendStartPercents[index];
 
@@ -504,8 +519,8 @@ class Oscillator extends Component {
             // Jumps to new Frequency and Volume
             this.synths[index].frequency.value = freq;
             this.synths[index].volume.value = gain;
-            this.bendStartPercents[index] = yPercent;
-            this.bendStartFreqs[index] = freq;
+            // this.bendStartPercents[index] = yPercent;
+            // this.bendStartFreqs[index] = freq;
             if(this.props.intervalOn){
               this.lowChordSynths[index].frequency.value = freqs[1];
               this.midChordSynths[index].frequency.value = freqs[2];
@@ -553,11 +568,13 @@ class Oscillator extends Component {
           this.synths[i].triggerRelease();
           this.fmSignals[i].triggerRelease();
           this.amSignals[i].triggerRelease();
+          this.bendStartPercents[i] = 0;
+          this.bendStartFreqs[i] = 0;
+          this.bendStartVolumes[i] = 0;
           if(this.props.intervalOn){
             this.lowChordSynths[i].triggerRelease(); // Relase frequency, volume goes to -Infinity
             this.midChordSynths[i].triggerRelease(); // Relase frequency, volume goes to -Infinity
             this.highChordSynths[i].triggerRelease(); // Relase frequency, volume goes to -Infinity
-
         }
       }
       this.goldIndices = []
@@ -578,23 +595,19 @@ class Oscillator extends Component {
         // : index;
 
         if(!this.checkButton(pos.x, pos.y)){
-          if(this.state.checkButton && e.touches.length == 1){
-            console.log(this.bendStartFreqs);
-            for(let i = 0; i < this.bendStartFreqs.length; i++){
-              //this.synths[i].envelope.attack = 0;
-              //this.synths[i].envelope.decay = 0;
-
-              this.synths[i].volume.value = this.synths[index].volume.value;
-              //this.synths[i].volume.exponentialRampToValueAtTime(this.synths[index].volume.value, this.props.context.currentTime+0.1);
-
-              this.synths[i].triggerAttack(this.bendStartFreqs[i]);
-              //this.synths[i].envelope.attack = 0.1;
-              //this.synths[i].envelope.decay = 0.01;
-//              if(i != index){
-              // } else {
-              //   this.synths[i].frequency.value = this.bendStartFreqs[i];//this.getFreq(this.bendStartPercents[index])[0];
-              // }
-            }
+          if(this.state.checkButton){
+             if(e.touches.length == 1){
+               //last One, replay rest
+               for(let i = 0; i < this.bendStartFreqs.length; i++){
+                 this.synths[i].volume.value = this.bendStartVolumes[i];
+                 this.synths[i].frequency.value = this.bendStartFreqs[i];
+                 this.bendStartPercents[i] = 0;
+                 this.bendStartFreqs[i] = 0;
+                 this.bendStartVolumes[i] = 0;
+             }
+           } else {
+             this.synths[index].volume.value = -100;
+           }
           }
           else {
             this.goldIndices.splice(index, 1);
