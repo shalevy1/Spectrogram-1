@@ -25,7 +25,6 @@ class Oscillator extends Component {
       mouseDown: false,
       touch: false,
       currentVoice: 0,
-      voices: 0, //voices started with on event
       feedback: false,
       amOn: false,
       fmOn: false,
@@ -61,7 +60,9 @@ class Oscillator extends Component {
         type: this.props.timbre.toLowerCase()
       },
       envelope: {
-        attack: 0.1
+        attack: 0,
+        decay: 0,
+        sustain: 1,
       }
     };
     let options2 = {
@@ -260,7 +261,6 @@ class Oscillator extends Component {
       this.setState({
         mouseDown: true,
         currentVoice: newVoice,
-        voices: this.state.voices + 1
       });
       if(this.props.noteLinesOn){
         this.renderNoteLines();
@@ -340,7 +340,7 @@ class Oscillator extends Component {
 
       }
 
-      this.setState({mouseDown: false, voices: 0, checkButton: false});
+      this.setState({mouseDown: false, checkButton: false});
       this.goldIndices = [];
 
       // Clears the label
@@ -365,7 +365,7 @@ class Oscillator extends Component {
         this.highChordSynths[this.state.currentVoice].triggerRelease(); // Relase frequency, volume goes to -Infinity
 
       }
-      this.setState({mouseDown: false, voices: 0, checkButton: false});
+      this.setState({mouseDown: false, checkButton: false});
       this.goldIndices = [];
 
       // Clears the label
@@ -467,14 +467,12 @@ class Oscillator extends Component {
     // If touch is pressed (Similar to mouseDown = true, although there should never be a case where this is false)
     if (this.state.touch) {
       // Determines the current "starting" index to change
-      let voiceToChange = this.state.currentVoice - (this.state.voices - 1);
       // For each changed touch, do the same as onMouseMove
       for (let i = 0; i < e.changedTouches.length; i++) {
         let pos = getMousePos(this.canvas, e.changedTouches[i]);
         let yPercent = 1 - pos.y / this.props.height;
         let xPercent = 1 - pos.x / this.props.width;
         // Determines index of the synth needing to change volume/frequency
-        // let index = (voiceToChange + e.changedTouches[i].identifier - 1) % NUM_VOICES;
         let index = e.changedTouches[i].identifier;
         // Wraps the array
         // index = (index < 0)
@@ -565,11 +563,10 @@ class Oscillator extends Component {
       this.goldIndices = []
       this.ctx.clearRect(0, 0, width, height);
       this.drawButton(false);
-      this.setState({voices: 0, touch: false, notAllRelease: false, currentVoice: -1, checkButton: false});
+      this.setState({touch: false, notAllRelease: false, currentVoice: -1, checkButton: false});
     } else {
       // Does the same as onTouchMove, except instead of changing the voice, it deletes it.
       let checkButton = false;
-      let voiceToRemoveFrom = this.state.currentVoice - (this.state.voices - 1);
       for (let i = 0; i < e.changedTouches.length; i++) {
 
         let pos = getMousePos(this.canvas, e.changedTouches[i]);
@@ -582,7 +579,22 @@ class Oscillator extends Component {
 
         if(!this.checkButton(pos.x, pos.y)){
           if(this.state.checkButton && e.touches.length == 1){
-            this.synths[index].frequency.value = this.bendStartFreqs[index];//this.getFreq(this.bendStartPercents[index])[0];
+            console.log(this.bendStartFreqs);
+            for(let i = 0; i < this.bendStartFreqs.length; i++){
+              //this.synths[i].envelope.attack = 0;
+              //this.synths[i].envelope.decay = 0;
+
+              this.synths[i].volume.value = this.synths[index].volume.value;
+              //this.synths[i].volume.exponentialRampToValueAtTime(this.synths[index].volume.value, this.props.context.currentTime+0.1);
+
+              this.synths[i].triggerAttack(this.bendStartFreqs[i]);
+              //this.synths[i].envelope.attack = 0.1;
+              //this.synths[i].envelope.decay = 0.01;
+//              if(i != index){
+              // } else {
+              //   this.synths[i].frequency.value = this.bendStartFreqs[i];//this.getFreq(this.bendStartPercents[index])[0];
+              // }
+            }
           }
           else {
             this.goldIndices.splice(index, 1);
@@ -595,10 +607,6 @@ class Oscillator extends Component {
               this.highChordSynths[index].triggerRelease(); // Relase frequency, volume goes to -Infinity
             }
           }
-          // this.amSignals[index].stop();
-          this.setState({
-            voices: this.state.voices - 1
-          });
           this.ctx.clearRect(0, 0, width, height);
           this.drawButton(this.state.checkButton);
         } else {
