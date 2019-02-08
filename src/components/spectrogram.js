@@ -38,7 +38,8 @@ class Spectrogram extends Component {
       musicKey: {name: 'C', value: 0 },
       accidental: {name: ' ', value: 0},
       scale: {name: 'Major', value: 0},
-      microphone: true
+      microphone: true,
+      frequencyLabel: ''
     }
   }
   componentDidMount() {
@@ -254,6 +255,7 @@ spacePressed = (e) =>{
   e.stopPropagation();
   this.props.handlePause();
 }
+
 
   render() {
     const soundOrTuning = this.props.tuningMode ? (

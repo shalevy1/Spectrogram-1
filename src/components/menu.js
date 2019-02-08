@@ -141,7 +141,7 @@ class MyMenu extends Component {
           </Menu.Item>
           {/* Scale Controls */}
           <Menu.Item position="right" className="no-margin">
-            <button onClick={this.showFreqControls} className="freq-button">Scale Controls</button>
+            <button onClick={this.showFreqControls} className="freq-button">Frequency Range</button>
           </Menu.Item>
 
           <Menu.Header className="menu-title" active="false">Spectrogram</Menu.Header>

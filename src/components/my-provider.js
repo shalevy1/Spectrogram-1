@@ -68,10 +68,10 @@ class MyProvider extends Component {
         },
         handleSoundToggle: () => this.setState({soundOn: !this.state.soundOn}),
         handleScaleToggle: () => {
-          let { scaleOn, noteLinesOn } = this.state;
-          this.setState({scaleOn: !scaleOn});
-          if(scaleOn && noteLinesOn){
-            this.setState({noteLinesOn: false});
+          if(this.state.scaleOn){
+              this.setState({scaleOn: false, noteLinesOn: false});
+          } else {
+              this.setState({scaleOn: true, noteLinesOn: true});
           }
         },
         handleNoteLinesToggle: () => this.setState({noteLinesOn: !this.state.noteLinesOn}),

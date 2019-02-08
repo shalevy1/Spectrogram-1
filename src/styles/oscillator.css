@@ -1,3 +1,15 @@
 .osc-canvas {
   z-index: 20;
 }
+.frequency-label {
+  z-index: 25;
+  position: absolute;
+  left: 1%;
+  bottom: 1%;
+  background-color: white;
+  padding: 2em;
+  border-radius: .58571429rem;
+  padding: 1em 1.5em;
+  outline: none;
+  line-height: 1em;
+}

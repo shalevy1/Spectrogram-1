@@ -27,7 +27,7 @@ class Oscillator extends Component {
       voices: 0, //voices started with on event
       feedback: false,
       amOn: false,
-      fmOn: false
+      fmOn: false,
     }
   }
 
@@ -41,7 +41,6 @@ class Oscillator extends Component {
     this.synths = new Array(NUM_VOICES);
     this.amSignals = new Array(NUM_VOICES);
     this.fmSignals = new Array(NUM_VOICES);
-
     // Start master volume at -20 dB
     this.masterVolume = new Tone.Volume(0);
     this.ctx = this.canvas.getContext('2d');
@@ -211,15 +210,15 @@ class Oscillator extends Component {
 
     this.synths[newVoice].volume.value = gain; // Starts the synth at volume = gain
     this.ctx.clearRect(0, 0, this.props.width, this.props.height); // Clears canvas for redraw of label
-    this.label(freq, pos.x, pos.y); // Labels the point
     this.setState({
       mouseDown: true,
       currentVoice: newVoice,
-      voices: this.state.voices + 1
+      voices: this.state.voices + 1,
     });
     if(this.props.noteLinesOn){
       this.renderNoteLines();
     }
+    this.label(freq, pos.x, pos.y); // Labels the point
 
   }
   onMouseMove(e) {
@@ -258,10 +257,10 @@ class Oscillator extends Component {
 
       // Clears the label
       this.ctx.clearRect(0, 0, this.props.width, this.props.height);
-      this.label(freq, pos.x, pos.y);
       if(this.props.noteLinesOn){
         this.renderNoteLines();
       }
+      this.label(freq, pos.x, pos.y);
     }
 
   }
@@ -315,6 +314,11 @@ class Oscillator extends Component {
     if(e.touches.length > NUM_VOICES ){
       return;
     }
+    this.ctx.clearRect(0, 0, this.props.width, this.props.height);
+
+    if(this.props.noteLinesOn){
+      this.renderNoteLines();
+    }
     // For each finger, do the same as above in onMouseDown
     for (let i = 0; i < e.changedTouches.length; i++) {
       let pos = getMousePos(this.canvas, e.touches[i]);
@@ -345,12 +349,9 @@ class Oscillator extends Component {
         this.fmSignals[newVoice].triggerAttack(newFreq);
       }
 
-      this.ctx.clearRect(0, 0, this.props.width, this.props.height);
       this.label(freq, pos.x, pos.y);
     }
-    if(this.props.noteLinesOn){
-      this.renderNoteLines();
-    }
+
   }
   onTouchMove(e) {
     e.preventDefault(); // Always need to prevent default browser choices
@@ -360,6 +361,10 @@ class Oscillator extends Component {
     }
     let {width, height} = this.props;
     // If touch is pressed (Similar to mouseDown = true, although there should never be a case where this is false)
+    this.ctx.clearRect(0, 0, width, height);
+    if(this.props.noteLinesOn){
+      this.renderNoteLines();
+    }
     if (this.state.touch) {
       // Determines the current "starting" index to change
       // For each changed touch, do the same as onMouseMove
@@ -404,16 +409,13 @@ class Oscillator extends Component {
 
       }
       //Redraw Labels
-        this.ctx.clearRect(0, 0, width, height);
       for (let i = 0; i < e.touches.length; i++) {
         let pos = getMousePos(this.canvas, e.touches[i]);
         let yPercent = 1 - pos.y / this.props.height;
         let freq = this.getFreq(yPercent);
         this.label(freq, pos.x, pos.y);
       }
-      if(this.props.noteLinesOn){
-        this.renderNoteLines();
-      }
+
     }
   }
   onTouchEnd(e) {
@@ -527,6 +529,17 @@ class Oscillator extends Component {
         this.ctx.fillText(freq + ' Hz', x + offset, y - offset);
       } else {
         this.ctx.fillText(this.scaleLabel, x + offset, y - offset);
+        let index = freqToIndex(freq, this.props.resolutionMax, this.props.resolutionMin, this.props.height);
+        let width = ((freq+ ' Hz').length < 7) ? 70 : 80;
+        this.ctx.fillStyle = "rgba(218, 218, 218, 0.8)";
+
+        this.ctx.fillRect(offset - 2, index - 2*offset, width, 3.5*offset);
+
+        this.ctx.fillStyle = "white";
+
+        this.ctx.fillText(freq + ' Hz', offset, index+offset/2);
+
+
       }
       // Draw Circle for point
     const startingAngle = 0;
@@ -539,6 +552,7 @@ class Oscillator extends Component {
     this.ctx.fill();
     this.ctx.stroke();
     }
+
   }
 
   renderNoteLines(){
@@ -596,6 +610,7 @@ class Oscillator extends Component {
 
   render() {
     return (
+      <React.Fragment>
       <canvas
       onContextMenu={(e) => e.preventDefault()}
       onMouseDown={this.onMouseDown}
@@ -609,7 +624,21 @@ class Oscillator extends Component {
       height={this.props.height}
       ref={(c) => {
       this.canvas = c;
-    }} className="osc-canvas"/>);
+    }} className="osc-canvas"/>
+    {/*<div className="frequency-label">
+      <div className="frequency-title">
+      Frequency:
+      </div>
+      <div>220Hz</div>
+      <div>220Hz</div>
+      <div>220Hz</div>
+      <div>220Hz</div>
+      <div>220Hz</div>
+      <div>220Hz</div>
+
+    </div>*/}
+    </React.Fragment>
+  );
   }
 }
 

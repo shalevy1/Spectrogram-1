@@ -1,6 +1,6 @@
 .menu-pane-container {
   z-index: 22;
-  opacity: 0.85;
+  /* opacity: 0.85; */
   padding: 0.5em!important;
 }
 
