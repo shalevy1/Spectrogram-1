@@ -218,7 +218,9 @@ class SoundControls extends Component {
                       compact
                       options={scaleOptions}
                       onChange={context.handleScaleChange}
-                      disabled={!context.state.isStarted}/>
+                      disabled={!context.state.isStarted}
+                      scrolling
+                      />
                     </Menu.Item>
 
                   </Menu.Menu>

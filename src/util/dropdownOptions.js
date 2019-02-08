@@ -49,6 +49,22 @@ const scaleOptions = [
   {
     text: "Hungarian Minor",
     value: 6
+  },
+  {
+    text: "Pentatonic 2",
+    value: 7
+  },
+  {
+    text: "Pentatonic 3",
+    value: 8
+  },
+  {
+    text: "Pentatonic 4",
+    value: 9
+  },
+  {
+    text: "Mondongo",
+    value: 10
   }
 
 ];

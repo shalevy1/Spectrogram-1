@@ -600,7 +600,7 @@ class Oscillator extends Component {
           else {
             this.ctx.fillStyle = 'white';
           }
-          this.ctx.fillRect(0, index, width, 1.5);
+          this.ctx.fillRect(0, index, width, 1);
           freq = freq * 2;
         }
       }
