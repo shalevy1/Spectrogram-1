@@ -31,23 +31,23 @@ const scaleOptions = [
     value: 1
   },
   {
-    text: "Major Pentatonic",
+    text: "Chromatic",
     value: 2
   },
   {
-    text: "Chromatic",
+    text: "Blues",
     value: 3
   },
   {
-    text: "Blues",
+    text: "Flemenco/Harmonic Major",
     value: 4
   },
   {
-    text: "Flemenco/Harmonic Major",
+    text: "Hungarian Minor",
     value: 5
   },
   {
-    text: "Hungarian Minor",
+    text: "Major Pentatonic",
     value: 6
   },
   {
@@ -62,10 +62,6 @@ const scaleOptions = [
     text: "Pentatonic 4",
     value: 9
   },
-  {
-    text: "Mondongo",
-    value: 10
-  }
 
 ];
 const keyOptions = [

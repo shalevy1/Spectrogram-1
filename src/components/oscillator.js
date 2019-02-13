@@ -201,7 +201,7 @@ class Oscillator extends Component {
     // FM
     if(this.props.fmOn){
       let modIndex = yPercent * 2; // FM index ranges from 0 - 2
-      let newVol = convertToLog(this.props.fmLevel, 0, 1, 30, 60); // FM amplitude set between 30 and 60 (arbitrary choices)
+      let newVol = convertToLog(this.props.fmLevel, 0, 1, 25, 50); // FM amplitude set between 30 and 60 (arbitrary choices)
       let newFreq = convertToLog(this.props.fmRate, 0, 1, 0.5, 50); // FM Frequency set between 0.5 and 50 (arbitray choices)
       // let newFreq = convertToLog(yPercent, 0, 1, 0.5, 20); // FM Frequency set between 0.5 and 20 (arbitray choices)
       this.fmSignals[newVoice].volume.exponentialRampToValueAtTime(newVol*modIndex, this.props.context.currentTime+RAMPVALUE); // Ramps to FM amplitude*modIndex in RAMPVALUE sec
@@ -247,7 +247,7 @@ class Oscillator extends Component {
       // FM
       if(this.props.fmOn){
         let modIndex = yPercent * 2; // FM index ranges from 0 - 2
-        let newVol = convertToLog(this.props.fmLevel, 0, 1, 30, 60); // FM amplitude set between 30 and 60 (arbitrary choices)
+        let newVol = convertToLog(this.props.fmLevel, 0, 1, 25, 50); // FM amplitude set between 30 and 60 (arbitrary choices)
         let newFreq = convertToLog(this.props.fmRate, 0, 1, 0.5, 50); // FM Frequency set between 0.5 and 50 (arbitray choices)
         // let newFreq = convertToLog(yPercent, 0, 1, 0.5, 20); // FM Frequency set between 0.5 and 20 (arbitray choices)
         this.fmSignals[this.state.currentVoice].volume.exponentialRampToValueAtTime(newVol*modIndex, this.props.context.currentTime+RAMPVALUE); // Ramps to FM amplitude*modIndex in RAMPVALUE sec
@@ -342,7 +342,7 @@ class Oscillator extends Component {
       // FM
       if(this.props.fmOn){
         let modIndex = yPercent * 2; // FM index ranges from 0 - 2
-        let newVol = convertToLog(this.props.fmLevel, 0, 1, 30, 60); // FM amplitude set between 30 and 60 (arbitrary choices)
+        let newVol = convertToLog(this.props.fmLevel, 0, 1, 25, 50); // FM amplitude set between 30 and 60 (arbitrary choices)
         let newFreq = convertToLog(this.props.fmRate, 0, 1, 0.5, 50); // FM Frequency set between 0.5 and 50 (arbitray choices)
         // let newFreq = convertToLog(yPercent, 0, 1, 0.5, 20); // FM Frequency set between 0.5 and 20 (arbitray choices)
         this.fmSignals[newVoice].volume.exponentialRampToValueAtTime(newVol*modIndex, this.props.context.currentTime+RAMPVALUE); // Ramps to FM amplitude*modIndex in RAMPVALUE sec
@@ -400,7 +400,7 @@ class Oscillator extends Component {
           // FM
           if(this.props.fmOn){
             let modIndex = yPercent * 2; // FM index ranges from 0 - 2
-            let newVol = convertToLog(this.props.fmLevel, 0, 1, 30, 60); // FM amplitude set between 30 and 60 (arbitrary choices)
+            let newVol = convertToLog(this.props.fmLevel, 0, 1, 25, 50); // FM amplitude set between 30 and 60 (arbitrary choices)
             let newFreq = convertToLog(this.props.fmRate, 0, 1, 0.5, 50); // FM Frequency set between 0.5 and 50 (arbitray choices)
             // let newFreq = convertToLog(yPercent, 0, 1, 0.5, 20); // FM Frequency set between 0.5 and 20 (arbitray choices)
             this.fmSignals[index].volume.exponentialRampToValueAtTime(newVol*modIndex, this.props.context.currentTime+RAMPVALUE); // Ramps to FM amplitude*modIndex in RAMPVALUE sec
@@ -521,7 +521,8 @@ class Oscillator extends Component {
 
   // Helper method that generates a label for the frequency or the scale note
   label(freq, x, y) {
-    const offset = 10;
+    const offset = 25;
+    const scaleOffset = 10;
     this.ctx.font = '20px Inconsolata';
     this.ctx.fillStyle = 'white';
     if(this.props.soundOn){
@@ -532,12 +533,9 @@ class Oscillator extends Component {
         let index = freqToIndex(freq, this.props.resolutionMax, this.props.resolutionMin, this.props.height);
         let width = ((freq+ ' Hz').length < 7) ? 70 : 80;
         this.ctx.fillStyle = "rgba(218, 218, 218, 0.8)";
-
-        this.ctx.fillRect(offset - 2, index - 2*offset, width, 3.5*offset);
-
+        this.ctx.fillRect(scaleOffset - 2, index - 2*scaleOffset, width, 3.5*scaleOffset);
         this.ctx.fillStyle = "white";
-
-        this.ctx.fillText(freq + ' Hz', offset, index+offset/2);
+        this.ctx.fillText(freq + ' Hz', scaleOffset, index+scaleOffset/2);
 
 
       }

@@ -1,0 +1,23 @@
+.menu-pane-container {
+  padding: 0;
+  margin: 0!important;
+  border: 0!important;
+}
+
+.edit-scales-container {
+  width: 780px;
+  display: flex!important;
+  justify-content: space-around;
+}
+
+.note {
+  border: 2px solid black;
+  width: 100%;
+  font-size: 1.25em;
+  user-select: none;
+  /* padding: 1% 2%; */
+}
+
+.activeNote {
+  background-color: #7BB242;
+}

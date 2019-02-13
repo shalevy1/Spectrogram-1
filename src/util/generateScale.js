@@ -21,24 +21,24 @@ export default function generateScale(startFreq, type) {
       scalePattern = [0, 2, 3, 5, 7, 8, 10];
       break;
     case 2:
-      // Major Pentatonic
-      scalePattern = [0, 2, 4, 7, 9];
-      break;
-    case 3:
       // Chromatic
       scalePattern = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
       break;
-    case 4:
+    case 3:
       //Blues
       scalePattern = [0, 3, 5, 6, 7, 10];
       break;
-    case 5:
+    case 4:
       // Flemenco/Harmonic Major
       scalePattern = [0, 1, 4, 5, 7, 8, 10];
       break;
-    case 6:
+    case 5:
       // Hungarian Minor
       scalePattern = [0, 2, 3, 6, 7, 8, 11];
+      break;
+    case 6:
+      // Major Pentatonic
+      scalePattern = [0, 2, 4, 7, 9];
       break;
     // case 7:
     //   // Heptatonic 1
@@ -105,7 +105,10 @@ export default function generateScale(startFreq, type) {
       scalePattern = [0, 4, 5, 6, 8, 10];
       break;
     default:
-      scalePattern = [0, 2, 4, 5, 7, 9, 11];
+      //scalePattern = [0, 2, 4, 5, 7, 9, 11];
+      // Custom
+      scalePattern = type;
+
 
   }
   for (var i = 0; i < scalePattern.length; i++) {
@@ -115,7 +118,8 @@ export default function generateScale(startFreq, type) {
   }
   let s = {
     scale: scale,
-    scaleNames: scaleNames
+    scaleNames: scaleNames,
+    scalePattern: scalePattern
   }
   return s;
 }

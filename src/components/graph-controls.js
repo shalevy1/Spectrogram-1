@@ -93,6 +93,13 @@ class GraphControls extends Component {
                     checked={context.state.graphPreset === 'orchestra'}
                     onChange={context.handleGraphPresetChange}
                   />
+                  <Radio
+                    label='Pipes'
+                    name='radioGroup'
+                    value='pipes'
+                    checked={context.state.graphPreset === 'pipes'}
+                    onChange={context.handleGraphPresetChange}
+                  />
                   </div>
                 </Menu.Item>
               </Menu>

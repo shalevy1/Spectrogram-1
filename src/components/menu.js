@@ -4,6 +4,7 @@ import "../styles/menu.css";
 import GraphControls from './graph-controls';
 import SoundControls from './sound-controls';
 import TuningControls from './tuning-controls';
+import EditScales from "./edit-scales";
 import Slider from 'react-rangeslider';
 
 // To include the default styles
@@ -15,11 +16,14 @@ class MyMenu extends Component {
     activeItem: null,
     pane: null,
     value: 50,
+    editScales: false,
     soundOn: false,
   }
+
   // Function that switches between Menu Panes (children components)
   handleItemClick = (e, {name}) => {
     let pane = null;
+    let editScales = false;
     switch (name) {
       case "tuning":
         if (name !== this.state.activeItem) {
@@ -38,18 +42,19 @@ class MyMenu extends Component {
         } else {
           name = null;
         }
+        editScales = !this.state.editScales;
         break;
 
       default:
         pane = null;
     }
-    this.setState({activeItem: name, pane: pane});
+    this.setState({activeItem: name, pane: pane, editScales: editScales});
     this.props.handleFreqControlsOff();
 
   }
 
   // Function that handles the close of the menu
-  closeMenu = () => this.setState({pane: null, activeItem: null});
+  closeMenu = () => this.setState({pane: null, activeItem: null, editScales: false});
 
   // Function that switches to the signal generator on click
   switchToSignalGenerator = () => {
@@ -81,11 +86,12 @@ class MyMenu extends Component {
     if(this.state.activeItem !== 'graph'){
       this.setState({
         pane: <GraphControls closeMenu={this.closeMenu} handleFreqControlsToggle={this.props.handleFreqControlsToggle} reset={this.props.reset}/>,
-        activeItem: 'graph'
+        activeItem: 'graph',
+        editScales: false
       });
       this.props.handleFreqControlsOn();
     } else{
-      this.setState({pane: null, activeItem: null});
+      this.setState({pane: null, activeItem: null, editScales: false});
       this.props.handleFreqControlsOff();
     }
   }
@@ -149,6 +155,7 @@ class MyMenu extends Component {
         {/* Renders the current pane beneath the menu */}
         {this.state.pane}
 
+        {this.props.editScales && this.state.editScales && <EditScales/> }
       </div>
 
     );

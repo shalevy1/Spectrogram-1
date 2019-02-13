@@ -59,6 +59,7 @@ class App extends Component {
       handleFreqControlsOff={context.handleFreqControlsOff}
       hidePanes={context.state.hidePanes}
       handleHidePanesCompletion={context.handleHidePanesCompletion}
+      editScales={context.state.editScales}      
       />
       <Spectrogram
       soundOn={context.state.soundOn}

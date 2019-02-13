@@ -46,6 +46,7 @@ class MyProvider extends Component {
     amLevel: 0.5,
     fmRate: 0.5,
     fmLevel: 0.5,
+    editScales: false,
     //hidePanes: false,
     isStarted: false,
   }
@@ -109,6 +110,7 @@ class MyProvider extends Component {
           let newScaleValue = data.value;
           this.setState({scale: {name: newScaleName, value: newScaleValue}});
         },
+        handleScaleEdit: data => this.setState({scale: {name: data.name, value: data.value}}),
         handleTuningModeOn: () => this.setState({tuningMode: true, noteLinesOn: true}),
         handleTuningModeOff: () => this.setState({tuningMode: false, noteLinesOn: false}),
         handleFreqControlsOn: () => this.setState({freqControls: true}),
@@ -176,6 +178,10 @@ class MyProvider extends Component {
               lowerValue = 80;
               upperValue = 4000;
               break;
+            case 'pipes':
+              lowerValue = 900;
+              upperValue = 2500;
+              break;
             default:
                 lowerValue = 20;
                 upperValue = 20000;
@@ -187,7 +193,7 @@ class MyProvider extends Component {
           this.setState({resolutionMin: lowerValue, resolutionMax: upperValue, min: lowerValue, max: upperValue, limitMin: newMin, limitMax: newMax, graphPreset: data.value});
         },
         //menuClose: () => this.setState({hidePanes: true}),
-        handleHidePanesCompletion: ()=> this.setState({hidePanes: false}),
+        handleHidePanesCompletion: ()=> this.setState({hidePanes: false, editScales: false}),
         handleResize: () => this.setState({width: window.innerWidth, height: window.innerHeight}),
         handleZoom: (upper, lower) => {
           let upperValue = Number(upper);
@@ -253,6 +259,7 @@ class MyProvider extends Component {
             this.setState({fmLevel: Math.round(value*100)/100});
           }
         },
+        handleEditScalesChange: () => this.setState({editScales: !this.state.editScales}),
         start: ()=> this.setState({isStarted: true}),
         reset: ()=> this.setState({
           resolutionMax: 20000,//Real Max

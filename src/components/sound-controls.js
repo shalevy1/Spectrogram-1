@@ -238,6 +238,7 @@ class SoundControls extends Component {
                   {/* Render Scale Name to screen. Don't render 'chromatic' scale name or accidental */}
                   {(context.state.scale.name === "Chromatic")? "" : context.state.musicKey.name}{(context.state.scale.name === "Chromatic")? "" : context.state.accidental.name}{context.state.scale.name}
                   </div>
+                  <Button className="edit-scales-button" onClick={context.handleEditScalesChange}>Edit </Button>
                   </div>
                 </Menu.Item>
                   {/* Effects */}

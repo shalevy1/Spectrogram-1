@@ -60,6 +60,12 @@
   padding: 0.5em!important;
 }
 
+.edit-scales-button {
+  position: absolute;
+  right: 0%;
+  bottom: 10%;
+}
+
 .note-lines {
   margin-right: 25%;
 }
