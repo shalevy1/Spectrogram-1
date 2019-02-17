@@ -29,6 +29,7 @@ class Oscillator extends Component {
       amOn: false,
       fmOn: false,
     }
+
   }
 
   // Setup Tone and all of its needed dependencies.
@@ -60,6 +61,7 @@ class Oscillator extends Component {
     for (let i = 0; i < NUM_VOICES; i++) {
       this.synths[i] = new Tone.Synth(options);
       this.synths[i].connect(this.masterVolume);
+      this.synths[i].sync();
       this.amSignals[i] = new Tone.Synth(options2);
       this.amSignals[i].connect(this.synths[i].volume)
       // this.amSignals[i].type ="sine";
@@ -68,6 +70,7 @@ class Oscillator extends Component {
       // this.fmSignals[i].type ="square";
       // this.amSignal.frequency.value = 1;
       // this.amSignal.volume.value = 10;
+
     }
 
     this.goldIndices = []; // Array to hold indices on the screen of gold note lines (touched/clicked lines)
@@ -93,7 +96,7 @@ class Oscillator extends Component {
     this.masterVolume.mute = !this.props.soundOn;
     // Object to hold all of the note-line frequencies (for checking the gold lines)
     this.frequencies = {};
-
+    // this.transport.start();
     window.addEventListener("resize", this.handleResize);
   }
 
@@ -168,6 +171,7 @@ class Oscillator extends Component {
     } else {
       this.delayVolume.mute = true;
     }
+    Tone.Transport.start();
 
   }
 
@@ -190,7 +194,18 @@ class Oscillator extends Component {
     let gain = getGain(xPercent);
     // newVoice = implementation of circular array discussed above.
     let newVoice = (this.state.currentVoice + 1) % NUM_VOICES; // Mouse always changes to new "voice"
+    // this.synths[newVoice].triggerAttack(freq, "@4n"); // Starts the synth at frequency = freq
     this.synths[newVoice].triggerAttack(freq); // Starts the synth at frequency = freq
+
+    // let pattern = new Tone.Pattern((time, note)=>{
+    // 	this.synths[1].triggerAttackRelease(note, "8n");
+    // pattern.interval = "16n";
+    // }, ["C4", "D4", "E4", "G4", "A4"]);
+    // pattern.start(0);
+
+
+
+
     // Am
     if(this.props.amOn){
       let newVol = convertToLog(this.props.amLevel, 0, 1, 0.01, 15); // AM amplitud;e set between 0.01 and 15 (arbitray choices)
@@ -235,8 +250,10 @@ class Oscillator extends Component {
       this.goldIndices.splice(this.state.currentVoice - 1, 1);
       if(this.props.scaleOn){
         // Jumps to new Frequency and Volume
-        this.synths[this.state.currentVoice].frequency.value = freq;
-        this.synths[this.state.currentVoice].volume.value = gain;
+        // Tone.Transport.schedule(time => {
+          this.synths[this.state.currentVoice].frequency.value = freq;
+          this.synths[this.state.currentVoice].volume.value = gain;
+        // }, "@4n");
       } else {
         // Ramps to new Frequency and Volume
         this.synths[this.state.currentVoice].frequency.exponentialRampToValueAtTime(freq, this.props.context.currentTime+RAMPVALUE);
@@ -268,10 +285,10 @@ class Oscillator extends Component {
     e.preventDefault(); // Always need to prevent default browser choices
     // Only need to trigger release if synth exists (a.k.a mouse is down)
     if (this.state.mouseDown) {
+      // Tone.Transport.cancel();
       this.synths[this.state.currentVoice].triggerRelease(); // Relase frequency, volume goes to -Infinity
       this.amSignals[this.state.currentVoice].triggerRelease();
       this.fmSignals[this.state.currentVoice].triggerRelease();
-
       this.setState({mouseDown: false, voices: 0});
       this.goldIndices = [];
 
@@ -287,10 +304,10 @@ class Oscillator extends Component {
   onMouseOut(e) {
     e.preventDefault(); // Always need to prevent default browser choices
     if (this.state.mouseDown) {
+      // Tone.Transport.cancel();
       this.synths[this.state.currentVoice].triggerRelease();
       this.amSignals[this.state.currentVoice].triggerRelease();
       this.fmSignals[this.state.currentVoice].triggerRelease();
-
       this.setState({mouseDown: false, voices: 0});
       this.goldIndices = [];
 
