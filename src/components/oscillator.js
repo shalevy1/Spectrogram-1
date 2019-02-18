@@ -7,6 +7,7 @@ import { getFreq, getGain, freqToIndex, getMousePos, convertToLog } from "../uti
 
 const NUM_VOICES = 6;
 const RAMPVALUE = 0.2;
+const NOTE_JUMP = 1.0594630943593;
 
 // Main sound-making class. Can handle click and touch inputs
 class Oscillator extends Component {
@@ -61,7 +62,7 @@ class Oscillator extends Component {
     for (let i = 0; i < NUM_VOICES; i++) {
       this.synths[i] = new Tone.Synth(options);
       this.synths[i].connect(this.masterVolume);
-      this.synths[i].sync();
+      // this.synths[i].sync();
       this.amSignals[i] = new Tone.Synth(options2);
       this.amSignals[i].connect(this.synths[i].volume)
       // this.amSignals[i].type ="sine";
@@ -96,7 +97,7 @@ class Oscillator extends Component {
     this.masterVolume.mute = !this.props.soundOn;
     // Object to hold all of the note-line frequencies (for checking the gold lines)
     this.frequencies = {};
-    // this.transport.start();
+
     window.addEventListener("resize", this.handleResize);
   }
 
@@ -190,20 +191,20 @@ class Oscillator extends Component {
     // The value goes from 0 to 1. (0, 0) = Bottom Left corner
     let yPercent = 1 - pos.y / this.props.height;
     let xPercent = 1 - pos.x / this.props.width;
-    let freq = this.getFreq(yPercent);
+    let freqData = this.getFreq(yPercent);
+    let freq = freqData.freq;
     let gain = getGain(xPercent);
     // newVoice = implementation of circular array discussed above.
     let newVoice = (this.state.currentVoice + 1) % NUM_VOICES; // Mouse always changes to new "voice"
-    // this.synths[newVoice].triggerAttack(freq, "@4n"); // Starts the synth at frequency = freq
+    // this.synths[newVoice].triggerAttack(freq, "@16n"); // Starts the synth at frequency = freq
     this.synths[newVoice].triggerAttack(freq); // Starts the synth at frequency = freq
-
-    // let pattern = new Tone.Pattern((time, note)=>{
-    // 	this.synths[1].triggerAttackRelease(note, "8n");
-    // pattern.interval = "16n";
-    // }, ["C4", "D4", "E4", "G4", "A4"]);
-    // pattern.start(0);
-
-
+    // let x = [freqData.notes[0], freqData.notes[2], freqData.notes[4], freqData.notes[0]*2];
+    // this.pattern = new Tone.Pattern((time, note)=>{
+      // this.synths[newVoice].triggerAttackRelease(note, "8n");
+    // }, x);
+    // this.pattern.interval = "16n";
+    // this.pattern.pattern = "random";
+    // this.pattern.start(0);
 
 
     // Am
@@ -245,15 +246,18 @@ class Oscillator extends Component {
       let yPercent = 1 - pos.y / height;
       let xPercent = 1 - pos.x / width;
       let gain = getGain(xPercent);
-      let freq = this.getFreq(yPercent);
+      let freqData = this.getFreq(yPercent);
+      let freq = freqData.freq;
       // Remove previous gold indices and update them to new positions
       this.goldIndices.splice(this.state.currentVoice - 1, 1);
       if(this.props.scaleOn){
         // Jumps to new Frequency and Volume
-        // Tone.Transport.schedule(time => {
-          this.synths[this.state.currentVoice].frequency.value = freq;
-          this.synths[this.state.currentVoice].volume.value = gain;
-        // }, "@4n");
+          // if(freq != this.synths[this.state.currentVoice].frequency.value){
+          // Tone.Transport.scheduleOnce(time => {
+            this.synths[this.state.currentVoice].frequency.value = freq;
+            this.synths[this.state.currentVoice].volume.value = gain;
+          // }, "@16n");
+        // }
       } else {
         // Ramps to new Frequency and Volume
         this.synths[this.state.currentVoice].frequency.exponentialRampToValueAtTime(freq, this.props.context.currentTime+RAMPVALUE);
@@ -285,7 +289,11 @@ class Oscillator extends Component {
     e.preventDefault(); // Always need to prevent default browser choices
     // Only need to trigger release if synth exists (a.k.a mouse is down)
     if (this.state.mouseDown) {
-      // Tone.Transport.cancel();
+      Tone.Transport.cancel();
+      // Tone.Transport.scheduleRepeat(time => {
+      //   this.synths[2].triggerAttackRelease(800, "8n", "@4n");
+      //   this.synths[2].volume.value = -30;
+      // }, "4n");
       this.synths[this.state.currentVoice].triggerRelease(); // Relase frequency, volume goes to -Infinity
       this.amSignals[this.state.currentVoice].triggerRelease();
       this.fmSignals[this.state.currentVoice].triggerRelease();
@@ -476,7 +484,9 @@ class Oscillator extends Component {
   // Also deals with snapping it to a scale if scale mode is on
   getFreq(index) {
     let {resolutionMax, resolutionMin, height} = this.props;
-    let freq = getFreq(index, resolutionMin, resolutionMax)
+    let freq = getFreq(index, resolutionMin, resolutionMax);
+    let notes = [];
+
     if (this.props.scaleOn) {
       //  Maps to one of the 12 keys of the piano based on note and accidental
       let newIndexedKey = this.props.musicKey.value;
@@ -500,6 +510,8 @@ class Oscillator extends Component {
       let note = 0;
       let dist = 20000;
       let harmonic = 0;
+      let finalJ = 0;
+      let finalK = 0;
       //Sweeps through scale object and plays correct frequency
       for (var j = 1; j < 1500; j = j * 2) {
 
@@ -512,6 +524,8 @@ class Oscillator extends Component {
             note = check;
             name = s.scaleNames[k];
             harmonic = Math.round(Math.log2(j) - 1);
+            finalJ = j;
+            finalK = k;
           } else {
             break;
           }
@@ -523,9 +537,11 @@ class Oscillator extends Component {
       let index = freqToIndex(freq, resolutionMax, resolutionMin, height);
 
         this.goldIndices[this.state.currentVoice] = index;
-
+        notes = s.scale.map(note=>{
+          return note * finalJ;
+        });
     }
-    return Math.round(freq);
+    return {freq: Math.round(freq), notes: notes};
   }
 
   handleResize = () => {

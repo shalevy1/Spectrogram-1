@@ -104,6 +104,10 @@ export default function generateScale(startFreq, type) {
       //mondongo
       scalePattern = [0, 4, 5, 6, 8, 10];
       break;
+    case 11:
+      // Arp
+      scalePattern = [0, 4, 7];
+      break;
     default:
       //scalePattern = [0, 2, 4, 5, 7, 9, 11];
       // Custom
