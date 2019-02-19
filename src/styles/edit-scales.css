@@ -5,9 +5,12 @@
 }
 
 .edit-scales-container {
-  width: 780px;
+  width: 12rem;
   display: flex!important;
   justify-content: space-around;
+  flex-direction: column;
+  /* transform: rotate(90deg); */
+  z-index: 24;
 }
 
 .note {
@@ -15,7 +18,7 @@
   width: 100%;
   font-size: 1.25em;
   user-select: none;
-  /* padding: 1% 2%; */
+  padding: 1.25% 2%;
 }
 
 .activeNote {
