@@ -3,7 +3,7 @@ import "../styles/scale-controls.css";
 import { getMousePos, getFreq, calculateNewMax, calculateNewMin, freqToIndex } from "../util/conversions";
 import generateScale from '../util/generateScale';
 
-const CHROMATIC_INDEX = 3; // Default to "C" Chromatic Scale
+const CHROMATIC_INDEX = 2; // Default to "C" Chromatic Scale
 
 // Class that creates the touch/mouse zoom input when scale controls are on
 class Scales extends Component {
