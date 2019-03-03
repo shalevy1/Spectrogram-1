@@ -62,6 +62,14 @@ const scaleOptions = [
     text: "Pentatonic 4",
     value: 9
   },
+  {
+    text: "Pedntatonic 4",
+    value: 10
+  },
+  {
+    text: "Major Arp",
+    value: 11
+  }
 
 ];
 const keyOptions = [
