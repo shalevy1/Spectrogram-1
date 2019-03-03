@@ -196,10 +196,10 @@ class Oscillator extends Component {
     let gain = getGain(xPercent);
     // newVoice = implementation of circular array discussed above.
     let newVoice = (this.state.currentVoice + 1) % NUM_VOICES; // Mouse always changes to new "voice"
-    Tone.Transport.scheduleRepeat(time => {
-      this.synths[newVoice].triggerAttackRelease(freq, "4n"); // Starts the synth at frequency = freq
-    }, "4n");
-    // this.synths[newVoice].triggerAttack(freq); // Starts the synth at frequency = freq
+    // Tone.Transport.scheduleRepeat(time => {
+    //   this.synths[newVoice].triggerAttackRelease(freq, "4n"); // Starts the synth at frequency = freq
+    // }, "4n");
+    this.synths[newVoice].triggerAttack(freq); // Starts the synth at frequency = freq
     // let x = [freqData.notes[0], freqData.notes[2], freqData.notes[4], freqData.notes[0]*2];
     // this.pattern = new Tone.Pattern((time, note)=>{
       // this.synths[newVoice].triggerAttackRelease(note, "8n");
@@ -243,7 +243,7 @@ class Oscillator extends Component {
     e.preventDefault(); // Always need to prevent default browser choices
     if (this.state.mouseDown) { // Only want to change when mouse is pressed
       // The next few lines are similar to onMouseDown
-      Tone.Transport.cancel();
+      // Tone.Transport.cancel();
       let {height, width} = this.props
       let pos = getMousePos(this.canvas, e);
       let yPercent = 1 - pos.y / height;
@@ -256,10 +256,10 @@ class Oscillator extends Component {
       if(this.props.scaleOn){
         // Jumps to new Frequency and Volume
           if(freq != this.synths[this.state.currentVoice].frequency.value){
-          Tone.Transport.scheduleOnce(time => {
+          // Tone.Transport.scheduleOnce(time => {
             this.synths[this.state.currentVoice].frequency.value = freq;
             this.synths[this.state.currentVoice].volume.value = gain;
-          }, "@4n");
+          // }, "@4n");
         }
       } else {
         // Ramps to new Frequency and Volume
@@ -292,7 +292,7 @@ class Oscillator extends Component {
     e.preventDefault(); // Always need to prevent default browser choices
     // Only need to trigger release if synth exists (a.k.a mouse is down)
     if (this.state.mouseDown) {
-      Tone.Transport.cancel();
+      // Tone.Transport.cancel();
       // Tone.Transport.scheduleRepeat(time => {
       //   this.synths[2].triggerAttackRelease(800, "8n", "@4n");
       //   this.synths[2].volume.value = -30;
@@ -315,7 +315,7 @@ class Oscillator extends Component {
   onMouseOut(e) {
     e.preventDefault(); // Always need to prevent default browser choices
     if (this.state.mouseDown) {
-      Tone.Transport.cancel();
+      // Tone.Transport.cancel();
       this.synths[this.state.currentVoice].triggerRelease();
       this.amSignals[this.state.currentVoice].triggerRelease();
       this.fmSignals[this.state.currentVoice].triggerRelease();
