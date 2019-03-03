@@ -9,7 +9,6 @@
   display: flex!important;
   justify-content: space-around;
   flex-direction: column;
-  /* transform: rotate(90deg); */
   z-index: 24;
 }
 
@@ -18,7 +17,7 @@
   width: 100%;
   font-size: 1.25em;
   user-select: none;
-  padding: 1.25% 2%;
+  padding: 1.2% 2%;
 }
 
 .activeNote {

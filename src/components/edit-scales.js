@@ -16,7 +16,7 @@ class EditScales extends Component {
     super();
     this.state = {
       scale: [false,false,false,false,false,false,false,false,false,false,false,false],
-      custom: false
+      scaleValue: ""
     }
   }
 
@@ -25,12 +25,14 @@ class EditScales extends Component {
   }
 
   regenerateScale(){
-    let s = generateScale(0, this.context.state.scale.value);
-    let scale = [];
-    for(let i = 0; i <s.scalePattern.length; i++){
-      scale[s.scalePattern[i]] = true;
+    if(this.context.state.scale.name !== "Custom" && this.context.state.scale.value !== this.state.scaleValue){
+      let s = generateScale(0, this.context.state.scale.value);
+      let scale = [];
+      for(let i = 0; i <s.scalePattern.length; i++){
+        scale[s.scalePattern[i]] = true;
+      }
+      this.setState({scale: scale, scaleValue: this.context.state.scale.value});
     }
-    this.setState({scale: scale});
   }
 
   handleScaleToggle(i){
@@ -43,16 +45,12 @@ class EditScales extends Component {
         s.push(i);
       }
     }
-    this.context.handleScaleEdit({name: "Custom", value: s });
-    this.setState({custom: true});
+    this.context.handleScaleEdit({name: "Custom" });
+    this.setState({scaleValue: "Custom"});
   }
 
   renderDegrees(){
-    if(this.context.state.scale.name !== "Custom" && this.state.custom){
-      this.regenerateScale();
-      this.setState({custom: false})
-
-    }
+    this.regenerateScale();
     var notes = [];
     let className;
     for (let i = 0; i < NUM_TONES; i++) {
