@@ -191,8 +191,7 @@ class Oscillator extends Component {
     // The value goes from 0 to 1. (0, 0) = Bottom Left corner
     let yPercent = 1 - pos.y / this.props.height;
     let xPercent = 1 - pos.x / this.props.width;
-    let freqData = this.getFreq(yPercent);
-    let freq = freqData.freq;
+    let freq = this.getFreq(yPercent);
     let gain = getGain(xPercent);
     // newVoice = implementation of circular array discussed above.
     let newVoice = (this.state.currentVoice + 1) % NUM_VOICES; // Mouse always changes to new "voice"
@@ -249,8 +248,7 @@ class Oscillator extends Component {
       let yPercent = 1 - pos.y / height;
       let xPercent = 1 - pos.x / width;
       let gain = getGain(xPercent);
-      let freqData = this.getFreq(yPercent);
-      let freq = freqData.freq;
+      let freq = this.getFreq(yPercent);
       // Remove previous gold indices and update them to new positions
       this.goldIndices.splice(this.state.currentVoice - 1, 1);
       if(this.props.scaleOn){
@@ -544,7 +542,7 @@ class Oscillator extends Component {
           return note * finalJ;
         });
     }
-    return {freq: Math.round(freq), notes: notes};
+    return Math.round(freq);
   }
 
   handleResize = () => {

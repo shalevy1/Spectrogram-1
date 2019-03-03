@@ -63,7 +63,7 @@ const scaleOptions = [
     value: 9
   },
   {
-    text: "Pedntatonic 4",
+    text: "Pentatonic 4",
     value: 10
   },
   {
