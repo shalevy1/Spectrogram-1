@@ -179,10 +179,8 @@ class MyProvider extends Component {
               upperValue = 4000;
               break;
             case 'pipes':
-              // lowerValue = 900;
-              // upperValue = 2500;
-              lowerValue = 3000;
-              upperValue = 9000;
+              lowerValue = 900;
+              upperValue = 2500;
               break;
             default:
                 lowerValue = 20;
