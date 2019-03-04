@@ -1,6 +1,6 @@
 {
-  "short_name": "Spectrogram App",
-  "name": "Listening to Waves Spectrogram and Function Generator",
+  "short_name": "Spectrogram",
+  "name": "Interactive Spectrogram",
   "icons": [
     {
       "src": "favicon.ico",

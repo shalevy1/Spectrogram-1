@@ -159,7 +159,15 @@
   padding: 0!important;
 }
 
+@media screen and (max-width: 1200px)  {
+  .microphone-positioning {
+      left: 15%!important;
+
+  }
+}
+
 .microphone-positioning {
   position: absolute;
-  left: 30%;
+  left: 25%;
+  /* margin-left: calc(15%; */
 }

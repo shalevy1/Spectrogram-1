@@ -6,12 +6,23 @@ body, html {
   /* user-select: none; */
   margin: 0;
   height: 100%;
+  width: 100%;
+  overflow: hidden;
 }
+body {
+  position: fixed;
+  touch-action: none;
+
+}
+
 
 .App {
   text-align: center;
   display: flex;
   justify-content: center;
+  height: 100vh;
+  overflow: hidden;
+  touch-action: none;
 }
 
 .App-logo {
