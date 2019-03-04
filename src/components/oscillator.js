@@ -79,6 +79,8 @@ class Oscillator extends Component {
 
     this.reverb = new Tone.Reverb(this.props.reverbDecay*10+0.1); // Reverb unit. Runs in parallel to masterVolume
     this.reverbVolume = new Tone.Volume(0);
+    this.reverbVolume.mute = true;
+
     this.reverbVolume.connect(Tone.Master);
     this.masterVolume.connect(this.reverb);
     this.reverb.generate().then(()=>{
@@ -90,6 +92,8 @@ class Oscillator extends Component {
     // this.amSignal.volume.value = -Infinity;
 
     this.delayVolume = new Tone.Volume(0);
+    this.delayVolume.mute = true;
+
     this.delay.connect(this.delayVolume);
 
     this.delayVolume.connect(Tone.Master);
@@ -218,7 +222,6 @@ class Oscillator extends Component {
     // FM
     if(this.props.fmOn){
       let modIndex = (1-freqToIndex(freq, 20000, 20, 1)) *2; // FM index ranges from 0 - 2
-      console.log(modIndex);
       let newVol = convertToLog(this.props.fmLevel, 0, 1, 25, 50); // FM amplitude set between 30 and 60 (arbitrary choices)
       let newFreq = convertToLog(this.props.fmRate, 0, 1, 0.5, 50); // FM Frequency set between 0.5 and 50 (arbitray choices)
       // let newFreq = convertToLog(yPercent, 0, 1, 0.5, 20); // FM Frequency set between 0.5 and 20 (arbitray choices)
@@ -270,7 +273,6 @@ class Oscillator extends Component {
       // FM
       if(this.props.fmOn){
         let modIndex = (1-freqToIndex(freq, 20000, 20, 1)) *2
-        console.log(modIndex);
         let newVol = convertToLog(this.props.fmLevel, 0, 1, 25, 50); // FM amplitude set between 30 and 60 (arbitrary choices)
         let newFreq = convertToLog(this.props.fmRate, 0, 1, 0.5, 50); // FM Frequency set between 0.5 and 50 (arbitray choices)
         // let newFreq = convertToLog(yPercent, 0, 1, 0.5, 20); // FM Frequency set between 0.5 and 20 (arbitray choices)
@@ -355,6 +357,7 @@ class Oscillator extends Component {
       let gain = getGain(xPercent);
       let freq = this.getFreq(yPercent);
       let newVoice = e.changedTouches[i].identifier % NUM_VOICES;
+      if(newVoice < 0) newVoice = NUM_VOICES + newVoice;
       this.setState({
         touch: true,
       });
@@ -405,6 +408,8 @@ class Oscillator extends Component {
         let freq = this.getFreq(yPercent);
         // Determines index of the synth needing to change volume/frequency
         let index = e.changedTouches[i].identifier % NUM_VOICES;
+        if(index < 0) index = NUM_VOICES + index;
+
           // Deals with rounding issues with the note lines
           let oldFreq = this.synths[index].frequency.value;
           for (let note in this.frequencies){
@@ -463,6 +468,7 @@ class Oscillator extends Component {
       // Does the same as onTouchMove, except instead of changing the voice, it deletes it.
       for (let i = 0; i < e.changedTouches.length; i++) {
         let index = e.changedTouches[i].identifier % NUM_VOICES;
+        if(index < 0) index = NUM_VOICES + index;
 
         this.goldIndices.splice(index, 1);
         this.synths[index].triggerRelease();
