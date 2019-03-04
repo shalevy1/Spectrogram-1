@@ -59,7 +59,7 @@ class MyMenu extends Component {
   // Function that switches to the signal generator on click
   switchToSignalGenerator = () => {
     console.log("SWITCH");
-    window.location = "https://listeningtowaves.github.io/OscilloscopeTesting/"
+    window.location = "https://listeningtowaves.github.io/Oscilloscope-v2/"
   }
   // Function that handles the change of the Microphone gain
   handleGainChange = gain => {

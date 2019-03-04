@@ -3,7 +3,7 @@ import Tone from 'tone';
 import "../styles/oscillator.css"
 import generateScale from '../util/generateScale';
 
-import { getFreq, getGain, freqToIndex, getMousePos, convertToLog } from "../util/conversions";
+import { getFreq, getGain, freqToIndex, getMousePos, convertToLog, convertToLinear } from "../util/conversions";
 
 const NUM_VOICES = 6;
 const RAMPVALUE = 0.2;
@@ -217,7 +217,8 @@ class Oscillator extends Component {
     }
     // FM
     if(this.props.fmOn){
-      let modIndex = yPercent * 2; // FM index ranges from 0 - 2
+      let modIndex = (1-freqToIndex(freq, 20000, 20, 1)) *2; // FM index ranges from 0 - 2
+      console.log(modIndex);
       let newVol = convertToLog(this.props.fmLevel, 0, 1, 25, 50); // FM amplitude set between 30 and 60 (arbitrary choices)
       let newFreq = convertToLog(this.props.fmRate, 0, 1, 0.5, 50); // FM Frequency set between 0.5 and 50 (arbitray choices)
       // let newFreq = convertToLog(yPercent, 0, 1, 0.5, 20); // FM Frequency set between 0.5 and 20 (arbitray choices)
@@ -268,7 +269,8 @@ class Oscillator extends Component {
       }
       // FM
       if(this.props.fmOn){
-        let modIndex = yPercent * 2; // FM index ranges from 0 - 2
+        let modIndex = (1-freqToIndex(freq, 20000, 20, 1)) *2
+        console.log(modIndex);
         let newVol = convertToLog(this.props.fmLevel, 0, 1, 25, 50); // FM amplitude set between 30 and 60 (arbitrary choices)
         let newFreq = convertToLog(this.props.fmRate, 0, 1, 0.5, 50); // FM Frequency set between 0.5 and 50 (arbitray choices)
         // let newFreq = convertToLog(yPercent, 0, 1, 0.5, 20); // FM Frequency set between 0.5 and 20 (arbitray choices)
@@ -367,7 +369,7 @@ class Oscillator extends Component {
       }
       // FM
       if(this.props.fmOn){
-        let modIndex = yPercent * 2; // FM index ranges from 0 - 2
+        let modIndex = (1-freqToIndex(freq, 20000, 20, 1)) *2 // FM index ranges from 0 - 2
         let newVol = convertToLog(this.props.fmLevel, 0, 1, 25, 50); // FM amplitude set between 30 and 60 (arbitrary choices)
         let newFreq = convertToLog(this.props.fmRate, 0, 1, 0.5, 50); // FM Frequency set between 0.5 and 50 (arbitray choices)
         // let newFreq = convertToLog(yPercent, 0, 1, 0.5, 20); // FM Frequency set between 0.5 and 20 (arbitray choices)
@@ -425,7 +427,7 @@ class Oscillator extends Component {
           }
           // FM
           if(this.props.fmOn){
-            let modIndex = yPercent * 2; // FM index ranges from 0 - 2
+          let modIndex = (1-freqToIndex(freq, 20000, 20, 1)) *2;// FM index ranges from 0 - 2
             let newVol = convertToLog(this.props.fmLevel, 0, 1, 25, 50); // FM amplitude set between 30 and 60 (arbitrary choices)
             let newFreq = convertToLog(this.props.fmRate, 0, 1, 0.5, 50); // FM Frequency set between 0.5 and 50 (arbitray choices)
             // let newFreq = convertToLog(yPercent, 0, 1, 0.5, 20); // FM Frequency set between 0.5 and 20 (arbitray choices)
