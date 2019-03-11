@@ -62,46 +62,7 @@ class App extends Component {
       editScales={context.state.editScales}
       />
       <Spectrogram
-      soundOn={context.state.soundOn}
-      microphoneGain={context.state.microphoneGain}
-      timbre={context.state.timbre}
-      scaleOn={context.state.scaleOn}
-      noteLinesOn={context.state.noteLinesOn}
-      musicKey={context.state.musicKey}
-      accidental={context.state.accidental}
-      scale={context.state.scale}
-      outputVolume={context.state.outputVolume}
-      attack={context.state.attack}
-      release={context.state.release}
-      width={context.state.width}
-      height={context.state.height}
-      speed={context.state.speed}
-      log={context.state.log}
-      resolutionMax={context.state.resolutionMax}
-      resolutionMin={context.state.resolutionMin}
-      isStarted={context.state.isStarted}
       handleResize={context.handleResize}
-      menuClose={context.menuClose}
-      handleZoom={context.handleZoom}
-      handlePause={context.handlePause}
-      headphoneMode={context.state.headphoneMode}
-      handleHeadphoneModeToggle={context.handleHeadphoneModeToggle}
-      microphone={context.state.microphone}
-      handleMicrophoneToggle={context.handleMicrophoneToggle}
-      tuningMode={context.state.tuningMode}
-      freqControls={context.state.freqControls}
-      reverbOn={context.state.reverbOn}
-      reverbDecay={context.state.reverbDecay}
-      delayOn={context.state.delayOn}
-      delayTime={context.state.delayTime}
-      delayFeedback={context.state.delayFeedback}
-      amOn={context.state.amOn}
-      amRate={context.state.amRate}
-      fmLevel={context.state.fmLevel}
-      fmOn={context.state.fmOn}
-      fmRate={context.state.fmRate}
-      amLevel={context.state.amLevel}
-      start={context.start}
       />
       </React.Fragment>
       )}

@@ -9,6 +9,8 @@ import Oscillator from './oscillator';
 import { convertToLog, getFreq } from '../util/conversions';
 import { Button, Icon } from 'semantic-ui-react';
 import KeyHandler, { KEYUP } from 'react-key-handler';
+import MyProvider, {MyContext} from './my-provider';
+
 
 import Logo from '../headphoneSlash.svg';
 
@@ -43,45 +45,46 @@ class Spectrogram extends Component {
     }
   }
   componentDidMount() {
-    window.addEventListener("resize", this.props.handleResize);
+    window.addEventListener("resize", this.context.handleResize);
     this.ctx = this.canvas.getContext('2d');
     this.tempCanvas = document.createElement('canvas');
   }
   componentWillUnmount() {
-    window.removeEventListener("resize", this.props.handleResize);
+    window.removeEventListener("resize", this.context.handleResize);
   }
   // Connects the menu microphoneGain controls to gainNode
   componentWillReceiveProps(nextProps, prevState) {
-    if (nextProps.isStarted) {
-      let gain = convertToLog(nextProps.microphoneGain, 1, 100, 0.01, 500);
-      if (gain !== gainNode.gain.value) {
-        gainNode.gain.setTargetAtTime(gain, audioContext.currentTime, 0.01);
-      }
-    }
-    // Turn on/off the microphone by calling audioTrack.stop() and then restarting the stream
-    // This checks the readyState of the audioTrack for status of the microphone
-    if(!nextProps.microphone && audioTrack.readyState === "live"){
-      audioTrack.stop();
-      this.setState({microphone: !this.state.microphone});
-    } else if(audioTrack && nextProps.microphone && audioTrack.readyState === "ended") {
-      if (navigator.mozGetUserMedia) {
-        navigator.mozGetUserMedia({
-          audio: true
-        }, this.onStream.bind(this), this.onStreamError.bind(this));
-      } else if (navigator.webkitGetUserMedia) {
-        navigator.webkitGetUserMedia({
-          audio: true
-        }, this.onStream.bind(this), this.onStreamError.bind(this));
-      }
-
-      this.setState({microphone: !this.state.microphone});
-    }
+    // if (nextProps.isStarted) {
+    //   let gain = convertToLog(nextProps.microphoneGain, 1, 100, 0.01, 500);
+    //   if (gain !== gainNode.gain.value) {
+    //     gainNode.gain.setTargetAtTime(gain, audioContext.currentTime, 0.01);
+    //   }
+    // }
+    // // Turn on/off the microphone by calling audioTrack.stop() and then restarting the stream
+    // // This checks the readyState of the audioTrack for status of the microphone
+    // if(!nextProps.microphone && audioTrack.readyState === "live"){
+    //   audioTrack.stop();
+    //   this.setState({microphone: !this.state.microphone});
+    // } else if(audioTrack && nextProps.microphone && audioTrack.readyState === "ended") {
+    //   if (navigator.mozGetUserMedia) {
+    //     navigator.mozGetUserMedia({
+    //       audio: true
+    //     }, this.onStream.bind(this), this.onStreamError.bind(this));
+    //   } else if (navigator.webkitGetUserMedia) {
+    //     navigator.webkitGetUserMedia({
+    //       audio: true
+    //     }, this.onStream.bind(this), this.onStreamError.bind(this));
+    //   }
+    //
+    //   this.setState({microphone: !this.state.microphone});
+    // }
   }
 
   // Starts the Spectrogram and Children Components when the user taps the screen
   // Also creates the audioContext to be used throughout the application
   startSpectrogram = () => {
-    if (!this.props.isStarted) {
+    if (!this.context.state.isStarted) {
+      console.log
       audioContext = new(window.AudioContext || window.webkitAudioContext)();
       analyser = audioContext.createAnalyser();
       gainNode = audioContext.createGain();
@@ -121,10 +124,10 @@ class Spectrogram extends Component {
       //
       // });
       // Calls the start function which lets the controls know it has started
-      this.props.start();
+      this.context.start();
       this.renderFreqDomain();
     } //else {
-    //   this.props.menuClose();
+    //   this.context.menuClose();
     // }
 
   }
@@ -158,9 +161,10 @@ class Spectrogram extends Component {
 
   // Continuous render of the graph (if started) using ReactAnimationFrame plugin
   onAnimationFrame = (time) => {
-    if (this.props.isStarted) {
+    if (this.context.state.isStarted) {
       this.renderFreqDomain();
-      if(this.props.resolutionMax !== this.state.resolutionMax || this.props.resolutionMin !== this.state.resolutionMin){
+      if(this.context.state.resolutionMax !== this.state.resolutionMax || this.context.state.resolutionMin !== this.state.resolutionMin){
+
         // Rerender if components exist
         if(this.updateAxes.current) {
           this.updateAxes.current.renderAxesLabels();
@@ -169,28 +173,51 @@ class Spectrogram extends Component {
           this.updateNoteLines.current.renderNoteLines();
         }
         if(this.updateScaleControls.current){
-          if(!this.props.noteLines){
+          if(!this.context.state.noteLines){
             // this.updateScaleControls.current._renderNoteLines();
           }
         }
-        this.setState({resolutionMax: this.props.resolutionMax, resolutionMin: this.props.resolutionMin});
+        this.setState({resolutionMax: this.context.state.resolutionMax, resolutionMin: this.context.state.resolutionMin});
       }
-      if(this.props.scale !== this.state.scale || this.props.musicKey !== this.state.musicKey || this.props.accidental !== this.state.accidental){
+      if(this.context.state.scale !== this.state.scale || this.context.state.musicKey !== this.state.musicKey || this.context.state.accidental !== this.state.accidental){
         if(this.updateNoteLines.current){
           this.updateNoteLines.current.renderNoteLines();
         }
-        if(this.updateScaleControls.current && !this.props.noteLines){
+        if(this.updateScaleControls.current && !this.context.state.noteLines){
           // this.updateScaleControls.current.renderNoteLines();
         }
-        this.setState({scale: this.props.scale, musicKey: this.props.musicKey, accidental: this.props.accidental});
+        this.setState({scale: this.context.state.scale, musicKey: this.context.state.musicKey, accidental: this.context.state.accidental});
       }
+
+        let gain = convertToLog(this.context.state.microphoneGain, 1, 100, 0.01, 500);
+        if (gain !== gainNode.gain.value) {
+          gainNode.gain.setTargetAtTime(gain, audioContext.currentTime, 0.01);
+        }
+      // Turn on/off the microphone by calling audioTrack.stop() and then restarting the stream
+      // This checks the readyState of the audioTrack for status of the microphone
+      // if(!this.context.state.microphone && audioTrack.readyState === "live"){
+      //   audioTrack.stop();
+      //   this.setState({microphone: !this.state.microphone});
+      // } else if(audioTrack && this.context.state.microphone && audioTrack.readyState === "ended") {
+      //   if (navigator.mozGetUserMedia) {
+      //     navigator.mozGetUserMedia({
+      //       audio: true
+      //     }, this.onStream.bind(this), this.onStreamError.bind(this));
+      //   } else if (navigator.webkitGetUserMedia) {
+      //     navigator.webkitGetUserMedia({
+      //       audio: true
+      //     }, this.onStream.bind(this), this.onStreamError.bind(this));
+      //   }
+      //
+      //   this.setState({microphone: !this.state.microphone});
+      // }
     }
   }
 
   // Main Graph function. Renders the frequencies, then copies them to a temporary
   // canvas and shifts that canvas by 1
   renderFreqDomain = () => {
-      let { width, height, log, resolutionMax, resolutionMin, speed } = this.props
+      let { width, height, log, resolutionMax, resolutionMin, speed } = this.context.state;
       let freq = new Uint8Array(analyser.frequencyBinCount);
       analyser.getByteFrequencyData(freq);
       this.tempCtx = this.tempCanvas.getContext('2d');
@@ -243,118 +270,62 @@ class Spectrogram extends Component {
   }
 
 handleHeadphoneModeToggle=()=>{
-  this.props.handleHeadphoneModeToggle();
+  this.context.handleHeadphoneModeToggle();
 }
 
 handleMicrophoneToggle=()=>{
-  this.props.handleMicrophoneToggle();
+  this.context.handleMicrophoneToggle();
 }
 
 spacePressed = (e) =>{
   e.preventDefault();
   e.stopPropagation();
-  this.props.handlePause();
+  this.context.handlePause();
 }
 
 
   render() {
-    const soundOrTuning = this.props.tuningMode ? (
-      <React.Fragment>
-      <NoteLines
-      width={this.props.width}
-      height={this.props.height}
-      resolutionMax={this.props.resolutionMax}
-      resolutionMin={this.props.resolutionMin}
-      context={audioContext}
-      analyser={analyser}
-      soundOn={this.props.soundOn}
-      outputVolume={this.props.outputVolume}
-      timbre={this.props.timbre}
-      scaleOn={this.props.scaleOn}
-      musicKey={this.props.musicKey}
-      accidental={this.props.accidental}
-      scale={this.props.scale}
-      attack={this.props.attack}
-      release={this.props.release}
-      headphoneMode={this.props.headphoneMode}
-      reverbOn={this.props.reverbOn}
-      reverbDecay={this.props.reverbDecay}
-      delayOn={this.props.delayOn}
-      delayTime={this.props.delayTime}
-      delayFeedback={this.props.delayFeedback}
-      ref={this.updateNoteLines}
-      handleResize={this.props.handleResize}/>
-      </React.Fragment>
-    ): (
-      <Oscillator
-      width={this.props.width}
-      height={this.props.height}
-      resolutionMax={this.props.resolutionMax}
-      resolutionMin={this.props.resolutionMin}
-      context={audioContext}
-      analyser={analyser}
-      soundOn={this.props.soundOn}
-      outputVolume={this.props.outputVolume}
-      timbre={this.props.timbre}
-      scaleOn={this.props.scaleOn}
-      musicKey={this.props.musicKey}
-      accidental={this.props.accidental}
-      scale={this.props.scale}
-      attack={this.props.attack}
-      release={this.props.release}
-      headphoneMode={this.props.headphoneMode}
-      noteLinesOn={this.props.noteLinesOn}
-      reverbOn={this.props.reverbOn}
-      reverbDecay={this.props.reverbDecay}
-      delayOn={this.props.delayOn}
-      delayTime={this.props.delayTime}
-      delayFeedback={this.props.delayFeedback}
-      amOn={this.props.amOn}
-      amRate={this.props.amRate}
-      amLevel={this.props.amLevel}
-      fmOn={this.props.fmOn}
-      fmRate={this.props.fmRate}
-      fmLevel={this.props.fmLevel}
-      handleResize={this.props.handleResize}/>
-    );
+    // const soundOrTuning =
       let headphoneStyle={'backgroundColor': ''}
       let microphoneStyle={'backgroundColor': ''}
-    if(this.props.headphoneMode){
+    if(this.context.state.headphoneMode){
       headphoneStyle = {'backgroundColor': '#2769d8'}
     }
-    if(this.props.microphone){
+    if(this.context.state.microphone){
       microphoneStyle = {'backgroundColor': '#2769d8'}
     }
 
     return (
+      <MyContext.Consumer>
+      {(context) => (
+        <React.Fragment>
       <div onClick={this.startSpectrogram} >
-
-        <canvas width={this.props.width} height={this.props.height} onKeyPress = {this.onKeyPress} ref={(c) => {
+        <canvas width={context.state.width} height={context.state.height} onKeyPress = {this.onKeyPress} ref={(c) => {
           this.canvas = c;
         }}/>
-        {this.props.isStarted &&
+        {context.state.isStarted &&
           <React.Fragment>
-          {this.props.freqControls &&
+          {context.state.freqControls &&
           <ScaleControls
-          resolutionMax={this.props.resolutionMax}
-          resolutionMin={this.props.resolutionMin}
-          width={this.props.width}
-          height={this.props.height}
-          handleZoom={this.props.handleZoom}
-          handleResize={this.props.handleResize}
-          noteLinesOn={this.props.noteLinesOn}
+          resolutionMax={context.state.resolutionMax}
+          resolutionMin={context.state.resolutionMin}
+          width={context.state.width}
+          height={context.state.height}
+          handleZoom={context.handleZoom}
+          handleResize={context.handleResize}
+          noteLinesOn={context.state.noteLinesOn}
           ref={this.updateScaleControls}
           />}
-          <Button icon onClick={this.props.handlePause} className="pause-button">
-          {!this.props.speed  ?  <Icon fitted name="play" color="orange"/> :
+          <Button icon onClick={context.handlePause} className="pause-button">
+          {!context.state.speed  ?  <Icon fitted name="play" color="orange"/> :
             <Icon fitted name="pause" color="orange"/>}
           </Button>
           <Button icon onClick={this.handleHeadphoneModeToggle} className="headphone-mode-button" style={headphoneStyle}>
-            {this.props.headphoneMode ? <Icon fitted name="headphones" color="orange"/>:
+            {context.state.headphoneMode ? <Icon fitted name="headphones" color="orange"/>:
             <img src={Logo} height={12.5} width={13.25} className="headphone-slash-logo"/>}
           </Button>
           <Button icon onClick={this.handleMicrophoneToggle} className="microphone-mode-button" style={microphoneStyle}>
-            {this.props.microphone ? <Icon name="microphone" color="orange"/> :
+            {context.state.microphone ? <Icon name="microphone" color="orange"/> :
             <Icon name="microphone slash" color="orange"/>}
           </Button>
           <div className="color-map-container">
@@ -370,31 +341,95 @@ spacePressed = (e) =>{
           onKeyHandle={this.spacePressed}
           />
             {/* Renders sound or tuning mode based on variable above */}
-            {soundOrTuning}
+            {context.state.tuningMode ? (
+             <React.Fragment>
+             <NoteLines
+             width={context.state.width}
+             height={context.state.height}
+             resolutionMax={context.state.resolutionMax}
+             resolutionMin={context.state.resolutionMin}
+             context={audioContext}
+             analyser={analyser}
+             soundOn={context.state.soundOn}
+             outputVolume={context.state.outputVolume}
+             timbre={context.state.timbre}
+             scaleOn={context.state.scaleOn}
+             musicKey={context.state.musicKey}
+             accidental={context.state.accidental}
+             scale={context.state.scale}
+             attack={context.state.attack}
+             release={context.state.release}
+             headphoneMode={context.state.headphoneMode}
+             reverbOn={context.state.reverbOn}
+             reverbDecay={context.state.reverbDecay}
+             delayOn={context.state.delayOn}
+             delayTime={context.state.delayTime}
+             delayFeedback={context.state.delayFeedback}
+             ref={this.updateNoteLines}
+             handleResize={context.handleResize}/>
+             </React.Fragment>
+           ): (
+             <Oscillator
+             width={context.state.width}
+             height={context.state.height}
+             resolutionMax={context.state.resolutionMax}
+             resolutionMin={context.state.resolutionMin}
+             context={audioContext}
+             analyser={analyser}
+             soundOn={context.state.soundOn}
+             outputVolume={context.state.outputVolume}
+             timbre={context.state.timbre}
+             scaleOn={context.state.scaleOn}
+             musicKey={context.state.musicKey}
+             accidental={context.state.accidental}
+             scale={context.state.scale}
+             attack={context.state.attack}
+             release={context.state.release}
+             headphoneMode={context.state.headphoneMode}
+             noteLinesOn={context.state.noteLinesOn}
+             reverbOn={context.state.reverbOn}
+             reverbDecay={context.state.reverbDecay}
+             delayOn={context.state.delayOn}
+             delayTime={context.state.delayTime}
+             delayFeedback={context.state.delayFeedback}
+             amOn={context.state.amOn}
+             amRate={context.state.amRate}
+             amLevel={context.state.amLevel}
+             fmOn={context.state.fmOn}
+             fmRate={context.state.fmRate}
+             fmLevel={context.state.fmLevel}
+             handleResize={context.handleResize}/>
+           )};
 
             <Axes
-            resolutionMax={this.props.resolutionMax}
-            resolutionMin={this.props.resolutionMin}
-            width={this.props.width}
-            height={this.props.height}
-            handleResize={this.props.handleResize}
+            resolutionMax={context.state.resolutionMax}
+            resolutionMin={context.state.resolutionMin}
+            width={context.state.width}
+            height={context.state.height}
+            handleResize={context.handleResize}
             ref={this.updateAxes}/>
           </React.Fragment>
           }
           {/* Intro Instructions */}
         <div className="instructions">
-          {!this.props.isStarted
+          {!context.state.isStarted
             ? <p className="flashing">Click or tap anywhere on the canvas to start the spectrogram</p>
             : <p>Great! Be sure to allow use of your microphone.
             You can draw on the canvas to make sound!</p>
           }
 
         </div>
+        </div>
 
-      </div>
+        </React.Fragment>
+        )}
+
+        </MyContext.Consumer>
     );
 
   }
 
 }
+Spectrogram.contextType = MyContext;
+
 export default ReactAnimationFrame(Spectrogram);

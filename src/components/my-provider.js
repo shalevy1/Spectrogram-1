@@ -47,6 +47,7 @@ class MyProvider extends Component {
     fmRate: 0.5,
     fmLevel: 0.5,
     editScales: false,
+    quantize: false,
     //hidePanes: false,
     isStarted: false,
   }
@@ -85,6 +86,7 @@ class MyProvider extends Component {
           let newTimbre = data.options[data.value].text;
           this.setState({timbre: newTimbre});
         },
+        handleQuantizeChange: () =>this.setState({quantize: !this.state.quantize}),
         handleAttackChange: value => {
           if(this.state.isStarted && !this.state.tuningMode){
             this.setState({attack: Math.round(value*10)/10});

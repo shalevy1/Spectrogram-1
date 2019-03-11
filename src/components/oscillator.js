@@ -1,6 +1,8 @@
 import React, {Component} from 'react';
 import Tone from 'tone';
-import "../styles/oscillator.css"
+import "../styles/oscillator.css";
+import {MyContext} from './my-provider';
+
 import generateScale from '../util/generateScale';
 
 import { getFreq, getGain, freqToIndex, getMousePos, convertToLog, convertToLinear } from "../util/conversions";
@@ -43,6 +45,9 @@ class Oscillator extends Component {
     this.synths = new Array(NUM_VOICES);
     this.amSignals = new Array(NUM_VOICES);
     this.fmSignals = new Array(NUM_VOICES);
+    this.heldFreqs = new Array(NUM_VOICES);
+    this.heldIds = new Array(NUM_VOICES);
+
     // Start master volume at -20 dB
     this.masterVolume = new Tone.Volume(0);
     this.ctx = this.canvas.getContext('2d');
@@ -62,12 +67,12 @@ class Oscillator extends Component {
     for (let i = 0; i < NUM_VOICES; i++) {
       this.synths[i] = new Tone.Synth(options);
       this.synths[i].connect(this.masterVolume);
-      // this.synths[i].sync();
+      this.synths[i].sync();
       this.amSignals[i] = new Tone.Synth(options2);
-      this.amSignals[i].connect(this.synths[i].volume)
+      this.amSignals[i].connect(this.synths[i].volume);
       // this.amSignals[i].type ="sine";
       this.fmSignals[i] = new Tone.Synth(options2);
-      this.fmSignals[i].connect(this.synths[i].frequency)
+      this.fmSignals[i].connect(this.synths[i].frequency);
       // this.fmSignals[i].type ="square";
       // this.amSignal.frequency.value = 1;
       // this.amSignal.volume.value = 10;
@@ -98,7 +103,8 @@ class Oscillator extends Component {
 
     this.delayVolume.connect(Tone.Master);
     // Sound Off by default
-    this.masterVolume.mute = !this.props.soundOn;
+    this.masterVolume.mute = !this.context.state.soundOn;
+    console.log(this.context.state.soundOn)
     // Object to hold all of the note-line frequencies (for checking the gold lines)
     this.frequencies = {};
 
@@ -199,17 +205,14 @@ class Oscillator extends Component {
     let gain = getGain(xPercent);
     // newVoice = implementation of circular array discussed above.
     let newVoice = (this.state.currentVoice + 1) % NUM_VOICES; // Mouse always changes to new "voice"
-    // Tone.Transport.scheduleRepeat(time => {
-    //   this.synths[newVoice].triggerAttackRelease(freq, "4n"); // Starts the synth at frequency = freq
-    // }, "4n");
-    this.synths[newVoice].triggerAttack(freq); // Starts the synth at frequency = freq
-    // let x = [freqData.notes[0], freqData.notes[2], freqData.notes[4], freqData.notes[0]*2];
-    // this.pattern = new Tone.Pattern((time, note)=>{
-      // this.synths[newVoice].triggerAttackRelease(note, "8n");
-    // }, x);
-    // this.pattern.interval = "16n";
-    // this.pattern.pattern = "random";
-    // this.pattern.start(0);
+    if(this.context.state.quantize){
+      Tone.Transport.scheduleRepeat(time => {
+        this.synths[newVoice].triggerAttackRelease(this.heldFreqs[newVoice], "@8n."); // Starts the synth at frequency = freq
+      }, "4n");
+      this.heldFreqs[newVoice] = freq;
+    } else {
+      this.synths[newVoice].triggerAttack(freq); // Starts the synth at frequency = freq
+    }
 
 
     // Am
@@ -246,7 +249,6 @@ class Oscillator extends Component {
     e.preventDefault(); // Always need to prevent default browser choices
     if (this.state.mouseDown) { // Only want to change when mouse is pressed
       // The next few lines are similar to onMouseDown
-      // Tone.Transport.cancel();
       let {height, width} = this.props
       let pos = getMousePos(this.canvas, e);
       let yPercent = 1 - pos.y / height;
@@ -257,18 +259,24 @@ class Oscillator extends Component {
       this.goldIndices.splice(this.state.currentVoice - 1, 1);
       if(this.props.scaleOn){
         // Jumps to new Frequency and Volume
-          if(freq != this.synths[this.state.currentVoice].frequency.value){
-          // Tone.Transport.scheduleOnce(time => {
-            this.synths[this.state.currentVoice].frequency.value = freq;
-            this.synths[this.state.currentVoice].volume.value = gain;
-          // }, "@4n");
+        if(this.context.state.quantize){
+            this.heldFreqs[this.state.currentVoice] = freq;
+        } else {
+          this.synths[this.state.currentVoice].frequency.value = freq;
         }
+        this.synths[this.state.currentVoice].volume.value = gain;
+
       } else {
+        if(this.context.state.quantize){
+            this.heldFreqs[this.state.currentVoice] = freq;
+        } else {
         // Ramps to new Frequency and Volume
         this.synths[this.state.currentVoice].frequency.exponentialRampToValueAtTime(freq, this.props.context.currentTime+RAMPVALUE);
-        // Ramp to new Volume
+        }
+        // // Ramp to new Volume
         this.synths[this.state.currentVoice].volume.exponentialRampToValueAtTime(gain,
           this.props.context.currentTime+RAMPVALUE);
+
       }
       // FM
       if(this.props.fmOn){
@@ -294,11 +302,8 @@ class Oscillator extends Component {
     e.preventDefault(); // Always need to prevent default browser choices
     // Only need to trigger release if synth exists (a.k.a mouse is down)
     if (this.state.mouseDown) {
-      // Tone.Transport.cancel();
-      // Tone.Transport.scheduleRepeat(time => {
-      //   this.synths[2].triggerAttackRelease(800, "8n", "@4n");
-      //   this.synths[2].volume.value = -30;
-      // }, "4n");
+      Tone.Transport.cancel();
+
       this.synths[this.state.currentVoice].triggerRelease(); // Relase frequency, volume goes to -Infinity
       this.amSignals[this.state.currentVoice].triggerRelease();
       this.fmSignals[this.state.currentVoice].triggerRelease();
@@ -317,7 +322,7 @@ class Oscillator extends Component {
   onMouseOut(e) {
     e.preventDefault(); // Always need to prevent default browser choices
     if (this.state.mouseDown) {
-      // Tone.Transport.cancel();
+      Tone.Transport.cancel();
       this.synths[this.state.currentVoice].triggerRelease();
       this.amSignals[this.state.currentVoice].triggerRelease();
       this.fmSignals[this.state.currentVoice].triggerRelease();
@@ -361,7 +366,15 @@ class Oscillator extends Component {
       this.setState({
         touch: true,
       });
-      this.synths[newVoice].triggerAttack(freq);
+      if(this.context.state.quantize){
+        let id = Tone.Transport.scheduleRepeat(time => {
+          this.synths[newVoice].triggerAttackRelease(this.heldFreqs[newVoice], "@8n."); // Starts the synth at frequency = freq
+        }, "4n");
+        this.heldFreqs[newVoice] = freq;
+        this.heldIds[newVoice] = id;
+      } else {
+        this.synths[newVoice].triggerAttack(freq);
+      }
       this.synths[newVoice].volume.value = gain;
       // Am
       if(this.props.amOn){
@@ -421,11 +434,19 @@ class Oscillator extends Component {
           this.goldIndices.splice(index - 1, 1);
           if(this.props.scaleOn){
             // Jumps to new Frequency and Volume
-            this.synths[index].frequency.value = freq;
+            if(this.context.state.quantize){
+              this.heldFreqs[index] = freq;
+            } else {
+              this.synths[index].frequency.value = freq;
+            }
             this.synths[index].volume.value = gain;
+          } else {
+            if(this.context.state.quantize){
+            this.heldFreqs[index] = freq;
           } else {
             // Ramps to new Frequency and Volume
             this.synths[index].frequency.exponentialRampToValueAtTime(freq, this.props.context.currentTime+RAMPVALUE);
+          }
             // Ramp to new Volume
             this.synths[index].volume.exponentialRampToValueAtTime(gain,
               this.props.context.currentTime+RAMPVALUE);
@@ -456,13 +477,13 @@ class Oscillator extends Component {
     let {width, height} = this.props;
     // Check if there are more touches changed than on the screen and release everything (mostly as an fail switch)
     if (e.changedTouches.length === e.touches.length + 1) {
+      Tone.Transport.cancel();
       for (var i = 0; i < NUM_VOICES; i++) {
         this.synths[i].triggerRelease();
         this.amSignals[i].triggerRelease();
         this.fmSignals[i].triggerRelease();
       }
       this.goldIndices = []
-
       this.setState({voices: 0, touch: false, notAllRelease: false, currentVoice: -1});
     } else {
       // Does the same as onTouchMove, except instead of changing the voice, it deletes it.
@@ -474,7 +495,9 @@ class Oscillator extends Component {
         this.synths[index].triggerRelease();
         this.amSignals[index].triggerRelease();
         this.fmSignals[index].triggerRelease();
-
+        if(this.context.state.quantize){
+          Tone.Transport.clear(this.heldIds[index]);
+        }
         // this.amSignals[index].stop();
 
       }
@@ -553,13 +576,13 @@ class Oscillator extends Component {
     return Math.round(freq);
   }
 
-  handleResize = () => {
-    this.props.handleResize();
-    this.ctx.clearRect(0, 0, this.props.width, this.props.height);
-    if(this.props.noteLinesOn){
-      this.renderNoteLines();
-    }
-  }
+  // handleResize = () => {
+  //   this.props.handleResize();
+  //   this.ctx.clearRect(0, 0, this.props.width, this.props.height);
+  //   if(this.props.noteLinesOn){
+  //     this.renderNoteLines();
+  //   }
+  // }
 
   // Helper method that generates a label for the frequency or the scale note
   label(freq, x, y) {
@@ -681,5 +704,5 @@ class Oscillator extends Component {
   );
   }
 }
-
+Oscillator.contextType = MyContext;
 export default Oscillator;

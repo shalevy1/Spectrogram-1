@@ -136,17 +136,27 @@ class SoundControls extends Component {
 
                 {/** Timbre **/}
                 <Menu.Item className="vert">
-                <div className="menu-header">Timbre</div>
-                    <Dropdown
-                    text={context.state.timbre}
-                    fluid
-                    options={timbreOptions}
-                    onChange={context.handleTimbreChange}
-                    disabled={!context.state.isStarted}
-                    className="timbre-dropdown"/>
-                    {/*<div className="timbre-text">
-                      {context.state.timbre}
-                    </div>*/}
+                  <div className="menu-header">Timbre</div>
+                      <Dropdown
+                      text={context.state.timbre}
+                      fluid
+                      options={timbreOptions}
+                      onChange={context.handleTimbreChange}
+                      disabled={!context.state.isStarted}
+                      className="timbre-dropdown"/>
+                      {/*<div className="timbre-text">
+                        {context.state.timbre}
+                      </div>*/}
+                      <div className="menu-header quantize-margin">Quantize</div>
+                      <div className="sound-toggle-container">
+                      <Checkbox
+                      toggle
+                      checked={context.state.quantize}
+                      onChange={context.handleQuantizeChange}
+                      disabled={!context.state.isStarted}
+                      />
+
+                      </div>
 
                 </Menu.Item>
 

@@ -69,15 +69,11 @@ class EditScales extends Component {
 
   render(){
     return (
-      <MyContext.Consumer>
-        {(context) => (
           <React.Fragment>
             <Segment className="menu-pane-container compact edit-scales-container">
             {this.renderDegrees()}
             </Segment>
           </React.Fragment>
-        )}
-      </MyContext.Consumer>
 
     );
   }

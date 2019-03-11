@@ -4,7 +4,7 @@ from shutil import move
 from os import fdopen, remove
 __location__ = os.path.realpath(
     os.path.join(os.getcwd(), os.path.dirname(__file__)))
-index_file = __location__ + "//build/index.html"
+index_file = __location__ + "//build//index.html"
 fh, abs_path = mkstemp()
 with fdopen(fh,'w') as new_file:
     with open(index_file, "r") as js_file:
