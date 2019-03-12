@@ -33,6 +33,7 @@ class Spectrogram extends Component {
     this.updateNoteLines = React.createRef();
     this.updateAxes = React.createRef();
     this.updateScaleControls = React.createRef();
+    this.updateOscNoteLines = React.createRef();
 
     this.state = {
       resolutionMax: 20000,
@@ -41,16 +42,18 @@ class Spectrogram extends Component {
       accidental: {name: ' ', value: 0},
       scale: {name: 'Major', value: 0},
       microphone: true,
-      frequencyLabel: ''
+      frequencyLabel: '',
+      noteLinesRendered: false
     }
   }
   componentDidMount() {
-    window.addEventListener("resize", this.context.handleResize);
+    window.addEventListener("resize", this.handleResize);
     this.ctx = this.canvas.getContext('2d');
     this.tempCanvas = document.createElement('canvas');
+
   }
   componentWillUnmount() {
-    window.removeEventListener("resize", this.context.handleResize);
+    window.removeEventListener("resize", this.handleResize);
   }
   // Connects the menu microphoneGain controls to gainNode
   componentWillReceiveProps(nextProps, prevState) {
@@ -163,6 +166,19 @@ class Spectrogram extends Component {
   onAnimationFrame = (time) => {
     if (this.context.state.isStarted) {
       this.renderFreqDomain();
+      if(this.updateOscNoteLines.current){
+        if(this.context.state.noteLinesOn && !this.state.noteLinesRendered){
+            this.updateOscNoteLines.current.renderNoteLines();
+            this.setState({noteLinesRendered: true});
+          } else if(!this.context.state.noteLinesOn && this.state.noteLinesRendered){
+            this.updateOscNoteLines.current.removeNoteLines();
+          }
+
+          if(!this.context.state.noteLinesOn){
+            this.setState({noteLinesRendered: false})
+          }
+        }
+
       if(this.context.state.resolutionMax !== this.state.resolutionMax || this.context.state.resolutionMin !== this.state.resolutionMin){
 
         // Rerender if components exist
@@ -172,11 +188,11 @@ class Spectrogram extends Component {
         if(this.updateNoteLines.current){
           this.updateNoteLines.current.renderNoteLines();
         }
-        if(this.updateScaleControls.current){
-          if(!this.context.state.noteLines){
-            // this.updateScaleControls.current._renderNoteLines();
-          }
+        if(this.updateOscNoteLines.current && this.context.state.noteLinesOn){
+          this.updateOscNoteLines.current.removeNoteLines();
+          this.updateOscNoteLines.current.renderNoteLines();
         }
+
         this.setState({resolutionMax: this.context.state.resolutionMax, resolutionMin: this.context.state.resolutionMin});
       }
       if(this.context.state.scale !== this.state.scale || this.context.state.musicKey !== this.state.musicKey || this.context.state.accidental !== this.state.accidental){
@@ -256,6 +272,7 @@ class Spectrogram extends Component {
       // Resets transformation
       this.ctx.setTransform(1, 0, 0, 1, 0, 0);
 
+
   }
 
   // Helper function that converts frequency value to color
@@ -281,6 +298,13 @@ spacePressed = (e) =>{
   e.preventDefault();
   e.stopPropagation();
   this.context.handlePause();
+}
+
+handleResize = () => {
+  this.context.handleResize();
+  if(this.updateOscNoteLines.current && this.context.state.noteLinesOn === true){
+      this.updateOscNoteLines.current.renderNoteLines();
+  }
 }
 
 
@@ -312,7 +336,7 @@ spacePressed = (e) =>{
           width={context.state.width}
           height={context.state.height}
           handleZoom={context.handleZoom}
-          handleResize={context.handleResize}
+          handleResize={this.handleResize}
           noteLinesOn={context.state.noteLinesOn}
           ref={this.updateScaleControls}
           />}
@@ -366,47 +390,23 @@ spacePressed = (e) =>{
              delayTime={context.state.delayTime}
              delayFeedback={context.state.delayFeedback}
              ref={this.updateNoteLines}
-             handleResize={context.handleResize}/>
+             handleResize={this.handleResize}/>
              </React.Fragment>
            ): (
              <Oscillator
-             width={context.state.width}
-             height={context.state.height}
-             resolutionMax={context.state.resolutionMax}
-             resolutionMin={context.state.resolutionMin}
-             context={audioContext}
+             audioContext={audioContext}
              analyser={analyser}
-             soundOn={context.state.soundOn}
-             outputVolume={context.state.outputVolume}
-             timbre={context.state.timbre}
-             scaleOn={context.state.scaleOn}
-             musicKey={context.state.musicKey}
-             accidental={context.state.accidental}
-             scale={context.state.scale}
-             attack={context.state.attack}
-             release={context.state.release}
-             headphoneMode={context.state.headphoneMode}
-             noteLinesOn={context.state.noteLinesOn}
-             reverbOn={context.state.reverbOn}
-             reverbDecay={context.state.reverbDecay}
-             delayOn={context.state.delayOn}
-             delayTime={context.state.delayTime}
-             delayFeedback={context.state.delayFeedback}
-             amOn={context.state.amOn}
-             amRate={context.state.amRate}
-             amLevel={context.state.amLevel}
-             fmOn={context.state.fmOn}
-             fmRate={context.state.fmRate}
-             fmLevel={context.state.fmLevel}
-             handleResize={context.handleResize}/>
-           )};
+             handleResize={this.handleResize}
+             ref={this.updateOscNoteLines}
+             />
+           )}
 
             <Axes
             resolutionMax={context.state.resolutionMax}
             resolutionMin={context.state.resolutionMin}
             width={context.state.width}
             height={context.state.height}
-            handleResize={context.handleResize}
+            handleResize={this.handleResize}
             ref={this.updateAxes}/>
           </React.Fragment>
           }

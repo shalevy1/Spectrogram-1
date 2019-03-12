@@ -317,12 +317,6 @@ class Scales extends Component {
         this.ctx.fillText(Math.round(freq2) + ' Hz', 100, bottom+2);
       }
     }
-
-    _renderNoteLines(){
-
-    }
-
-
   handleResize = () => {
     this.props.handleResize();
 

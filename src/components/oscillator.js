@@ -38,7 +38,7 @@ class Oscillator extends Component {
   // Setup Tone and all of its needed dependencies.
   // To view signal flow, check out signal_flow.png
   componentDidMount() {
-    Tone.context = this.props.context;
+    Tone.context = this.props.audioContext;
     // Array to hold synthesizer objects. Implemented in a circular way
     // so that each new voice (touch input) is allocated, it is appended to the
     // array until the array is full and it then appends the next voice to array[0]
@@ -53,7 +53,7 @@ class Oscillator extends Component {
     this.ctx = this.canvas.getContext('2d');
     let options = {
       oscillator: {
-        type: this.props.timbre.toLowerCase()
+        type: this.context.state.timbre.toLowerCase()
       }
     };
     let options2 = {
@@ -82,7 +82,7 @@ class Oscillator extends Component {
     this.goldIndices = []; // Array to hold indices on the screen of gold note lines (touched/clicked lines)
     this.masterVolume.connect(Tone.Master); // Master volume receives all of the synthesizer inputs and sends them to the speakers
 
-    this.reverb = new Tone.Reverb(this.props.reverbDecay*10+0.1); // Reverb unit. Runs in parallel to masterVolume
+    this.reverb = new Tone.Reverb(this.context.state.reverbDecay*10+0.1); // Reverb unit. Runs in parallel to masterVolume
     this.reverbVolume = new Tone.Volume(0);
     this.reverbVolume.mute = true;
 
@@ -91,7 +91,7 @@ class Oscillator extends Component {
     this.reverb.generate().then(()=>{
       this.reverb.connect(this.reverbVolume);
     });
-    this.delay = new Tone.FeedbackDelay(this.props.delayTime+0.01, this.props.delayFeedback); // delay unit. Runs in parallel to masterVolume
+    this.delay = new Tone.FeedbackDelay(this.context.state.delayTime+0.01, this.context.state.delayFeedback); // delay unit. Runs in parallel to masterVolume
     this.masterVolume.connect(this.delay);
 
     // this.amSignal.volume.value = -Infinity;
@@ -104,40 +104,41 @@ class Oscillator extends Component {
     this.delayVolume.connect(Tone.Master);
     // Sound Off by default
     this.masterVolume.mute = !this.context.state.soundOn;
-    console.log(this.context.state.soundOn)
     // Object to hold all of the note-line frequencies (for checking the gold lines)
     this.frequencies = {};
 
     window.addEventListener("resize", this.handleResize);
+    Tone.Transport.start();
+
   }
 
-  // Sets up what will happen on controls changes
-  componentWillReceiveProps(nextProps, prevState) {
-    if (nextProps.soundOn === false) {
+// Sets up what will happen on controls changes
+  setAudioVariables(){
+    if (this.context.state.soundOn === false) {
       this.masterVolume.mute = true;
     } else {
       this.masterVolume.mute = false;
     }
-    if (this.masterVolume.mute === false && nextProps.outputVolume && nextProps.outputVolume !== this.masterVolume.volume.value ) {
-      this.masterVolume.volume.value = getGain(1 - (nextProps.outputVolume) / 100);
+    if (this.masterVolume.mute === false && this.context.state.outputVolume && this.context.state.outputVolume !== this.masterVolume.volume.value ) {
+      this.masterVolume.volume.value = getGain(1 - (this.context.state.outputVolume) / 100);
     }
-    if (nextProps.timbre !== this.synths[0].oscillator.type) {
-      let newTimbre = nextProps.timbre.toLowerCase();
+    if (this.context.state.timbre !== this.synths[0].oscillator.type) {
+      let newTimbre = this.context.state.timbre.toLowerCase();
       for (let i = 0; i < NUM_VOICES; i++) {
         this.synths[i].oscillator.type = newTimbre;
       }
     }
-    if (nextProps.attack !== this.synths[0].envelope.attack) {
+    if (this.context.state.attack !== this.synths[0].envelope.attack) {
       for (let i = 0; i < NUM_VOICES; i++) {
-        this.synths[i].envelope.attack = nextProps.attack;
+        this.synths[i].envelope.attack = this.context.state.attack;
       }
     }
-    if (nextProps.release !== this.synths[0].envelope.release) {
+    if (this.context.state.release !== this.synths[0].envelope.release) {
       for (let i = 0; i < NUM_VOICES; i++) {
-        this.synths[i].envelope.release = nextProps.release;
+        this.synths[i].envelope.release = this.context.state.release;
       }
     }
-    if(nextProps.headphoneMode){
+    if(this.context.state.headphoneMode){
       // If Headphone Mode, connect the masterVolume to the graph
       if(!this.state.feedback){
         this.masterVolume.connect(this.props.analyser);
@@ -153,38 +154,37 @@ class Oscillator extends Component {
         this.setState({feedback: false});
       }
     }
-    if(nextProps.noteLinesOn){
-      this.ctx.clearRect(0, 0, this.props.width, this.props.height);
-      this.renderNoteLines();
-    } else {
-      this.ctx.clearRect(0, 0, this.props.width, this.props.height);
-    }
-    if(nextProps.reverbOn){
+    // if(this.context.state.noteLinesOn){
+    //   this.ctx.clearRect(0, 0, this.context.state.width, this.context.state.height);
+    //   this.renderNoteLines();
+    // } else {
+    //   this.ctx.clearRect(0, 0, this.context.state.width, this.context.state.height);
+    // }
+    if(this.context.state.reverbOn){
       this.reverbVolume.mute = false;
       this.masterVolume.disconnect(this.reverb);
       this.reverb = null;
-      this.reverb = new Tone.Reverb(this.props.reverbDecay*10+0.1); // Reverb unit. Runs in parallel to masterVolume
+      this.reverb = new Tone.Reverb(this.context.state.reverbDecay*10+0.1); // Reverb unit. Runs in parallel to masterVolume
       this.masterVolume.connect(this.reverb);
       this.reverb.generate().then(()=>{
         this.reverb.connect(this.reverbVolume);
-        // this.reverb.decay = this.props.reverbDecay*15;
+        // this.reverb.decay = this.context.state.reverbDecay*15;
       });
     } else {
       this.reverbVolume.mute = true;
     }
-    if(nextProps.delayOn){
+    if(this.context.state.delayOn){
       this.delayVolume.mute = false;
       this.masterVolume.disconnect(this.delay);
       this.delay = null;
-      this.delay = new Tone.FeedbackDelay(nextProps.delayTime+0.01, nextProps.delayFeedback);
+      this.delay = new Tone.FeedbackDelay(this.context.state.delayTime+0.01, this.context.state.delayFeedback);
       this.masterVolume.connect(this.delay);
       this.delay.connect(this.delayVolume);
     } else {
       this.delayVolume.mute = true;
     }
-    Tone.Transport.start();
-
   }
+
 
   componentWillUnmount() {
     this.masterVolume.mute = true;
@@ -196,11 +196,12 @@ class Oscillator extends Component {
   */
   onMouseDown(e) {
     e.preventDefault(); // Always need to prevent default browser choices
+    this.setAudioVariables();
     let pos = getMousePos(this.canvas, e);
     // Calculates x and y value in respect to width and height of screen
     // The value goes from 0 to 1. (0, 0) = Bottom Left corner
-    let yPercent = 1 - pos.y / this.props.height;
-    let xPercent = 1 - pos.x / this.props.width;
+    let yPercent = 1 - pos.y / this.context.state.height;
+    let xPercent = 1 - pos.x / this.context.state.width;
     let freq = this.getFreq(yPercent);
     let gain = getGain(xPercent);
     // newVoice = implementation of circular array discussed above.
@@ -216,30 +217,30 @@ class Oscillator extends Component {
 
 
     // Am
-    if(this.props.amOn){
-      let newVol = convertToLog(this.props.amLevel, 0, 1, 0.01, 15); // AM amplitud;e set between 0.01 and 15 (arbitray choices)
-      let newFreq = convertToLog(this.props.amRate, 0, 1, 0.5, 50); // AM frequency set between 0.5 and 50 hz (arbitray choices)
-      this.amSignals[newVoice].volume.exponentialRampToValueAtTime(newVol, this.props.context.currentTime+1); // Ramps to AM amplitude in 1 sec
+    if(this.context.state.amOn){
+      let newVol = convertToLog(this.context.state.amLevel, 0, 1, 0.01, 15); // AM amplitud;e set between 0.01 and 15 (arbitray choices)
+      let newFreq = convertToLog(this.context.state.amRate, 0, 1, 0.5, 50); // AM frequency set between 0.5 and 50 hz (arbitray choices)
+      this.amSignals[newVoice].volume.exponentialRampToValueAtTime(newVol, this.props.audioContext.currentTime+1); // Ramps to AM amplitude in 1 sec
       this.amSignals[newVoice].triggerAttack(newFreq);
     }
     // FM
-    if(this.props.fmOn){
+    if(this.context.state.fmOn){
       let modIndex = (1-freqToIndex(freq, 20000, 20, 1))*1.2; // FM index ranges from 0 - 2
-      let newVol = convertToLog(this.props.fmLevel, 0, 1, 25, 50); // FM amplitude set between 30 and 60 (arbitrary choices)
-      let newFreq = convertToLog(this.props.fmRate, 0, 1, 0.5, 50); // FM Frequency set between 0.5 and 50 (arbitray choices)
+      let newVol = convertToLog(this.context.state.fmLevel, 0, 1, 25, 50); // FM amplitude set between 30 and 60 (arbitrary choices)
+      let newFreq = convertToLog(this.context.state.fmRate, 0, 1, 0.5, 50); // FM Frequency set between 0.5 and 50 (arbitray choices)
       // let newFreq = convertToLog(yPercent, 0, 1, 0.5, 20); // FM Frequency set between 0.5 and 20 (arbitray choices)
-      this.fmSignals[newVoice].volume.exponentialRampToValueAtTime(newVol*modIndex, this.props.context.currentTime+RAMPVALUE); // Ramps to FM amplitude*modIndex in RAMPVALUE sec
+      this.fmSignals[newVoice].volume.exponentialRampToValueAtTime(newVol*modIndex, this.props.audioContext.currentTime+RAMPVALUE); // Ramps to FM amplitude*modIndex in RAMPVALUE sec
       this.fmSignals[newVoice].triggerAttack(newFreq);
     }
 
     this.synths[newVoice].volume.value = gain; // Starts the synth at volume = gain
-    this.ctx.clearRect(0, 0, this.props.width, this.props.height); // Clears canvas for redraw of label
+    this.ctx.clearRect(0, 0, this.context.state.width, this.context.state.height); // Clears canvas for redraw of label
     this.setState({
       mouseDown: true,
       currentVoice: newVoice,
       voices: this.state.voices + 1,
     });
-    if(this.props.noteLinesOn){
+    if(this.context.state.noteLinesOn){
       this.renderNoteLines();
     }
     this.label(freq, pos.x, pos.y); // Labels the point
@@ -249,7 +250,7 @@ class Oscillator extends Component {
     e.preventDefault(); // Always need to prevent default browser choices
     if (this.state.mouseDown) { // Only want to change when mouse is pressed
       // The next few lines are similar to onMouseDown
-      let {height, width} = this.props
+      let {height, width} = this.context.state
       let pos = getMousePos(this.canvas, e);
       let yPercent = 1 - pos.y / height;
       let xPercent = 1 - pos.x / width;
@@ -257,7 +258,7 @@ class Oscillator extends Component {
       let freq = this.getFreq(yPercent);
       // Remove previous gold indices and update them to new positions
       this.goldIndices.splice(this.state.currentVoice - 1, 1);
-      if(this.props.scaleOn){
+      if(this.context.state.scaleOn){
         // Jumps to new Frequency and Volume
         if(this.context.state.quantize){
             this.heldFreqs[this.state.currentVoice] = freq;
@@ -271,27 +272,27 @@ class Oscillator extends Component {
             this.heldFreqs[this.state.currentVoice] = freq;
         } else {
         // Ramps to new Frequency and Volume
-        this.synths[this.state.currentVoice].frequency.exponentialRampToValueAtTime(freq, this.props.context.currentTime+RAMPVALUE);
+        this.synths[this.state.currentVoice].frequency.exponentialRampToValueAtTime(freq, this.props.audioContext.currentTime+RAMPVALUE);
         }
         // // Ramp to new Volume
         this.synths[this.state.currentVoice].volume.exponentialRampToValueAtTime(gain,
-          this.props.context.currentTime+RAMPVALUE);
+          this.props.audioContext.currentTime+RAMPVALUE);
 
       }
       // FM
-      if(this.props.fmOn){
+      if(this.context.state.fmOn){
         let modIndex = (1-freqToIndex(freq, 20000, 20, 1))*1.2
-        let newVol = convertToLog(this.props.fmLevel, 0, 1, 25, 50); // FM amplitude set between 30 and 60 (arbitrary choices)
-        let newFreq = convertToLog(this.props.fmRate, 0, 1, 0.5, 50); // FM Frequency set between 0.5 and 50 (arbitray choices)
+        let newVol = convertToLog(this.context.state.fmLevel, 0, 1, 25, 50); // FM amplitude set between 30 and 60 (arbitrary choices)
+        let newFreq = convertToLog(this.context.state.fmRate, 0, 1, 0.5, 50); // FM Frequency set between 0.5 and 50 (arbitray choices)
         // let newFreq = convertToLog(yPercent, 0, 1, 0.5, 20); // FM Frequency set between 0.5 and 20 (arbitray choices)
-        this.fmSignals[this.state.currentVoice].volume.exponentialRampToValueAtTime(newVol*modIndex, this.props.context.currentTime+RAMPVALUE); // Ramps to FM amplitude*modIndex in RAMPVALUE sec
+        this.fmSignals[this.state.currentVoice].volume.exponentialRampToValueAtTime(newVol*modIndex, this.props.audioContext.currentTime+RAMPVALUE); // Ramps to FM amplitude*modIndex in RAMPVALUE sec
         this.fmSignals[this.state.currentVoice].triggerAttack(newFreq);
       }
 
 
       // Clears the label
-      this.ctx.clearRect(0, 0, this.props.width, this.props.height);
-      if(this.props.noteLinesOn){
+      this.ctx.clearRect(0, 0, this.context.state.width, this.context.state.height);
+      if(this.context.state.noteLinesOn){
         this.renderNoteLines();
       }
       this.label(freq, pos.x, pos.y);
@@ -311,8 +312,8 @@ class Oscillator extends Component {
       this.goldIndices = [];
 
       // Clears the label
-      this.ctx.clearRect(0, 0, this.props.width, this.props.height);
-      if(this.props.noteLinesOn){
+      this.ctx.clearRect(0, 0, this.context.state.width, this.context.state.height);
+      if(this.context.state.noteLinesOn){
         this.renderNoteLines();
       }
     }
@@ -330,8 +331,8 @@ class Oscillator extends Component {
       this.goldIndices = [];
 
       // Clears the label
-      this.ctx.clearRect(0, 0, this.props.width, this.props.height);
-      if(this.props.noteLinesOn){
+      this.ctx.clearRect(0, 0, this.context.state.width, this.context.state.height);
+      if(this.context.state.noteLinesOn){
         this.renderNoteLines();
         // this.amSignals[this.state.currentVoice].stop();
       }
@@ -346,19 +347,21 @@ class Oscillator extends Component {
   onTouchStart(e) {
     e.preventDefault(); // Always need to prevent default browser choices
     e.stopPropagation();
+    this.setAudioVariables();
+
     if(e.touches.length > NUM_VOICES ){
       return;
     }
-    this.ctx.clearRect(0, 0, this.props.width, this.props.height);
+    this.ctx.clearRect(0, 0, this.context.state.width, this.context.state.height);
 
-    if(this.props.noteLinesOn){
+    if(this.context.state.noteLinesOn){
       this.renderNoteLines();
     }
     // For each finger, do the same as above in onMouseDown
     for (let i = 0; i < e.changedTouches.length; i++) {
       let pos = getMousePos(this.canvas, e.touches[i]);
-      let yPercent = 1 - pos.y / this.props.height;
-      let xPercent = 1 - pos.x / this.props.width;
+      let yPercent = 1 - pos.y / this.context.state.height;
+      let xPercent = 1 - pos.x / this.context.state.width;
       let gain = getGain(xPercent);
       let freq = this.getFreq(yPercent);
       let newVoice = e.changedTouches[i].identifier % NUM_VOICES;
@@ -377,19 +380,19 @@ class Oscillator extends Component {
       }
       this.synths[newVoice].volume.value = gain;
       // Am
-      if(this.props.amOn){
-        let newVol = convertToLog(this.props.amLevel, 0, 1, 0.01, 15); // AM amplitud;e set between 0.01 and 15 (arbitray choices)
-        let newFreq = convertToLog(this.props.amRate, 0, 1, 0.5, 50); // AM frequency set between 0.5 and 50 hz (arbitray choices)
-        this.amSignals[newVoice].volume.exponentialRampToValueAtTime(newVol, this.props.context.currentTime+1); // Ramps to AM amplitude in 1 sec
+      if(this.context.state.amOn){
+        let newVol = convertToLog(this.context.state.amLevel, 0, 1, 0.01, 15); // AM amplitud;e set between 0.01 and 15 (arbitray choices)
+        let newFreq = convertToLog(this.context.state.amRate, 0, 1, 0.5, 50); // AM frequency set between 0.5 and 50 hz (arbitray choices)
+        this.amSignals[newVoice].volume.exponentialRampToValueAtTime(newVol, this.props.audioContext.currentTime+1); // Ramps to AM amplitude in 1 sec
         this.amSignals[newVoice].triggerAttack(newFreq);
       }
       // FM
-      if(this.props.fmOn){
+      if(this.context.state.fmOn){
         let modIndex = (1-freqToIndex(freq, 20000, 20, 1)) *1.2 // FM index ranges from 0 - 2
-        let newVol = convertToLog(this.props.fmLevel, 0, 1, 25, 50); // FM amplitude set between 30 and 60 (arbitrary choices)
-        let newFreq = convertToLog(this.props.fmRate, 0, 1, 0.5, 50); // FM Frequency set between 0.5 and 50 (arbitray choices)
+        let newVol = convertToLog(this.context.state.fmLevel, 0, 1, 25, 50); // FM amplitude set between 30 and 60 (arbitrary choices)
+        let newFreq = convertToLog(this.context.state.fmRate, 0, 1, 0.5, 50); // FM Frequency set between 0.5 and 50 (arbitray choices)
         // let newFreq = convertToLog(yPercent, 0, 1, 0.5, 20); // FM Frequency set between 0.5 and 20 (arbitray choices)
-        this.fmSignals[newVoice].volume.exponentialRampToValueAtTime(newVol*modIndex, this.props.context.currentTime+RAMPVALUE); // Ramps to FM amplitude*modIndex in RAMPVALUE sec
+        this.fmSignals[newVoice].volume.exponentialRampToValueAtTime(newVol*modIndex, this.props.audioContext.currentTime+RAMPVALUE); // Ramps to FM amplitude*modIndex in RAMPVALUE sec
         this.fmSignals[newVoice].triggerAttack(newFreq);
       }
 
@@ -403,10 +406,10 @@ class Oscillator extends Component {
     if(e.changedTouches.length > NUM_VOICES ){
       return;
     }
-    let {width, height} = this.props;
+    let {width, height} = this.context.state;
     // If touch is pressed (Similar to mouseDown = true, although there should never be a case where this is false)
     this.ctx.clearRect(0, 0, width, height);
-    if(this.props.noteLinesOn){
+    if(this.context.state.noteLinesOn){
       this.renderNoteLines();
     }
     if (this.state.touch) {
@@ -414,8 +417,8 @@ class Oscillator extends Component {
       // For each changed touch, do the same as onMouseMove
       for (let i = 0; i < e.changedTouches.length; i++) {
         let pos = getMousePos(this.canvas, e.changedTouches[i]);
-        let yPercent = 1 - pos.y / this.props.height;
-        let xPercent = 1 - pos.x / this.props.width;
+        let yPercent = 1 - pos.y / this.context.state.height;
+        let xPercent = 1 - pos.x / this.context.state.width;
         let gain = getGain(xPercent);
 
         let freq = this.getFreq(yPercent);
@@ -432,7 +435,7 @@ class Oscillator extends Component {
           }
           // These are the same as onMouseMove
           this.goldIndices.splice(index - 1, 1);
-          if(this.props.scaleOn){
+          if(this.context.state.scaleOn){
             // Jumps to new Frequency and Volume
             if(this.context.state.quantize){
               this.heldFreqs[index] = freq;
@@ -445,19 +448,19 @@ class Oscillator extends Component {
             this.heldFreqs[index] = freq;
           } else {
             // Ramps to new Frequency and Volume
-            this.synths[index].frequency.exponentialRampToValueAtTime(freq, this.props.context.currentTime+RAMPVALUE);
+            this.synths[index].frequency.exponentialRampToValueAtTime(freq, this.props.audioContext.currentTime+RAMPVALUE);
           }
             // Ramp to new Volume
             this.synths[index].volume.exponentialRampToValueAtTime(gain,
-              this.props.context.currentTime+RAMPVALUE);
+              this.props.audioContext.currentTime+RAMPVALUE);
           }
           // FM
-          if(this.props.fmOn){
+          if(this.context.state.fmOn){
             let modIndex = (1-freqToIndex(freq, 20000, 20, 1)) *1.2;// FM index ranges from 0 - 2
-            let newVol = convertToLog(this.props.fmLevel, 0, 1, 25, 50); // FM amplitude set between 30 and 60 (arbitrary choices)
-            let newFreq = convertToLog(this.props.fmRate, 0, 1, 0.5, 50); // FM Frequency set between 0.5 and 50 (arbitray choices)
+            let newVol = convertToLog(this.context.state.fmLevel, 0, 1, 25, 50); // FM amplitude set between 30 and 60 (arbitrary choices)
+            let newFreq = convertToLog(this.context.state.fmRate, 0, 1, 0.5, 50); // FM Frequency set between 0.5 and 50 (arbitray choices)
             // let newFreq = convertToLog(yPercent, 0, 1, 0.5, 20); // FM Frequency set between 0.5 and 20 (arbitray choices)
-            this.fmSignals[index].volume.exponentialRampToValueAtTime(newVol*modIndex, this.props.context.currentTime+RAMPVALUE); // Ramps to FM amplitude*modIndex in RAMPVALUE sec
+            this.fmSignals[index].volume.exponentialRampToValueAtTime(newVol*modIndex, this.props.audioContext.currentTime+RAMPVALUE); // Ramps to FM amplitude*modIndex in RAMPVALUE sec
             this.fmSignals[index].triggerAttack(newFreq);
           }
 
@@ -465,7 +468,7 @@ class Oscillator extends Component {
       //Redraw Labels
       for (let i = 0; i < e.touches.length; i++) {
         let pos = getMousePos(this.canvas, e.touches[i]);
-        let yPercent = 1 - pos.y / this.props.height;
+        let yPercent = 1 - pos.y / this.context.state.height;
         let freq = this.getFreq(yPercent);
         this.label(freq, pos.x, pos.y);
       }
@@ -474,7 +477,7 @@ class Oscillator extends Component {
   }
   onTouchEnd(e) {
     e.preventDefault(); // Always need to prevent default browser choices
-    let {width, height} = this.props;
+    let {width, height} = this.context.state;
     // Check if there are more touches changed than on the screen and release everything (mostly as an fail switch)
     if (e.changedTouches.length === e.touches.length + 1) {
       Tone.Transport.cancel();
@@ -506,7 +509,7 @@ class Oscillator extends Component {
     }
     // Clears the label
     this.ctx.clearRect(0, 0, width, height);
-    if(this.props.noteLinesOn){
+    if(this.context.state.noteLinesOn){
       this.renderNoteLines();
     }
 
@@ -515,29 +518,29 @@ class Oscillator extends Component {
   // Helper function that determines the frequency to play based on the mouse/finger position
   // Also deals with snapping it to a scale if scale mode is on
   getFreq(index) {
-    let {resolutionMax, resolutionMin, height} = this.props;
+    let {resolutionMax, resolutionMin, height} = this.context.state;
     let freq = getFreq(index, resolutionMin, resolutionMax);
     let notes = [];
 
-    if (this.props.scaleOn) {
+    if (this.context.state.scaleOn) {
       //  Maps to one of the 12 keys of the piano based on note and accidental
-      let newIndexedKey = this.props.musicKey.value;
+      let newIndexedKey = this.context.state.musicKey.value;
       // Edge cases
-      if (newIndexedKey === 0 && this.props.accidental.value === 2) {
+      if (newIndexedKey === 0 && this.context.state.accidental.value === 2) {
         // Cb->B
         newIndexedKey = 11;
-      } else if (newIndexedKey === 11 && this.props.accidental.value === 1) {
+      } else if (newIndexedKey === 11 && this.context.state.accidental.value === 1) {
         // B#->C
         newIndexedKey = 0;
       } else {
-        newIndexedKey = (this.props.accidental.value === 1)
+        newIndexedKey = (this.context.state.accidental.value === 1)
           ? newIndexedKey + 1
-          : (this.props.accidental.value === 2)
+          : (this.context.state.accidental.value === 2)
             ? newIndexedKey - 1
             : newIndexedKey;
       }
       // Uses generateScale helper method to generate base frequency values
-      let s = generateScale(newIndexedKey, this.props.scale.value);
+      let s = generateScale(newIndexedKey, this.context.state.scale.value);
       let name = s.scale[0];
       let note = 0;
       let dist = 20000;
@@ -576,13 +579,15 @@ class Oscillator extends Component {
     return Math.round(freq);
   }
 
-  // handleResize = () => {
-  //   this.props.handleResize();
-  //   this.ctx.clearRect(0, 0, this.props.width, this.props.height);
-  //   if(this.props.noteLinesOn){
-  //     this.renderNoteLines();
-  //   }
-  // }
+  handleResize = () => {
+    // this.props.handleResize();
+    this.props.handleResize();
+    this.ctx.clearRect(0, 0, this.context.state.width, this.context.state.height);
+    if(this.props.noteLinesOn){
+
+      this.renderNoteLines();
+    }
+  }
 
   // Helper method that generates a label for the frequency or the scale note
   label(freq, x, y) {
@@ -590,12 +595,12 @@ class Oscillator extends Component {
     const scaleOffset = 10;
     this.ctx.font = '20px Inconsolata';
     this.ctx.fillStyle = 'white';
-    if(this.props.soundOn){
-      if (!this.props.scaleOn) {
+    if(this.context.state.soundOn){
+      if (!this.context.state.scaleOn) {
         this.ctx.fillText(freq + ' Hz', x + offset, y - offset);
       } else {
         this.ctx.fillText(this.scaleLabel, x + offset, y - offset);
-        let index = freqToIndex(freq, this.props.resolutionMax, this.props.resolutionMin, this.props.height);
+        let index = freqToIndex(freq, this.context.state.resolutionMax, this.context.state.resolutionMin, this.context.state.height);
         let width = ((freq+ ' Hz').length < 7) ? 70 : 80;
         this.ctx.fillStyle = "rgba(218, 218, 218, 0.8)";
         this.ctx.fillRect(scaleOffset - 2, index - 2*scaleOffset, width, 3.5*scaleOffset);
@@ -619,30 +624,30 @@ class Oscillator extends Component {
   }
 
   renderNoteLines(){
-    let {height, width, resolutionMax, resolutionMin} = this.props;
+    let {height, width, resolutionMax, resolutionMin} = this.context.state;
     // this.ctx.clearRect(0, 0, width, height);
     // this.ctx.fillStyle = 'white';
 
     //  Maps to one of the 12 keys of the piano based on note and accidental
-    let newIndexedKey = this.props.musicKey.value;
+    let newIndexedKey = this.context.state.musicKey.value;
     // Edge cases
-    if (newIndexedKey === 0 && this.props.accidental.value === 2) {
+    if (newIndexedKey === 0 && this.context.state.accidental.value === 2) {
       // Cb->B
       newIndexedKey = 11;
-    } else if (newIndexedKey === 11 && this.props.accidental.value === 1) {
+    } else if (newIndexedKey === 11 && this.context.state.accidental.value === 1) {
       // B#->C
       newIndexedKey = 0;
     } else {
-      newIndexedKey = (this.props.accidental.value === 1)
+      newIndexedKey = (this.context.state.accidental.value === 1)
         ? newIndexedKey + 1
-        : (this.props.accidental.value === 2)
+        : (this.context.state.accidental.value === 2)
           ? newIndexedKey - 1
           : newIndexedKey;
     }
 
     this.frequencies = {};
     // Uses generateScale helper method to generate base frequency values
-    let s = generateScale(newIndexedKey, this.props.scale.value);
+    let s = generateScale(newIndexedKey, this.context.state.scale.value);
     //Sweeps through scale object and draws frequency
     for (let i = 0; i < s.scale.length; i++) {
       let freq = s.scale[i];
@@ -655,7 +660,7 @@ class Oscillator extends Component {
           let index = freqToIndex(freq, resolutionMax, resolutionMin, height);
           this.frequencies[name] = freq;
 
-          if(this.goldIndices.includes(index) && this.props.soundOn){
+          if(this.goldIndices.includes(index) && this.context.state.soundOn){
             this.ctx.fillStyle = 'gold';
           } else if(s.scaleNames[i] === s.scaleNames[0]){
             this.ctx.fillStyle = '#a291fb';
@@ -671,9 +676,15 @@ class Oscillator extends Component {
 
   }
 
+  removeNoteLines(){
+      this.ctx.clearRect(0, 0, this.context.state.width, this.context.state.height);
+  }
+
   render() {
     return (
-      <React.Fragment>
+      <MyContext.Consumer>
+      {(context) => (
+        <React.Fragment>
       <canvas
       onContextMenu={(e) => e.preventDefault()}
       onMouseDown={this.onMouseDown}
@@ -683,25 +694,16 @@ class Oscillator extends Component {
       onTouchStart={this.onTouchStart}
       onTouchEnd={this.onTouchEnd}
       onTouchMove={this.onTouchMove}
-      width={this.props.width}
-      height={this.props.height}
+      width={context.state.width}
+      height={context.state.height}
       ref={(c) => {
       this.canvas = c;
     }} className="osc-canvas"/>
-    {/*<div className="frequency-label">
-      <div className="frequency-title">
-      Frequency:
-      </div>
-      <div>220Hz</div>
-      <div>220Hz</div>
-      <div>220Hz</div>
-      <div>220Hz</div>
-      <div>220Hz</div>
-      <div>220Hz</div>
-
-    </div>*/}
     </React.Fragment>
-  );
+    )}
+    </MyContext.Consumer>
+
+  )
   }
 }
 Oscillator.contextType = MyContext;

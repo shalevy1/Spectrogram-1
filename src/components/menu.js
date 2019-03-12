@@ -158,7 +158,7 @@ class MyMenu extends Component {
         {this.props.editScales && this.state.editScales && <EditScales/> }
       </div>
 
-    );
+    )
   }
 }
 
