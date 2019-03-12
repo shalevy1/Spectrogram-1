@@ -55,33 +55,6 @@ class Spectrogram extends Component {
   componentWillUnmount() {
     window.removeEventListener("resize", this.handleResize);
   }
-  // Connects the menu microphoneGain controls to gainNode
-  componentWillReceiveProps(nextProps, prevState) {
-    // if (nextProps.isStarted) {
-    //   let gain = convertToLog(nextProps.microphoneGain, 1, 100, 0.01, 500);
-    //   if (gain !== gainNode.gain.value) {
-    //     gainNode.gain.setTargetAtTime(gain, audioContext.currentTime, 0.01);
-    //   }
-    // }
-    // // Turn on/off the microphone by calling audioTrack.stop() and then restarting the stream
-    // // This checks the readyState of the audioTrack for status of the microphone
-    // if(!nextProps.microphone && audioTrack.readyState === "live"){
-    //   audioTrack.stop();
-    //   this.setState({microphone: !this.state.microphone});
-    // } else if(audioTrack && nextProps.microphone && audioTrack.readyState === "ended") {
-    //   if (navigator.mozGetUserMedia) {
-    //     navigator.mozGetUserMedia({
-    //       audio: true
-    //     }, this.onStream.bind(this), this.onStreamError.bind(this));
-    //   } else if (navigator.webkitGetUserMedia) {
-    //     navigator.webkitGetUserMedia({
-    //       audio: true
-    //     }, this.onStream.bind(this), this.onStreamError.bind(this));
-    //   }
-    //
-    //   this.setState({microphone: !this.state.microphone});
-    // }
-  }
 
   // Starts the Spectrogram and Children Components when the user taps the screen
   // Also creates the audioContext to be used throughout the application
@@ -104,28 +77,6 @@ class Spectrogram extends Component {
           audio: true
         }, this.onStream.bind(this), this.onStreamError.bind(this));
       }
-      // WebMidi.enable((err)=> {
-      //   if (err) {
-      //     console.log("WebMidi could not be enabled.", err);
-      //   } else {
-      //     console.log("WebMidi enabled!");
-      //     console.log(WebMidi.inputs);
-      //     console.log(WebMidi.outputs);
-      //     let input = WebMidi.inputs[0];
-      //     console.log(input);
-      //     input.addListener('noteon', "all", (e)=>{
-      //       let note = e.note;
-      //       let octave = e.octave;
-      //       note = 440;
-      //       let osc = audioContext.createOscillator();
-      //       osc.connect(audioContext.destination)
-      //       osc.frequency.value = note;
-      //       osc.start();
-      //       this.setState({midi: true, midiNote: note, midiVelocity: e.velocity})
-      //     })
-      //   }
-      //
-      // });
       // Calls the start function which lets the controls know it has started
       this.context.start();
       this.renderFreqDomain();
@@ -134,18 +85,6 @@ class Spectrogram extends Component {
     // }
 
   }
-
-  // onMIDISuccess = (midiAccess) =>{
-  //   console.log(midiAccess);
-  //   for (var input of midiAccess.inputs.values()){
-  //       input.onmidimessage = this.onMidiMessage;
-  //   }
-  //   var inputs = midiAccess.inputs;
-  //   var outputs = midiAccess.outputs;
-  // }
-  // onmidimessage = (m) =>{
-  //   console.log(m)
-  // }
 
 // Sets up the microphone stream after the Spectrogram is started
 // It connects the graph by connecting the microphone to gain and gain to
@@ -211,22 +150,22 @@ class Spectrogram extends Component {
         }
       // Turn on/off the microphone by calling audioTrack.stop() and then restarting the stream
       // This checks the readyState of the audioTrack for status of the microphone
-      // if(!this.context.state.microphone && audioTrack.readyState === "live"){
-      //   audioTrack.stop();
-      //   this.setState({microphone: !this.state.microphone});
-      // } else if(audioTrack && this.context.state.microphone && audioTrack.readyState === "ended") {
-      //   if (navigator.mozGetUserMedia) {
-      //     navigator.mozGetUserMedia({
-      //       audio: true
-      //     }, this.onStream.bind(this), this.onStreamError.bind(this));
-      //   } else if (navigator.webkitGetUserMedia) {
-      //     navigator.webkitGetUserMedia({
-      //       audio: true
-      //     }, this.onStream.bind(this), this.onStreamError.bind(this));
-      //   }
-      //
-      //   this.setState({microphone: !this.state.microphone});
-      // }
+      if(!this.context.state.microphone && audioTrack.readyState === "live"){
+        audioTrack.stop();
+        this.setState({microphone: !this.state.microphone});
+      } else if(audioTrack && this.context.state.microphone && audioTrack.readyState === "ended") {
+        if (navigator.mozGetUserMedia) {
+          navigator.mozGetUserMedia({
+            audio: true
+          }, this.onStream.bind(this), this.onStreamError.bind(this));
+        } else if (navigator.webkitGetUserMedia) {
+          navigator.webkitGetUserMedia({
+            audio: true
+          }, this.onStream.bind(this), this.onStreamError.bind(this));
+        }
+
+        this.setState({microphone: !this.state.microphone});
+      }
     }
   }
 
@@ -271,8 +210,6 @@ class Spectrogram extends Component {
       this.ctx.drawImage(this.tempCanvas, 0, 0, width, height, 0, 0, width, height);
       // Resets transformation
       this.ctx.setTransform(1, 0, 0, 1, 0, 0);
-
-
   }
 
   // Helper function that converts frequency value to color
@@ -281,37 +218,31 @@ class Spectrogram extends Component {
     if (value === 255) {
       console.log("MAX!");
     }
-    var percent = (value) / 255 * 50;
+    let percent = (value) / 255 * 50;
     // return 'rgb(V, V, V)'.replace(/V/g, 255 - value);
     return 'hsl(H, 100%, P%)'.replace(/H/g, 255 - value).replace(/P/g, percent);
   }
 
-handleHeadphoneModeToggle=()=>{
-  this.context.handleHeadphoneModeToggle();
-}
+  handleHeadphoneModeToggle=()=>this.context.handleHeadphoneModeToggle();
 
-handleMicrophoneToggle=()=>{
-  this.context.handleMicrophoneToggle();
-}
+  handleMicrophoneToggle=()=>this.context.handleMicrophoneToggle();
 
-spacePressed = (e) =>{
-  e.preventDefault();
-  e.stopPropagation();
-  this.context.handlePause();
-}
-
-handleResize = () => {
-  this.context.handleResize();
-  if(this.updateOscNoteLines.current && this.context.state.noteLinesOn === true){
-      this.updateOscNoteLines.current.renderNoteLines();
+  spacePressed = (e) =>{
+    e.preventDefault();
+    e.stopPropagation();
+    this.context.handlePause();
   }
-}
 
+  handleResize = () => {
+    this.context.handleResize();
+    if(this.updateOscNoteLines.current && this.context.state.noteLinesOn === true){
+        this.updateOscNoteLines.current.renderNoteLines();
+    }
+  }
 
   render() {
-    // const soundOrTuning =
-      let headphoneStyle={'backgroundColor': ''}
-      let microphoneStyle={'backgroundColor': ''}
+    let headphoneStyle={'backgroundColor': ''}
+    let microphoneStyle={'backgroundColor': ''}
     if(this.context.state.headphoneMode){
       headphoneStyle = {'backgroundColor': '#2769d8'}
     }
@@ -322,85 +253,62 @@ handleResize = () => {
     return (
       <MyContext.Consumer>
       {(context) => (
-        <React.Fragment>
-      <div onClick={this.startSpectrogram} >
-        <canvas width={context.state.width} height={context.state.height} onKeyPress = {this.onKeyPress} ref={(c) => {
-          this.canvas = c;
-        }}/>
-        {context.state.isStarted &&
-          <React.Fragment>
-          {context.state.freqControls &&
-          <ScaleControls
-          resolutionMax={context.state.resolutionMax}
-          resolutionMin={context.state.resolutionMin}
-          width={context.state.width}
-          height={context.state.height}
-          handleZoom={context.handleZoom}
-          handleResize={this.handleResize}
-          noteLinesOn={context.state.noteLinesOn}
-          ref={this.updateScaleControls}
-          />}
-          <Button icon onClick={context.handlePause} className="pause-button">
-          {!context.state.speed  ?  <Icon fitted name="play" color="orange"/> :
-            <Icon fitted name="pause" color="orange"/>}
-          </Button>
-          <Button icon onClick={this.handleHeadphoneModeToggle} className="headphone-mode-button" style={headphoneStyle}>
-            {context.state.headphoneMode ? <Icon fitted name="headphones" color="orange"/>:
-            <img src={Logo} height={12.5} width={13.25} className="headphone-slash-logo"/>}
-          </Button>
-          <Button icon onClick={this.handleMicrophoneToggle} className="microphone-mode-button" style={microphoneStyle}>
-            {context.state.microphone ? <Icon name="microphone" color="orange"/> :
-            <Icon name="microphone slash" color="orange"/>}
-          </Button>
-          <div className="color-map-container">
-            <div className="color-map-text">Graph Scale</div>
-            <div className="color-map"></div>
-            <div className="color-map-labels">
-              Soft<span>Loud</span>
+        <div onClick={this.startSpectrogram} >
+          <canvas width={context.state.width} height={context.state.height} onKeyPress = {this.onKeyPress} ref={(c) => {
+            this.canvas = c;
+          }}/>
+          {context.state.isStarted &&
+            <React.Fragment>
+            {context.state.freqControls &&
+            <ScaleControls
+            resolutionMax={context.state.resolutionMax}
+            resolutionMin={context.state.resolutionMin}
+            width={context.state.width}
+            height={context.state.height}
+            handleZoom={context.handleZoom}
+            handleResize={this.handleResize}
+            noteLinesOn={context.state.noteLinesOn}
+            ref={this.updateScaleControls}
+            />}
+            <Button icon onClick={context.handlePause} className="pause-button">
+            {!context.state.speed  ?  <Icon fitted name="play" color="orange"/> :
+              <Icon fitted name="pause" color="orange"/>}
+            </Button>
+            <Button icon onClick={this.handleHeadphoneModeToggle} className="headphone-mode-button" style={headphoneStyle}>
+              {context.state.headphoneMode ? <Icon fitted name="headphones" color="orange"/>:
+              <img src={Logo} height={12.5} width={13.25} className="headphone-slash-logo"/>}
+            </Button>
+            <Button icon onClick={this.handleMicrophoneToggle} className="microphone-mode-button" style={microphoneStyle}>
+              {context.state.microphone ? <Icon name="microphone" color="orange"/> :
+              <Icon name="microphone slash" color="orange"/>}
+            </Button>
+            <div className="color-map-container">
+              <div className="color-map-text">Graph Scale</div>
+              <div className="color-map"></div>
+              <div className="color-map-labels">
+                Soft<span>Loud</span>
+              </div>
             </div>
-          </div>
-          <KeyHandler
-          keyEventName={KEYUP}
-          keyValue=" "
-          onKeyHandle={this.spacePressed}
-          />
+            <KeyHandler
+            keyEventName={KEYUP}
+            keyValue=" "
+            onKeyHandle={this.spacePressed}
+            />
             {/* Renders sound or tuning mode based on variable above */}
             {context.state.tuningMode ? (
-             <React.Fragment>
-             <NoteLines
-             width={context.state.width}
-             height={context.state.height}
-             resolutionMax={context.state.resolutionMax}
-             resolutionMin={context.state.resolutionMin}
-             context={audioContext}
-             analyser={analyser}
-             soundOn={context.state.soundOn}
-             outputVolume={context.state.outputVolume}
-             timbre={context.state.timbre}
-             scaleOn={context.state.scaleOn}
-             musicKey={context.state.musicKey}
-             accidental={context.state.accidental}
-             scale={context.state.scale}
-             attack={context.state.attack}
-             release={context.state.release}
-             headphoneMode={context.state.headphoneMode}
-             reverbOn={context.state.reverbOn}
-             reverbDecay={context.state.reverbDecay}
-             delayOn={context.state.delayOn}
-             delayTime={context.state.delayTime}
-             delayFeedback={context.state.delayFeedback}
-             ref={this.updateNoteLines}
-             handleResize={this.handleResize}/>
-             </React.Fragment>
-           ): (
-             <Oscillator
-             audioContext={audioContext}
-             analyser={analyser}
-             handleResize={this.handleResize}
-             ref={this.updateOscNoteLines}
-             />
+               <NoteLines
+               context={audioContext}
+               analyser={analyser}
+               ref={this.updateNoteLines}
+               handleResize={this.handleResize}/>
+             ): (
+               <Oscillator
+               audioContext={audioContext}
+               analyser={analyser}
+               handleResize={this.handleResize}
+               ref={this.updateOscNoteLines}
+               />
            )}
-
             <Axes
             resolutionMax={context.state.resolutionMax}
             resolutionMin={context.state.resolutionMin}
@@ -411,25 +319,23 @@ handleResize = () => {
           </React.Fragment>
           }
           {/* Intro Instructions */}
-        <div className="instructions">
-          {!context.state.isStarted
-            ? <p className="flashing">Click or tap anywhere on the canvas to start the spectrogram</p>
-            : <p>Great! Be sure to allow use of your microphone.
-            You can draw on the canvas to make sound!</p>
-          }
+          <div className="instructions">
+            {!context.state.isStarted
+              ? <p className="flashing">Click or tap anywhere on the canvas to start the spectrogram</p>
+              : <p>Great! Be sure to allow use of your microphone.
+              You can draw on the canvas to make sound!</p>
+            }
 
+            </div>
         </div>
-        </div>
-
-        </React.Fragment>
         )}
-
         </MyContext.Consumer>
     );
 
   }
 
 }
+
 Spectrogram.contextType = MyContext;
 
 export default ReactAnimationFrame(Spectrogram);

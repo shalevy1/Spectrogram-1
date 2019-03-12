@@ -684,27 +684,24 @@ class Oscillator extends Component {
     return (
       <MyContext.Consumer>
       {(context) => (
-        <React.Fragment>
-      <canvas
-      onContextMenu={(e) => e.preventDefault()}
-      onMouseDown={this.onMouseDown}
-      onMouseUp={this.onMouseUp}
-      onMouseMove={this.onMouseMove}
-      onMouseOut={this.onMouseOut}
-      onTouchStart={this.onTouchStart}
-      onTouchEnd={this.onTouchEnd}
-      onTouchMove={this.onTouchMove}
-      width={context.state.width}
-      height={context.state.height}
-      ref={(c) => {
-      this.canvas = c;
-    }} className="osc-canvas"/>
-    </React.Fragment>
-    )}
+        <canvas
+        className="osc-canvas"
+        onContextMenu={(e) => e.preventDefault()}
+        onMouseDown={this.onMouseDown}
+        onMouseUp={this.onMouseUp}
+        onMouseMove={this.onMouseMove}
+        onMouseOut={this.onMouseOut}
+        onTouchStart={this.onTouchStart}
+        onTouchEnd={this.onTouchEnd}
+        onTouchMove={this.onTouchMove}
+        width={context.state.width}
+        height={context.state.height}
+        ref={(c) => {this.canvas = c;}}/>
+      )}
     </MyContext.Consumer>
-
-  )
+    )
   }
 }
+
 Oscillator.contextType = MyContext;
 export default Oscillator;
