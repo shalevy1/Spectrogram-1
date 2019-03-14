@@ -41,6 +41,10 @@ function getGain(index) {
   return -1 * (index * 30);
 }
 
+// Tempo between 50 and 200
+function getTempo(index){
+  return Math.round(index*150 + 50)/1000;
+}
 
 function calculateNewMax(y, A0, newYPercent){
   // A1 == A0
@@ -67,4 +71,4 @@ function freqToIndex(freq, max, min, height) {
   return 0;
 }
 
-export {convertToLog, convertToLinear, getMousePos, getFreq, getGain, calculateNewMax, calculateNewMin, freqToIndex}
+export {convertToLog, convertToLinear, getMousePos, getFreq, getGain, calculateNewMax, calculateNewMin, freqToIndex, getTempo}

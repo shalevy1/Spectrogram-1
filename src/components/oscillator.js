@@ -5,7 +5,7 @@ import {MyContext} from './my-provider';
 
 import generateScale from '../util/generateScale';
 
-import { getFreq, getGain, freqToIndex, getMousePos, convertToLog, convertToLinear } from "../util/conversions";
+import { getFreq, getGain, getTempo, freqToIndex, getMousePos, convertToLog, convertToLinear } from "../util/conversions";
 
 const NUM_VOICES = 6;
 const RAMPVALUE = 0.2;
@@ -204,6 +204,7 @@ class Oscillator extends Component {
     let xPercent = 1 - pos.x / this.context.state.width;
     let freq = this.getFreq(yPercent);
     let gain = getGain(xPercent);
+    let tempo = getTempo(xPercent);
     // newVoice = implementation of circular array discussed above.
     let newVoice = (this.state.currentVoice + 1) % NUM_VOICES; // Mouse always changes to new "voice"
     if(this.context.state.quantize){
@@ -211,8 +212,12 @@ class Oscillator extends Component {
         this.synths[newVoice].triggerAttackRelease(this.heldFreqs[newVoice], "@8n."); // Starts the synth at frequency = freq
       }, "4n");
       this.heldFreqs[newVoice] = freq;
+      // Tone.Transport.bpm.value = tempo;
+      this.synths[newVoice].volume.value = gain; // Starts the synth at volume = gain
     } else {
       this.synths[newVoice].triggerAttack(freq); // Starts the synth at frequency = freq
+      this.synths[newVoice].volume.value = gain; // Starts the synth at volume = gain
+
     }
 
 
@@ -233,7 +238,6 @@ class Oscillator extends Component {
       this.fmSignals[newVoice].triggerAttack(newFreq);
     }
 
-    this.synths[newVoice].volume.value = gain; // Starts the synth at volume = gain
     this.ctx.clearRect(0, 0, this.context.state.width, this.context.state.height); // Clears canvas for redraw of label
     this.setState({
       mouseDown: true,
@@ -256,27 +260,30 @@ class Oscillator extends Component {
       let xPercent = 1 - pos.x / width;
       let gain = getGain(xPercent);
       let freq = this.getFreq(yPercent);
+      let tempo = getTempo(xPercent);
       // Remove previous gold indices and update them to new positions
       this.goldIndices.splice(this.state.currentVoice - 1, 1);
       if(this.context.state.scaleOn){
         // Jumps to new Frequency and Volume
         if(this.context.state.quantize){
             this.heldFreqs[this.state.currentVoice] = freq;
+            // Tone.Transport.bpm.rampTo(tempo, 1);
         } else {
           this.synths[this.state.currentVoice].frequency.value = freq;
+          this.synths[this.state.currentVoice].volume.value = gain;
         }
-        this.synths[this.state.currentVoice].volume.value = gain;
 
       } else {
         if(this.context.state.quantize){
             this.heldFreqs[this.state.currentVoice] = freq;
+            // Tone.Transport.bpm.rampTo(tempo, 1);
         } else {
         // Ramps to new Frequency and Volume
         this.synths[this.state.currentVoice].frequency.exponentialRampToValueAtTime(freq, this.props.audioContext.currentTime+RAMPVALUE);
-        }
         // // Ramp to new Volume
         this.synths[this.state.currentVoice].volume.exponentialRampToValueAtTime(gain,
           this.props.audioContext.currentTime+RAMPVALUE);
+        }
 
       }
       // FM
@@ -359,7 +366,7 @@ class Oscillator extends Component {
     }
     // For each finger, do the same as above in onMouseDown
     for (let i = 0; i < e.changedTouches.length; i++) {
-      let pos = getMousePos(this.canvas, e.touches[i]);
+      let pos = getMousePos(this.canvas, e.changedTouches[i]);
       let yPercent = 1 - pos.y / this.context.state.height;
       let xPercent = 1 - pos.x / this.context.state.width;
       let gain = getGain(xPercent);
@@ -396,6 +403,12 @@ class Oscillator extends Component {
         this.fmSignals[newVoice].triggerAttack(newFreq);
       }
 
+    }
+    for (let i = 0; i < e.touches.length; i++) {
+      let pos = getMousePos(this.canvas, e.touches[i]);
+      let yPercent = 1 - pos.y / this.context.state.height;
+      let xPercent = 1 - pos.x / this.context.state.width;
+      let freq = this.getFreq(yPercent);
       this.label(freq, pos.x, pos.y);
     }
 
@@ -511,6 +524,13 @@ class Oscillator extends Component {
     this.ctx.clearRect(0, 0, width, height);
     if(this.context.state.noteLinesOn){
       this.renderNoteLines();
+    }
+    //Redraw Labels
+    for (let i = 0; i < e.touches.length; i++) {
+      let pos = getMousePos(this.canvas, e.touches[i]);
+      let yPercent = 1 - pos.y / this.context.state.height;
+      let freq = this.getFreq(yPercent);
+      this.label(freq, pos.x, pos.y);
     }
 
   }
