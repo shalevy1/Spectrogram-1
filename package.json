@@ -18,7 +18,7 @@
     "react-scripts": "^1.1.4",
     "semantic-ui-css": "^2.3.0",
     "semantic-ui-react": "^0.78.3",
-    "tone": "^13.4.9",
+    "tone": "^13.2.3",
     "webmidi": "^2.2.0"
   },
   "scripts": {

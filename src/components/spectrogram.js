@@ -141,6 +141,10 @@ class Spectrogram extends Component {
         if(this.updateScaleControls.current && !this.context.state.noteLines){
           // this.updateScaleControls.current.renderNoteLines();
         }
+        if(this.updateOscNoteLines.current && this.context.state.noteLinesOn){
+          this.updateOscNoteLines.current.removeNoteLines();
+          this.updateOscNoteLines.current.renderNoteLines();
+        }
         this.setState({scale: this.context.state.scale, musicKey: this.context.state.musicKey, accidental: this.context.state.accidental});
       }
 
