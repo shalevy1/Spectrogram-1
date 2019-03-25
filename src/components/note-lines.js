@@ -110,6 +110,7 @@ class NoteLines extends Component {
     let newVoice = (this.state.currentVoice + 1) % NUM_VOICES; // Mouse always changes to new "voice"
 
     for (let j in this.frequencies) {
+      this.scaleLabel = j;
       if (Math.abs(this.frequencies[j] - freq) < 0.01 * freq) {
         if (this.frequencies[j] !== this.freq) {
           this.synths[newVoice] = new Tone.Synth(options);
@@ -122,12 +123,10 @@ class NoteLines extends Component {
           if (!this.goldIndices.includes(index)) {
             this.goldIndices[this.state.currentVoice] = index;
           }
-          this.renderNoteLines();
+          // this.renderNoteLines();
           // let endTime =  this.props.context.currentTime + release;
-          this.label(j, pos.x, pos.y + 2);
 
         }
-
         break;
       }
     }
@@ -136,6 +135,11 @@ class NoteLines extends Component {
       currentVoice: newVoice,
       voices: this.state.voices + 1
     });
+    this.ctx.clearRect(0, 0, this.context.state.width, this.context.state.height); // Clears canvas for redraw of label
+    this.renderNoteLines();
+    this.label(freq, pos.x, pos.y + 2);
+
+
   }
 
   onMouseMove(e) {
@@ -149,6 +153,7 @@ class NoteLines extends Component {
       let freq = getFreq(yPercent, resolutionMin, resolutionMax);
       if (soundOn) {
         for (let j in this.frequencies) {
+          this.scaleLabel = j;
           if (Math.abs(this.frequencies[j] - freq) < 0.01 * freq) {
             if (this.frequencies[j] !== this.freq) {
               let endTime = this.props.context.currentTime + release;
@@ -166,9 +171,7 @@ class NoteLines extends Component {
                 this.goldIndices[this.state.currentVoice] = index;
               }
               this.goldIndices.splice(this.state.currentVoice - 1, 1); // Sets the Gold Line to the new Line
-              this.renderNoteLines();
               this.freq = this.frequencies[j];
-              this.label(j, pos.x, pos.y + 2);
 
             }
             this.synths[this.state.currentVoice].volume.value = gain;
@@ -176,6 +179,9 @@ class NoteLines extends Component {
           }
         }
       }
+      this.ctx.clearRect(0, 0, this.context.state.width, this.context.state.height); // Clears canvas for redraw of label
+      this.renderNoteLines();
+      this.label(freq, pos.x, pos.y + 2);
     }
   }
 
@@ -207,7 +213,7 @@ class NoteLines extends Component {
 
   onTouchStart(e) {
     e.preventDefault();
-    this.setAudioVariables();    
+    this.setAudioVariables();
     let { height, width, soundOn, resolutionMax, resolutionMin } = this.context.state;
     let pos = getMousePos(this.canvas, e.touches[0]);
     let yPercent = 1 - pos.y / height;
@@ -231,7 +237,7 @@ class NoteLines extends Component {
             }
             this.renderNoteLines();
             // let endTime =  this.props.context.currentTime + release;
-            this.label(j, pos.x, pos.y + 2);
+            this.label(freq, pos.x, pos.y + 2);
 
           }
 
@@ -277,7 +283,7 @@ class NoteLines extends Component {
             this.goldIndices.splice(this.state.currentVoice - 1, 1); // Sets the Gold Line to the new Line
             this.renderNoteLines();
             this.freq = this.frequencies[j];
-            this.label(j, pos.x, pos.y + 2);
+            this.label(freq, pos.x, pos.y + 2);
 
           }
           this.synth.volume.value = gain;
@@ -304,11 +310,31 @@ class NoteLines extends Component {
   }
 
   // Helper method that generates a label for the frequency or the scale note
-  label(name, x, y) {
+  label(freq, x, y) {
+    const offset = 25;
+    const scaleOffset = 10;
     this.ctx.font = '20px Inconsolata';
     this.ctx.fillStyle = 'white';
-    if (this.context.state.soundOn) {
-      this.ctx.fillText(name, x, y);
+    if(this.context.state.soundOn){
+      let index = freqToIndex(freq, this.context.state.resolutionMax, this.context.state.resolutionMin, this.context.state.height);
+      let width = ((freq+ ' Hz').length < 7) ? 70 : 80;
+      this.ctx.fillStyle = "rgba(218, 218, 218, 0.8)";
+      this.ctx.fillRect(scaleOffset - 2, index - 2*scaleOffset, width, 3.5*scaleOffset);
+      this.ctx.fillStyle = "white";
+      this.ctx.fillText(freq + ' Hz', scaleOffset, index+scaleOffset/2);
+        // Draw Circle for point
+      // if(snapped){
+        this.ctx.fillText(this.scaleLabel, x + offset, y - offset);
+        const startingAngle = 0;
+        const endingAngle = 2 * Math.PI;
+        const radius = 10;
+        const color = 'rgb(255, 255, 0)';
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, radius, startingAngle, endingAngle);
+        this.ctx.fillStyle = color;
+        this.ctx.fill();
+        this.ctx.stroke();
+      // }
     }
   }
 
