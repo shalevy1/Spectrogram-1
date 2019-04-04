@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import Tone from 'tone';
-import "../styles/oscillator.css";
+import "../styles/sound-making.css";
 import {MyContext} from './my-provider';
 
 import generateScale from '../util/generateScale';
@@ -12,7 +12,7 @@ const RAMPVALUE = 0.2;
 const NOTE_JUMP = 1.0594630943593;
 
 // Main sound-making class. Can handle click and touch inputs
-class Oscillator extends Component {
+class SoundMaking extends Component {
   // TODO: Sometimes strange sounds
   constructor(props) {
     super();
@@ -192,7 +192,7 @@ class Oscillator extends Component {
   }
 
   /**
-  This Section controls how the Oscillator(s) react to user input
+  This Section controls how the SoundMaking(s) react to user input
   */
   onMouseDown(e) {
     e.preventDefault(); // Always need to prevent default browser choices
@@ -204,7 +204,6 @@ class Oscillator extends Component {
     let xPercent = 1 - pos.x / this.context.state.width;
     let freq = this.getFreq(yPercent);
     let gain = getGain(xPercent);
-    let tempo = getTempo(xPercent);
     // newVoice = implementation of circular array discussed above.
     let newVoice = (this.state.currentVoice + 1) % NUM_VOICES; // Mouse always changes to new "voice"
     if(this.context.state.quantize){
@@ -212,7 +211,7 @@ class Oscillator extends Component {
         this.synths[newVoice].triggerAttackRelease(this.heldFreqs[newVoice], "@8n."); // Starts the synth at frequency = freq
       }, "4n");
       this.heldFreqs[newVoice] = freq;
-      // Tone.Transport.bpm.value = tempo;
+      Tone.Transport.bpm.value = getTempo(xPercent);
       this.synths[newVoice].volume.value = gain; // Starts the synth at volume = gain
     } else {
       this.synths[newVoice].triggerAttack(freq); // Starts the synth at frequency = freq
@@ -260,14 +259,18 @@ class Oscillator extends Component {
       let xPercent = 1 - pos.x / width;
       let gain = getGain(xPercent);
       let freq = this.getFreq(yPercent);
-      let tempo = getTempo(xPercent);
       // Remove previous gold indices and update them to new positions
       this.goldIndices.splice(this.state.currentVoice - 1, 1);
       if(this.context.state.scaleOn){
         // Jumps to new Frequency and Volume
         if(this.context.state.quantize){
             this.heldFreqs[this.state.currentVoice] = freq;
-            // Tone.Transport.bpm.rampTo(tempo, 1);
+            // let tempo = getTempo(xPercent);
+            // let outputTempo = 0.5*(tempo + Tone.Transport.bpm.value);
+            // if(Math.abs(outputTempo - Tone.Transport.bpm.value) > 0.05*Tone.Transport.bpm.value){
+            //   Tone.Transport.bpm.value = +outputTempo;
+            //   console.log("Changed")
+            // }
         } else {
           this.synths[this.state.currentVoice].frequency.value = freq;
           this.synths[this.state.currentVoice].volume.value = gain;
@@ -275,8 +278,9 @@ class Oscillator extends Component {
 
       } else {
         if(this.context.state.quantize){
+            let tempo = getTempo(xPercent);
             this.heldFreqs[this.state.currentVoice] = freq;
-            // Tone.Transport.bpm.rampTo(tempo, 1);
+            // console.log(tempo)
         } else {
         // Ramps to new Frequency and Volume
         this.synths[this.state.currentVoice].frequency.exponentialRampToValueAtTime(freq, this.props.audioContext.currentTime+RAMPVALUE);
@@ -723,5 +727,5 @@ class Oscillator extends Component {
   }
 }
 
-Oscillator.contextType = MyContext;
-export default Oscillator;
+SoundMaking.contextType = MyContext;
+export default SoundMaking;

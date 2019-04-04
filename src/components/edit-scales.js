@@ -21,11 +21,11 @@ class EditScales extends Component {
   }
 
   componentDidMount(){
-    this.regenerateScale();
+    this.regenerateScale(true);
   }
 
-  regenerateScale(){
-    if(this.context.state.scale.name !== "Custom" && this.context.state.scale.value !== this.state.scaleName){
+  regenerateScale(firstLoad){
+    if(firstLoad || (this.context.state.scale.name !== "Custom" && this.context.state.scale.value !== this.state.scaleName)){
       // console.log(this.context.state.scale.value, this.state.scaleName, this.context.state.scale.value === this.state.scaleName)
       let s = generateScale(0, this.context.state.scale.value);
       let scale = [];
@@ -52,7 +52,7 @@ class EditScales extends Component {
   }
 
   renderDegrees(){
-    this.regenerateScale();
+    this.regenerateScale(false);
     var notes = [];
     let className;
     for (let i = 0; i < NUM_TONES; i++) {

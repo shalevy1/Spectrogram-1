@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {MyContext} from './my-provider';
 
 import {Segment, Menu, Dropdown, Checkbox} from 'semantic-ui-react';
-import "../styles/tuning.css";
+import "../styles/tuning-controls.css";
 // Using an ES6 transpiler like Babel
 import Slider from 'react-rangeslider';
 // To include the default styles
@@ -85,8 +85,12 @@ class TuningControls extends Component {
                     </Menu.Item>
                   </Menu.Menu>
 
+                  <div className="scales-bottom">
                   <div>
-                  {context.state.musicKey.name}{context.state.accidental.name}{context.state.scale.name}
+                  {/* Render Scale Name to screen. Don't render 'chromatic' scale name or accidental */}
+                  {(context.state.scale.name === "Chromatic")? "" : context.state.musicKey.name}{(context.state.scale.name === "Chromatic")? "" : context.state.accidental.name}{context.state.scale.name}
+                  </div>
+                  <Button className="edit-scales-button" onClick={context.handleEditScalesChange}>Edit </Button>
                   </div>
                 </Menu.Item>
               </Menu>

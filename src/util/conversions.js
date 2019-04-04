@@ -43,7 +43,7 @@ function getGain(index) {
 
 // Tempo between 50 and 200
 function getTempo(index){
-  return Math.round(index*150 + 50)/1000;
+  return Math.round((1-index)*150 + 50);
 }
 
 function calculateNewMax(y, A0, newYPercent){

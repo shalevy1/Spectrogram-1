@@ -3,8 +3,8 @@ import '../styles/spectrogram.css';
 
 import Axes from './axes';
 import ScaleControls from './scale-controls'
-import NoteLines from './note-lines';
-import Oscillator from './oscillator';
+import Tuning from './tuning';
+import SoundMaking from './sound-making';
 
 import { convertToLog, getFreq } from '../util/conversions';
 import { Button, Icon } from 'semantic-ui-react';
@@ -23,9 +23,8 @@ let analyser = null;
 let gainNode = null;
 let audioTrack = null;
 const fftSize = 8192;
-
 // Spectrogram Graph that renders itself and 3 children canvases
-// (Oscillator/NoteLines, Axes and ScaleControls)
+// (SoundMaking/TuningMode, Axes and ScaleControls)
 
 class Spectrogram extends Component {
   constructor(props) {
@@ -157,7 +156,7 @@ class Spectrogram extends Component {
       if(!this.context.state.microphone && audioTrack.readyState === "live"){
         audioTrack.stop();
         this.setState({microphone: !this.state.microphone});
-      } else if(audioTrack && this.context.state.microphone && audioTrack.readyState === "ended") {
+      } else if(audioTrack && this.context.state.microphone && audioTrack.readyState === "ended" && !this.state.microphone) {
         if (navigator.mozGetUserMedia) {
           navigator.mozGetUserMedia({
             audio: true
@@ -300,13 +299,13 @@ class Spectrogram extends Component {
             />
             {/* Renders sound or tuning mode based on variable above */}
             {context.state.tuningMode ? (
-               <NoteLines
+               <Tuning
                context={audioContext}
                analyser={analyser}
                ref={this.updateNoteLines}
                handleResize={this.handleResize}/>
              ): (
-               <Oscillator
+               <SoundMaking
                audioContext={audioContext}
                analyser={analyser}
                handleResize={this.handleResize}

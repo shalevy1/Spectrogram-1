@@ -29,8 +29,10 @@ class MyMenu extends Component {
         if (name !== this.state.activeItem) {
           pane = <TuningControls closeMenu={this.closeMenu}/>
           this.props.handleTuningModeOn();
+          editScales = true;
         } else {
           name = null;
+          editScales = false;
         }
         break;
       case "sound-making":
@@ -39,10 +41,11 @@ class MyMenu extends Component {
           if(this.props.tuningMode){
             this.props.handleTuningModeOff();
           }
+          editScales = true;
         } else {
           name = null;
+          editScales = false;
         }
-        editScales = !this.state.editScales;
         break;
 
       default:

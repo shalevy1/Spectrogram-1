@@ -1,0 +1,20 @@
+.tuning-container {
+  /* width: 46%; */
+  display: flex;
+}
+
+.tuning-close-menu{
+  display: flex!important;
+  justify-content: flex-end;
+  align-items: center;
+}
+.edit-scales-button {
+  position: absolute;
+  right: 0%;
+  bottom: 10%;
+}
+.scales-bottom {
+  width: 100%;
+  display: flex;
+  padding: 0.1em 0.5em
+}
