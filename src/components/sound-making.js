@@ -211,7 +211,8 @@ class SoundMaking extends Component {
         this.synths[newVoice].triggerAttackRelease(this.heldFreqs[newVoice], "@8n."); // Starts the synth at frequency = freq
       }, "4n");
       this.heldFreqs[newVoice] = freq;
-      Tone.Transport.bpm.value = getTempo(xPercent);
+      // console.log(getTempo(xPercent))
+      // Tone.Transport.bpm.value = getTempo(xPercent);
       this.synths[newVoice].volume.value = gain; // Starts the synth at volume = gain
     } else {
       this.synths[newVoice].triggerAttack(freq); // Starts the synth at frequency = freq
@@ -267,6 +268,7 @@ class SoundMaking extends Component {
             this.heldFreqs[this.state.currentVoice] = freq;
             // let tempo = getTempo(xPercent);
             // let outputTempo = 0.5*(tempo + Tone.Transport.bpm.value);
+            // console.log(outputTempo)
             // if(Math.abs(outputTempo - Tone.Transport.bpm.value) > 0.05*Tone.Transport.bpm.value){
             //   Tone.Transport.bpm.value = +outputTempo;
             //   console.log("Changed")
