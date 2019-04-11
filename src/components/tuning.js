@@ -375,7 +375,7 @@ class Tuning extends Component {
           if (this.goldIndices.includes(index) && this.context.state.soundOn) {
             this.ctx.fillStyle = 'gold';
           } else if (s.scaleNames[i] === s.scaleNames[0]) {
-            this.ctx.fillStyle = '#a291fb';
+            this.ctx.fillStyle = '#ABE2FB';
           } else {
             this.ctx.fillStyle = 'white';
           }

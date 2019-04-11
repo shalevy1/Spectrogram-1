@@ -59,7 +59,6 @@ class Spectrogram extends Component {
   // Also creates the audioContext to be used throughout the application
   startSpectrogram = () => {
     if (!this.context.state.isStarted) {
-      console.log
       audioContext = new(window.AudioContext || window.webkitAudioContext)();
       analyser = audioContext.createAnalyser();
       gainNode = audioContext.createGain();
@@ -274,16 +273,16 @@ class Spectrogram extends Component {
             ref={this.updateScaleControls}
             />}
             <Button icon onClick={context.handlePause} className="pause-button">
-            {!context.state.speed  ?  <Icon fitted name="play" color="orange"/> :
-              <Icon fitted name="pause" color="orange"/>}
+            {!context.state.speed  ?  <Icon fitted name="circle outline" color="red"/> :
+              <Icon fitted name="circle" color="red"/>}
             </Button>
             <Button icon onClick={this.handleHeadphoneModeToggle} className="headphone-mode-button" style={headphoneStyle}>
-              {context.state.headphoneMode ? <Icon fitted name="headphones" color="orange"/>:
+              {context.state.headphoneMode ? <Icon fitted name="headphones" color="red"/>:
               <img src={Logo} height={12.5} width={13.25} className="headphone-slash-logo"/>}
             </Button>
             <Button icon onClick={this.handleMicrophoneToggle} className="microphone-mode-button" style={microphoneStyle}>
-              {context.state.microphone ? <Icon name="microphone" color="orange"/> :
-              <Icon name="microphone slash" color="orange"/>}
+              {context.state.microphone ? <Icon name="microphone" color="red"/> :
+              <Icon name="microphone slash" color="red"/>}
             </Button>
             <div className="color-map-container">
               <div className="color-map-text">Graph Scale</div>

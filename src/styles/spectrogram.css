@@ -25,11 +25,12 @@
     left: 0%;
     top: 11%;
     margin: 2px 2px!important;
-    min-width: 3%;
+    min-width: 3.1%;
     max-width: 4%;
     z-index: 21;
     /* opacity: 0.5; */
     border: 2px solid #ABE2FB!important;
+    background-color: #ABE2FB!important;
     border-radius: 3rem!important;
   }
 
@@ -40,6 +41,7 @@
     margin: 2px 2px!important;
     min-width: 3%;
     z-index: 21;
+    background-color: #ABE2FB!important;
     /* opacity: 0.5; */
     border: 2px solid #ABE2FB!important;
     border-radius: 3rem!important;
@@ -59,6 +61,8 @@
     /* opacity: 0.5; */
     border: 2px solid #ABE2FB!important;
     border-radius: 3rem!important;
+    background-color: #ABE2FB!important;
+
   }
 
   .color-map-container {

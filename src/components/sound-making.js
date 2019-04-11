@@ -108,7 +108,12 @@ class SoundMaking extends Component {
     this.frequencies = {};
 
     window.addEventListener("resize", this.handleResize);
-    Tone.Transport.start();
+    var pattern = new Tone.Pattern((t,n) => {
+      this.synths[0].triggerAttackRelease(n, "8n", t)
+    }, ["C4", "E4", "G4", "B4"], "upDown")
+    Tone.Transport.bpm.value = 200
+    pattern.start();
+    // Tone.Transport.start();
 
   }
 
@@ -207,6 +212,7 @@ class SoundMaking extends Component {
     // newVoice = implementation of circular array discussed above.
     let newVoice = (this.state.currentVoice + 1) % NUM_VOICES; // Mouse always changes to new "voice"
     if(this.context.state.quantize){
+
       Tone.Transport.scheduleRepeat(time => {
         this.synths[newVoice].triggerAttackRelease(this.heldFreqs[newVoice], "@8n."); // Starts the synth at frequency = freq
       }, "4n");
@@ -254,6 +260,7 @@ class SoundMaking extends Component {
     e.preventDefault(); // Always need to prevent default browser choices
     if (this.state.mouseDown) { // Only want to change when mouse is pressed
       // The next few lines are similar to onMouseDown
+
       let {height, width} = this.context.state
       let pos = getMousePos(this.canvas, e);
       let yPercent = 1 - pos.y / height;
@@ -689,7 +696,7 @@ class SoundMaking extends Component {
           if(this.goldIndices.includes(index) && this.context.state.soundOn){
             this.ctx.fillStyle = 'gold';
           } else if(s.scaleNames[i] === s.scaleNames[0]){
-            this.ctx.fillStyle = '#a291fb';
+            this.ctx.fillStyle = '#ABE2FB';
           }
           else {
             this.ctx.fillStyle = 'white';

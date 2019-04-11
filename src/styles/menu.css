@@ -50,13 +50,13 @@
 }
 
 .function-switch-button {
-  border: 2px solid #a291fb;
+  border: 2px solid #9ad5f7;
   outline: none;
   border-radius: .28571429rem;
   padding: .5em 1.2em .5em;
   line-height: 1em;
   background-color: white;
-  color: #a291fb;
+  color: #9ad5f7;
   font-weight: 700;
   font-style: normal;
   font-size: 1em;
@@ -74,7 +74,8 @@
 }
 
 .function-switch-button:active {
-  background-color: #bcafff;
+  background-color: #49a3cc;
+  border: 2px solid #49a3cc;
   color: white;
   outline: none;
   cursor: pointer;
@@ -127,6 +128,7 @@
 
 .freq-button:active {
   background-color: #ff8177;
+  border: 2px solid #ff8177;
   color: white;
   outline: none;
   cursor: pointer;

@@ -109,7 +109,7 @@ class MyMenu extends Component {
   // as well as the graph scale and which tab to render
   render() {
     const {activeItem} = this.state;
-    const activeStyle = {'borderBottom': '4px solid #A291FB'}
+    const activeStyle = {'borderBottom': '4px solid #ABE2FB'}
     const defaultStyle= {'borderBottom': '0'}
     // let style={'backgroundColor': '' }
     let tuningStyle=defaultStyle;
@@ -119,7 +119,7 @@ class MyMenu extends Component {
     if(this.props.tuningMode){
       // style = {'backgroundColor': '#ff8177'}
       tuningStyle=activeStyle;
-      soundStyle=defaultStyle
+      soundStyle=defaultStyle;
     } else{
       tuningStyle=defaultStyle;
       soundStyle=activeStyle;
@@ -127,7 +127,7 @@ class MyMenu extends Component {
   }
     return (
       <div className="menu-container">
-        <Menu color="violet" tabular pointing className="menu-menu" attached="bottom">
+        <Menu color="#ABE2FB" tabular pointing className="menu-menu" attached="bottom">
           <Menu.Item className="function-switch-button-container">
             <button className="function-switch-button" onClick={this.switchToSignalGenerator}>Signal Generator</button>
           </Menu.Item>
