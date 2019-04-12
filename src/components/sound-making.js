@@ -108,12 +108,12 @@ class SoundMaking extends Component {
     this.frequencies = {};
 
     window.addEventListener("resize", this.handleResize);
-    var pattern = new Tone.Pattern((t,n) => {
-      this.synths[0].triggerAttackRelease(n, "8n", t)
-    }, ["C4", "E4", "G4", "B4"], "upDown")
-    Tone.Transport.bpm.value = 200
-    pattern.start();
-    // Tone.Transport.start();
+    // var pattern = new Tone.Pattern((t,n) => {
+    //   this.synths[0].triggerAttackRelease(n, "8n", t)
+    // }, ["C4", "E4", "G4", "B4"], "upDown")
+    // Tone.Transport.bpm.value = 200
+    // pattern.start();
+    Tone.Transport.start();
 
   }
 
