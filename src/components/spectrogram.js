@@ -29,10 +29,10 @@ const fftSize = 8192;
 class Spectrogram extends Component {
   constructor(props) {
     super(props);
-    this.updateNoteLines = React.createRef();
-    this.updateAxes = React.createRef();
-    this.updateScaleControls = React.createRef();
-    this.updateOscNoteLines = React.createRef();
+    this.tuningRef = React.createRef();
+    this.axesRef = React.createRef();
+    this.scaleControlsRef = React.createRef();
+    this.soundMakingRef = React.createRef();
 
     this.state = {
       resolutionMax: 20000,
@@ -103,12 +103,14 @@ class Spectrogram extends Component {
   onAnimationFrame = (time) => {
     if (this.context.state.isStarted) {
       this.renderFreqDomain();
-      if(this.updateOscNoteLines.current){
+      if(this.soundMakingRef.current){
         if(this.context.state.noteLinesOn && !this.state.noteLinesRendered){
-            this.updateOscNoteLines.current.renderNoteLines();
+            this.soundMakingRef.current.renderNoteLines();
+            this.soundMakingRef.current.drawPitchBendButton(false);
             this.setState({noteLinesRendered: true});
           } else if(!this.context.state.noteLinesOn && this.state.noteLinesRendered){
-            this.updateOscNoteLines.current.removeNoteLines();
+            this.soundMakingRef.current.removeNoteLines();
+            this.soundMakingRef.current.drawPitchBendButton(false);            
           }
 
           if(!this.context.state.noteLinesOn){
@@ -119,29 +121,31 @@ class Spectrogram extends Component {
       if(this.context.state.resolutionMax !== this.state.resolutionMax || this.context.state.resolutionMin !== this.state.resolutionMin){
 
         // Rerender if components exist
-        if(this.updateAxes.current) {
-          this.updateAxes.current.renderAxesLabels();
+        if(this.axesRef.current) {
+          this.axesRef.current.renderAxesLabels();
         }
-        if(this.updateNoteLines.current){
-          this.updateNoteLines.current.renderNoteLines();
+        if(this.tuningRef.current){
+          this.tuningRef.current.renderNoteLines();
         }
-        if(this.updateOscNoteLines.current && this.context.state.noteLinesOn){
-          this.updateOscNoteLines.current.removeNoteLines();
-          this.updateOscNoteLines.current.renderNoteLines();
+        if(this.soundMakingRef.current && this.context.state.noteLinesOn){
+          this.soundMakingRef.current.removeNoteLines();
+          this.soundMakingRef.current.renderNoteLines();
+          this.soundMakingRef.current.drawPitchBendButton(false);
         }
 
         this.setState({resolutionMax: this.context.state.resolutionMax, resolutionMin: this.context.state.resolutionMin});
       }
       if(this.context.state.scale !== this.state.scale || this.context.state.musicKey !== this.state.musicKey || this.context.state.accidental !== this.state.accidental){
-        if(this.updateNoteLines.current){
-          this.updateNoteLines.current.renderNoteLines();
+        if(this.tuningRef.current){
+          this.tuningRef.current.renderNoteLines();
         }
-        if(this.updateScaleControls.current && !this.context.state.noteLines){
-          // this.updateScaleControls.current.renderNoteLines();
+        if(this.scaleControlsRef.current && !this.context.state.noteLines){
+          // this.scaleControlsRef.current.renderNoteLines();
         }
-        if(this.updateOscNoteLines.current && this.context.state.noteLinesOn){
-          this.updateOscNoteLines.current.removeNoteLines();
-          this.updateOscNoteLines.current.renderNoteLines();
+        if(this.soundMakingRef.current && this.context.state.noteLinesOn){
+          this.soundMakingRef.current.removeNoteLines();
+          this.soundMakingRef.current.renderNoteLines();
+          this.soundMakingRef.current.drawPitchBendButton(false);
         }
         this.setState({scale: this.context.state.scale, musicKey: this.context.state.musicKey, accidental: this.context.state.accidental});
       }
@@ -237,8 +241,8 @@ class Spectrogram extends Component {
 
   handleResize = () => {
     this.context.handleResize();
-    if(this.updateOscNoteLines.current && this.context.state.noteLinesOn === true){
-        this.updateOscNoteLines.current.renderNoteLines();
+    if(this.soundMakingRef.current && this.context.state.noteLinesOn === true){
+        this.soundMakingRef.current.renderNoteLines();
     }
   }
 
@@ -270,7 +274,7 @@ class Spectrogram extends Component {
             handleZoom={context.handleZoom}
             handleResize={this.handleResize}
             noteLinesOn={context.state.noteLinesOn}
-            ref={this.updateScaleControls}
+            ref={this.scaleControlsRef}
             />}
             <Button icon onClick={context.handlePause} className="pause-button">
             {!context.state.speed  ?  <Icon fitted name="circle outline" color="red"/> :
@@ -301,14 +305,14 @@ class Spectrogram extends Component {
                <Tuning
                context={audioContext}
                analyser={analyser}
-               ref={this.updateNoteLines}
+               ref={this.tuningRef}
                handleResize={this.handleResize}/>
              ): (
                <SoundMaking
                audioContext={audioContext}
                analyser={analyser}
                handleResize={this.handleResize}
-               ref={this.updateOscNoteLines}
+               ref={this.soundMakingRef}
                />
            )}
             <Axes
@@ -317,7 +321,7 @@ class Spectrogram extends Component {
             width={context.state.width}
             height={context.state.height}
             handleResize={this.handleResize}
-            ref={this.updateAxes}/>
+            ref={this.axesRef}/>
           </React.Fragment>
           }
           {/* Intro Instructions */}
