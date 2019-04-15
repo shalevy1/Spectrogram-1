@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<svg width="512" height="512" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" xmlns:se="http://svg-edit.googlecode.com" class="svg-inline--fa fa-headphones fa-w-16" data-icon="headphones" data-prefix="fas">
- <g class="layer">
-  <title>Layer 1</title>
-  <path d="m256,32c-141.48,0 -256,114.496 -256,256l0,48a32,32 0 0 0 17.689,28.622l14.383,7.191c2.011,60.09 51.349,108.187 111.928,108.187l24,0c13.255,0 24,-10.745 24,-24l0,-176c0,-13.255 -10.745,-24 -24,-24l-24,0c-31.342,0 -59.671,12.879 -80,33.627l0,-1.627c0,-105.869 86.131,-192 192,-192s192,86.131 192,192l0,1.627c-20.329,-20.748 -48.658,-33.627 -80,-33.627l-24,0c-13.255,0 -24,10.745 -24,24l0,176c0,13.255 10.745,24 24,24l24,0c60.579,0 109.917,-48.098 111.928,-108.187l14.382,-7.191a32,32 0 0 0 17.69,-28.622l0,-48c0,-141.479 -114.496,-256 -256,-256z" fill="#ff7f00" id="svg_1"/>
-  <rect fill="#ff7f00" height="72.753513" id="svg_4" stroke-dasharray="null" stroke-linecap="null" stroke-linejoin="null" stroke-width="null" transform="rotate(40.6396 246.811 278.406)" width="643.466202" x="-74.921847" y="242.029474"/>
-  <rect fill="#e0e1e2" height="70.470889" id="svg_6" stroke-dasharray="null" stroke-linecap="null" stroke-linejoin="null" stroke-width="null" transform="rotate(40.6396 293.725 223.602)" width="643.036104" x="-27.792807" y="188.366913"/>
- </g>
-</svg>
