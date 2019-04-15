@@ -753,9 +753,9 @@ class SoundMaking extends Component {
 
   drawPitchBendButton(buttonClicked){
     if(buttonClicked){
-      this.ctx.fillStyle = "#6435C9";
+      this.ctx.fillStyle = "#1c9fdb";
     } else {
-      this.ctx.fillStyle = "#A291FB";
+      this.ctx.fillStyle = "#56caff";
     }
     const x = 40;
     const y = this.context.state.height - this.context.state.height * 0.15;
