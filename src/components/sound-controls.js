@@ -148,7 +148,7 @@ class SoundControls extends Component {
                       {/*<div className="timbre-text">
                         {context.state.timbre}
                       </div>*/}
-                      <div className="menu-header quantize-margin">Quantize</div>
+                      {/*<div className="menu-header quantize-margin">Quantize</div>
                       <div className="sound-toggle-container">
                       <Checkbox
                       toggle
@@ -157,7 +157,7 @@ class SoundControls extends Component {
                       disabled={!context.state.isStarted}
                       />
 
-                      </div>
+                      </div>*/}
 
                 </Menu.Item>
 

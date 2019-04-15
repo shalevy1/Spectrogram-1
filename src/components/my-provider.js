@@ -114,7 +114,12 @@ class MyProvider extends Component {
         },
         handleScaleEdit: data => this.setState({scale: {name: data.name, value: data.value}}),
         handleTuningModeOn: () => this.setState({tuningMode: true, noteLinesOn: true, reverbOn: false, delayOn: false}),
-        handleTuningModeOff: () => this.setState({tuningMode: false, noteLinesOn: false}),
+        handleTuningModeOff: () => {
+          this.setState({tuningMode: false});
+          if(!this.state.scaleOn){
+            this.setState({noteLinesOn: false});
+          }
+        },
         handleFreqControlsOn: () => this.setState({freqControls: true}),
         handleFreqControlsOff: () => this.setState({freqControls: false}),
         handleRangeChange: value => {

@@ -111,7 +111,9 @@ class SoundMaking extends Component {
     this.masterVolume.mute = !this.context.state.soundOn;
     // Object to hold all of the note-line frequencies (for checking the gold lines)
     this.frequencies = {};
-
+    if(this.context.state.noteLinesOn){
+      this.renderNoteLines();
+    }
     window.addEventListener("resize", this.handleResize);
     // var pattern = new Tone.Pattern((t,n) => {
     //   this.synths[0].triggerAttackRelease(n, "8n", t)
