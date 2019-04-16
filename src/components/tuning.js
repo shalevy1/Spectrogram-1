@@ -309,7 +309,7 @@ class Tuning extends Component {
     const scaleOffset = 10;
     this.ctx.font = '20px Inconsolata';
     this.ctx.fillStyle = 'white';
-    if(this.context.state.soundOn){
+    // if(this.context.state.soundOn){
       let index = freqToIndex(freq, this.context.state.resolutionMax, this.context.state.resolutionMin, this.context.state.height);
       let width = ((freq+ ' Hz').length < 7) ? 70 : 80;
       this.ctx.fillStyle = "rgba(218, 218, 218, 0.8)";
@@ -332,7 +332,7 @@ class Tuning extends Component {
         // this.ctx.fill();
         // this.ctx.stroke();
       // }
-    }
+    // }
   }
 
   renderNoteLines = () => {
