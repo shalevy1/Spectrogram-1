@@ -192,8 +192,8 @@ class SoundMaking extends Component {
       this.masterVolume.disconnect(this.delay);
       this.delay = null;
       this.delay = new Tone.FeedbackDelay(this.context.state.delayTime+0.01, this.context.state.delayFeedback);
-      this.masterVolume.connect(this.delay);
       this.delay.connect(this.delayVolume);
+      this.masterVolume.connect(this.delay);
     } else {
       this.delayVolume.mute = true;
     }
@@ -201,6 +201,8 @@ class SoundMaking extends Component {
       this.masterVolume.connect(this.props.analyser);
       this.reverbVolume.connect(this.props.analyser);
       this.delayVolume.connect(this.props.analyser);
+      this.masterVolume.connect(Tone.Master); // Master volume receives all of the synthesizer inputs and sends them to the speakers
+
     }
   }
 

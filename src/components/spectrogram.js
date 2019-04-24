@@ -16,12 +16,14 @@ import Logo from '../headphoneSlash.svg';
 
 import WebMidi from 'webmidi';
 
+
 const ReactAnimationFrame = require('react-animation-frame');
 
 let audioContext = null;
 let analyser = null;
 let gainNode = null;
 let audioTrack = null;
+
 const fftSize = 8192;
 // Spectrogram Graph that renders itself and 3 children canvases
 // (SoundMaking/TuningMode, Axes and ScaleControls)
@@ -42,13 +44,23 @@ class Spectrogram extends Component {
       scale: {name: 'Major', value: 0},
       microphone: true,
       frequencyLabel: '',
-      noteLinesRendered: false
+      noteLinesRendered: false,
+      // deferredPrompt: null,
+      // showAddToHomeScreen: false
     }
   }
   componentDidMount() {
     window.addEventListener("resize", this.handleResize);
     this.ctx = this.canvas.getContext('2d');
     this.tempCanvas = document.createElement('canvas');
+
+    // window.addEventListener('beforeinstallprompt', (e) => {
+    //   // Prevent Chrome 67 and earlier from automatically showing the prompt
+    //   e.preventDefault();
+    //   console.log("hi")
+    //   // Stash the event so it can be triggered later.
+    //   this.setState({deferredPrompt: e, showAddToHomeScreen:true});
+    // });
 
   }
   componentWillUnmount() {
@@ -246,6 +258,20 @@ class Spectrogram extends Component {
     }
   }
 
+  // addToHomeScreen = () =>{
+  //   this.state.deferredPrompt.prompt();
+  //   // Wait for the user to respond to the prompt
+  //   this.state.deferredPrompt.userChoice
+  //     .then((choiceResult) => {
+  //       if (choiceResult.outcome === 'accepted') {
+  //         console.log('User accepted the A2HS prompt');
+  //       } else {
+  //         console.log('User dismissed the A2HS prompt');
+  //       }
+  //       this.setState({deferredPrompt: null});
+  //     });
+  // }
+
   render() {
     let headphoneStyle={'backgroundColor': ''}
     let microphoneStyle={'backgroundColor': ''}
@@ -333,6 +359,9 @@ class Spectrogram extends Component {
             }
 
             </div>
+            {/* {this.state.showAddToHomeScreen&& */}
+              {/* <button onClick={this.addToHomeScreen}>Add to homescreen?</button> */}
+            {/* } */}
         </div>
         )}
         </MyContext.Consumer>
