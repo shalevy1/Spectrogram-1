@@ -87,15 +87,17 @@ class SoundMaking extends Component {
     this.goldIndices = []; // Array to hold indices on the screen of gold note lines (touched/clicked lines)
     this.masterVolume.connect(Tone.Master); // Master volume receives all of the synthesizer inputs and sends them to the speakers
 
-    this.reverb = new Tone.Reverb(this.context.state.reverbDecay*10+0.1); // Reverb unit. Runs in parallel to masterVolume
     this.reverbVolume = new Tone.Volume(0);
     this.reverbVolume.mute = true;
-
+    this.reverb = new Tone.JCReverb();
+    
+    this.reverb.connect(this.reverbVolume);
     this.reverbVolume.connect(Tone.Master);
     this.masterVolume.connect(this.reverb);
-    this.reverb.generate().then(()=>{
-      this.reverb.connect(this.reverbVolume);
-    });
+    // this.reverb = new Tone.Reverb(this.context.state.reverbDecay*10+0.1); // Reverb unit. Runs in parallel to masterVolume
+    // this.reverb.generate().then(()=>{
+    //   this.reverb.connect(this.reverbVolume);
+    // });
     this.delay = new Tone.FeedbackDelay(this.context.state.delayTime+0.01, this.context.state.delayFeedback); // delay unit. Runs in parallel to masterVolume
     this.masterVolume.connect(this.delay);
 
@@ -115,17 +117,14 @@ class SoundMaking extends Component {
       this.renderNoteLines();
     }
     window.addEventListener("resize", this.handleResize);
-    // var pattern = new Tone.Pattern((t,n) => {
-    //   this.synths[0].triggerAttackRelease(n, "8n", t)
-    // }, ["C4", "E4", "G4", "B4"], "upDown")
-    // Tone.Transport.bpm.value = 200
-    // pattern.start();
+    Tone.Transport.bpm.value = 200;
     Tone.Transport.start();
 
   }
 
 // Sets up what will happen on controls changes
   setAudioVariables(){
+      this.masterVolume.connect(Tone.Master); // Master volume receives all of the synthesizer inputs and sends them to the speakers
     if (this.context.state.soundOn === false) {
       this.masterVolume.mute = true;
     } else {
@@ -176,12 +175,16 @@ class SoundMaking extends Component {
       this.reverbVolume.mute = false;
       this.masterVolume.disconnect(this.reverb);
       this.reverb = null;
-      this.reverb = new Tone.Reverb(this.context.state.reverbDecay*10+0.1); // Reverb unit. Runs in parallel to masterVolume
-      this.masterVolume.connect(this.reverb);
-      this.reverb.generate().then(()=>{
-        this.reverb.connect(this.reverbVolume);
-        // this.reverb.decay = this.context.state.reverbDecay*15;
-      });
+      this.reverb = new Tone.JCReverb();
+      this.reverb.connect(this.reverbVolume);
+      this.masterVolume.connect(this.reverb)
+      // this.reverb = new Tone.Reverb(this.context.state.reverbDecay*10+0.1); // Reverb unit. Runs in parallel to masterVolume
+      // this.masterVolume.connect(this.reverb);
+      // this.reverb.generate().then(()=>{
+      //   this.reverb.connect(this.reverbVolume);
+      //   // this.reverb.decay = this.context.state.reverbDecay*15;
+      // });
+      
     } else {
       this.reverbVolume.mute = true;
     }
@@ -195,6 +198,7 @@ class SoundMaking extends Component {
     } else {
       this.delayVolume.mute = true;
     }
+
   }
 
 
@@ -224,7 +228,7 @@ class SoundMaking extends Component {
         this.synths[newVoice].triggerAttackRelease(this.heldFreqs[newVoice], "@8n."); // Starts the synth at frequency = freq
       }, "4n");
       this.heldFreqs[newVoice] = freq;
-      // console.log(getTempo(xPercent))
+      // console.log(getTempo(xPercent), Tone.Transport.position, Tone.Transport.bpm)
       // Tone.Transport.bpm.value = getTempo(xPercent);
       this.synths[newVoice].volume.value = gain; // Starts the synth at volume = gain
     } else {
@@ -286,7 +290,7 @@ class SoundMaking extends Component {
             // let outputTempo = 0.5*(tempo + Tone.Transport.bpm.value);
             // console.log(outputTempo)
             // if(Math.abs(outputTempo - Tone.Transport.bpm.value) > 0.05*Tone.Transport.bpm.value){
-            //   Tone.Transport.bpm.value = +outputTempo;
+              // Tone.Transport.bpm.value = +outputTempo;
             //   console.log("Changed")
             // }
         } else {
@@ -380,6 +384,7 @@ class SoundMaking extends Component {
   (implmented as a circular array).
   */
   onTouchStart(e) {
+    console.log("START")
     e.preventDefault(); // Always need to prevent default browser choices
     e.stopPropagation();
     this.setAudioVariables();
@@ -472,6 +477,7 @@ class SoundMaking extends Component {
 
   }
   onTouchMove(e) {
+    console.log("MOVE")
     e.preventDefault(); // Always need to prevent default browser choices
     // Check if more fingers were moved than allowed
     if(e.changedTouches.length > NUM_VOICES ){

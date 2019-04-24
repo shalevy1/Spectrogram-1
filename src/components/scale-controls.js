@@ -372,6 +372,7 @@ class Scales extends Component {
   }
 
   onTouchMove(e) {
+    console.log("MOVE")
       let {height, width} = this.props;
       let newObj = this.state.evCache;
       for (let i = 0; i < e.touches.length; i++) {
