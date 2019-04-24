@@ -10,6 +10,7 @@ import { getFreq, getGain, getTempo, freqToIndex, getMousePos, convertToLog, con
 const NUM_VOICES = 6;
 const RAMPVALUE = 0.2;
 const NOTE_JUMP = 1.0594630943593;
+const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
 // Main sound-making class. Can handle click and touch inputs
 class SoundMaking extends Component {
@@ -86,18 +87,20 @@ class SoundMaking extends Component {
 
     this.goldIndices = []; // Array to hold indices on the screen of gold note lines (touched/clicked lines)
     this.masterVolume.connect(Tone.Master); // Master volume receives all of the synthesizer inputs and sends them to the speakers
-
+    
     this.reverbVolume = new Tone.Volume(0);
     this.reverbVolume.mute = true;
-    this.reverb = new Tone.JCReverb();
-    
-    this.reverb.connect(this.reverbVolume);
+    if(iOS){
+      this.reverb = new Tone.JCReverb(this.context.state.reverbDecay*0.9);
+      this.reverb.connect(this.reverbVolume);
+    } else{
+      this.reverb = new Tone.Reverb(this.context.state.reverbDecay*10+0.1); // Reverb unit. Runs in parallel to masterVolume
+      this.reverb.generate().then(()=>{
+        this.reverb.connect(this.reverbVolume);
+      });
+    }
     this.reverbVolume.connect(Tone.Master);
     this.masterVolume.connect(this.reverb);
-    // this.reverb = new Tone.Reverb(this.context.state.reverbDecay*10+0.1); // Reverb unit. Runs in parallel to masterVolume
-    // this.reverb.generate().then(()=>{
-    //   this.reverb.connect(this.reverbVolume);
-    // });
     this.delay = new Tone.FeedbackDelay(this.context.state.delayTime+0.01, this.context.state.delayFeedback); // delay unit. Runs in parallel to masterVolume
     this.masterVolume.connect(this.delay);
 
@@ -154,37 +157,33 @@ class SoundMaking extends Component {
       if(!this.state.feedback){
         this.masterVolume.connect(this.props.analyser);
         this.reverbVolume.connect(this.props.analyser);
-        this.delayVolume.connect(this.props.analyser)
+        this.delayVolume.connect(this.props.analyser);
         this.setState({feedback: true});
       }
     } else {
       if(this.state.feedback){
         this.masterVolume.disconnect(this.props.analyser);
         this.reverbVolume.disconnect(this.props.analyser);
-        this.delayVolume.disconnect(this.props.analyser)
+        this.delayVolume.disconnect(this.props.analyser);
         this.setState({feedback: false});
       }
     }
-    // if(this.context.state.noteLinesOn){
-    //   this.ctx.clearRect(0, 0, this.context.state.width, this.context.state.height);
-    //   this.renderNoteLines();
-    // } else {
-    //   this.ctx.clearRect(0, 0, this.context.state.width, this.context.state.height);
-    // }
     if(this.context.state.reverbOn){
       this.reverbVolume.mute = false;
       this.masterVolume.disconnect(this.reverb);
       this.reverb = null;
-      this.reverb = new Tone.JCReverb();
-      this.reverb.connect(this.reverbVolume);
+      if(iOS){
+        this.reverb = new Tone.JCReverb(this.context.state.reverbDecay*0.9);
+        this.reverb.connect(this.reverbVolume);
+        
+      } else{
+        this.reverb = new Tone.Reverb(this.context.state.reverbDecay*10+0.1); // Reverb unit. Runs in parallel to masterVolume
+        this.reverb.generate().then(()=>{
+          this.reverb.connect(this.reverbVolume);
+            // this.reverb.decay = this.context.state.reverbDecay*15;
+        });
+      }
       this.masterVolume.connect(this.reverb)
-      // this.reverb = new Tone.Reverb(this.context.state.reverbDecay*10+0.1); // Reverb unit. Runs in parallel to masterVolume
-      // this.masterVolume.connect(this.reverb);
-      // this.reverb.generate().then(()=>{
-      //   this.reverb.connect(this.reverbVolume);
-      //   // this.reverb.decay = this.context.state.reverbDecay*15;
-      // });
-      
     } else {
       this.reverbVolume.mute = true;
     }
@@ -198,7 +197,11 @@ class SoundMaking extends Component {
     } else {
       this.delayVolume.mute = true;
     }
-
+    if(iOS){
+      this.masterVolume.connect(this.props.analyser);
+      this.reverbVolume.connect(this.props.analyser);
+      this.delayVolume.connect(this.props.analyser);
+    }
   }
 
 
