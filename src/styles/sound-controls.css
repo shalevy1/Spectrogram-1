@@ -69,6 +69,11 @@
   right: 0%;
   bottom: 10%;
 }
+.midi-button {
+  position: absolute;
+  right: 25%;
+  bottom: 10%;
+}
 
 .note-lines {
   margin-right: 25%;

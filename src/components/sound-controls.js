@@ -250,6 +250,8 @@ class SoundControls extends Component {
                   {(context.state.scale.name === "Chromatic")? "" : context.state.musicKey.name}{(context.state.scale.name === "Chromatic")? "" : context.state.accidental.name}{context.state.scale.name}
                   </div>
                   <Button className="edit-scales-button" onClick={context.handleEditScalesChange}>Edit </Button>
+                  <Button className="midi-button" toggle active={context.state.midi} onClick={context.handleMIDIChange} disabled={!context.state.midiEnabled}>MIDI </Button>
+
                   </div>
                 </Menu.Item>
                   {/* Effects */}

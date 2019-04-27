@@ -5,7 +5,9 @@ import {MyContext} from './my-provider';
 
 import generateScale from '../util/generateScale';
 
-import { getFreq, getGain, getTempo, freqToIndex, getMousePos, convertToLog, convertToLinear } from "../util/conversions";
+import { getFreq, getGain, getTempo, freqToIndex, getMousePos, convertToLog, convertToLinear, midiToFreq } from "../util/conversions";
+// import WebMidi from 'webmidi';
+
 
 const NUM_VOICES = 6;
 const RAMPVALUE = 0.2;
@@ -52,6 +54,7 @@ class SoundMaking extends Component {
     this.bendStartPercents = new Array(NUM_VOICES);
     this.bendStartFreqs = new Array(NUM_VOICES);
     this.bendStartVolumes = new Array(NUM_VOICES);
+    this.midiNotes = new Array(NUM_VOICES);
 
     // Start master volume at -20 dB
     this.masterVolume = new Tone.Volume(0);
@@ -204,6 +207,7 @@ class SoundMaking extends Component {
       this.masterVolume.connect(Tone.Master); // Master volume receives all of the synthesizer inputs and sends them to the speakers
 
     }
+    
   }
 
 
@@ -217,61 +221,62 @@ class SoundMaking extends Component {
   */
   onMouseDown(e) {
     e.preventDefault(); // Always need to prevent default browser choices
-    this.setAudioVariables();
-    let pos = getMousePos(this.canvas, e);
-    // Calculates x and y value in respect to width and height of screen
-    // The value goes from 0 to 1. (0, 0) = Bottom Left corner
-    let yPercent = 1 - pos.y / this.context.state.height;
-    let xPercent = 1 - pos.x / this.context.state.width;
-    let freq = this.getFreq(yPercent);
-    let gain = getGain(xPercent);
-    // newVoice = implementation of circular array discussed above.
-    let newVoice = (this.state.currentVoice + 1) % NUM_VOICES; // Mouse always changes to new "voice"
-    if(this.context.state.quantize){
+    if(!this.context.state.midi){
+      this.setAudioVariables();
+      let pos = getMousePos(this.canvas, e);
+      // Calculates x and y value in respect to width and height of screen
+      // The value goes from 0 to 1. (0, 0) = Bottom Left corner
+      let yPercent = 1 - pos.y / this.context.state.height;
+      let xPercent = 1 - pos.x / this.context.state.width;
+      let freq = this.getFreq(yPercent);
+      let gain = getGain(xPercent);
+      // newVoice = implementation of circular array discussed above.
+      let newVoice = (this.state.currentVoice + 1) % NUM_VOICES; // Mouse always changes to new "voice"
+      if(this.context.state.quantize){
 
-      Tone.Transport.scheduleRepeat(time => {
-        this.synths[newVoice].triggerAttackRelease(this.heldFreqs[newVoice], "@8n."); // Starts the synth at frequency = freq
-      }, "4n");
-      this.heldFreqs[newVoice] = freq;
-      // console.log(getTempo(xPercent), Tone.Transport.position, Tone.Transport.bpm)
-      // Tone.Transport.bpm.value = getTempo(xPercent);
-      this.synths[newVoice].volume.value = gain; // Starts the synth at volume = gain
-    } else {
-      this.synths[newVoice].triggerAttack(freq); // Starts the synth at frequency = freq
-      this.synths[newVoice].volume.value = gain; // Starts the synth at volume = gain
+        Tone.Transport.scheduleRepeat(time => {
+          this.synths[newVoice].triggerAttackRelease(this.heldFreqs[newVoice], "@8n."); // Starts the synth at frequency = freq
+        }, "4n");
+        this.heldFreqs[newVoice] = freq;
+        // console.log(getTempo(xPercent), Tone.Transport.position, Tone.Transport.bpm)
+        // Tone.Transport.bpm.value = getTempo(xPercent);
+        this.synths[newVoice].volume.value = gain; // Starts the synth at volume = gain
+      } else {
+        this.synths[newVoice].triggerAttack(freq); // Starts the synth at frequency = freq
+        this.synths[newVoice].volume.value = gain; // Starts the synth at volume = gain
 
+      }
+
+
+      // Am
+      if(this.context.state.amOn){
+        let newVol = convertToLog(this.context.state.amLevel, 0, 1, 0.01, 15); // AM amplitud;e set between 0.01 and 15 (arbitray choices)
+        let newFreq = convertToLog(this.context.state.amRate, 0, 1, 0.5, 50); // AM frequency set between 0.5 and 50 hz (arbitray choices)
+        this.amSignals[newVoice].volume.exponentialRampToValueAtTime(newVol, this.props.audioContext.currentTime+1); // Ramps to AM amplitude in 1 sec
+        this.amSignals[newVoice].triggerAttack(newFreq);
+      }
+      // FM
+      if(this.context.state.fmOn){
+        let modIndex = (1-freqToIndex(freq, 20000, 20, 1))*1.2; // FM index ranges from 0 - 2
+        let newVol = convertToLog(this.context.state.fmLevel, 0, 1, 25, 50); // FM amplitude set between 30 and 60 (arbitrary choices)
+        let newFreq = convertToLog(this.context.state.fmRate, 0, 1, 0.5, 50); // FM Frequency set between 0.5 and 50 (arbitray choices)
+        // let newFreq = convertToLog(yPercent, 0, 1, 0.5, 20); // FM Frequency set between 0.5 and 20 (arbitray choices)
+        this.fmSignals[newVoice].volume.exponentialRampToValueAtTime(newVol*modIndex, this.props.audioContext.currentTime+RAMPVALUE); // Ramps to FM amplitude*modIndex in RAMPVALUE sec
+        this.fmSignals[newVoice].triggerAttack(newFreq);
+      }
+
+      this.ctx.clearRect(0, 0, this.context.state.width, this.context.state.height); // Clears canvas for redraw of label
+      this.setState({
+        mouseDown: true,
+        currentVoice: newVoice,
+        voices: this.state.voices + 1,
+      });
+      if(this.context.state.noteLinesOn){
+        this.renderNoteLines();
+      }
+      this.label(freq, pos.x, pos.y); // Labels the point
+      this.drawPitchBendButton(false);
     }
-
-
-    // Am
-    if(this.context.state.amOn){
-      let newVol = convertToLog(this.context.state.amLevel, 0, 1, 0.01, 15); // AM amplitud;e set between 0.01 and 15 (arbitray choices)
-      let newFreq = convertToLog(this.context.state.amRate, 0, 1, 0.5, 50); // AM frequency set between 0.5 and 50 hz (arbitray choices)
-      this.amSignals[newVoice].volume.exponentialRampToValueAtTime(newVol, this.props.audioContext.currentTime+1); // Ramps to AM amplitude in 1 sec
-      this.amSignals[newVoice].triggerAttack(newFreq);
-    }
-    // FM
-    if(this.context.state.fmOn){
-      let modIndex = (1-freqToIndex(freq, 20000, 20, 1))*1.2; // FM index ranges from 0 - 2
-      let newVol = convertToLog(this.context.state.fmLevel, 0, 1, 25, 50); // FM amplitude set between 30 and 60 (arbitrary choices)
-      let newFreq = convertToLog(this.context.state.fmRate, 0, 1, 0.5, 50); // FM Frequency set between 0.5 and 50 (arbitray choices)
-      // let newFreq = convertToLog(yPercent, 0, 1, 0.5, 20); // FM Frequency set between 0.5 and 20 (arbitray choices)
-      this.fmSignals[newVoice].volume.exponentialRampToValueAtTime(newVol*modIndex, this.props.audioContext.currentTime+RAMPVALUE); // Ramps to FM amplitude*modIndex in RAMPVALUE sec
-      this.fmSignals[newVoice].triggerAttack(newFreq);
-    }
-
-    this.ctx.clearRect(0, 0, this.context.state.width, this.context.state.height); // Clears canvas for redraw of label
-    this.setState({
-      mouseDown: true,
-      currentVoice: newVoice,
-      voices: this.state.voices + 1,
-    });
-    if(this.context.state.noteLinesOn){
-      this.renderNoteLines();
-    }
-    this.label(freq, pos.x, pos.y); // Labels the point
-    this.drawPitchBendButton(false);
-
 
   }
   onMouseMove(e) {
@@ -392,109 +397,111 @@ class SoundMaking extends Component {
     console.log("START")
     e.preventDefault(); // Always need to prevent default browser choices
     e.stopPropagation();
-    this.setAudioVariables();
+    if(!this.context.state.midi){
+      this.setAudioVariables();
 
-    if(e.touches.length > NUM_VOICES ){
-      return;
-    }
-    this.ctx.clearRect(0, 0, this.context.state.width, this.context.state.height);
+      if(e.touches.length > NUM_VOICES ){
+        return;
+      }
+      this.ctx.clearRect(0, 0, this.context.state.width, this.context.state.height);
 
-    if(this.context.state.noteLinesOn){
-      this.renderNoteLines();
-    }
-    // For each finger, do the same as above in onMouseDown
-    for (let i = 0; i < e.changedTouches.length; i++) {
-      let pos = getMousePos(this.canvas, e.changedTouches[i]);
-      if (!this.isPitchButton(pos.x, pos.y)){
-        let yPercent = 1 - pos.y / this.context.state.height;
-        let xPercent = 1 - pos.x / this.context.state.width;
-        let gain = getGain(xPercent);
-        let freq = this.getFreq(yPercent);
-        let newVoice = e.changedTouches[i].identifier % NUM_VOICES;
-        if(newVoice < 0) newVoice = NUM_VOICES + newVoice;
-        this.setState({
-          touch: true,
-        });
-        if(this.context.state.quantize){
-          let id = Tone.Transport.scheduleRepeat(time => {
-            this.synths[newVoice].triggerAttackRelease(this.heldFreqs[newVoice], "@8n."); // Starts the synth at frequency = freq
-          }, "4n");
-          this.heldFreqs[newVoice] = freq;
-          this.heldIds[newVoice] = id;
-        } else {
-          this.synths[newVoice].triggerAttack(freq);
-        }
-        this.synths[newVoice].volume.value = gain;
-        // Am
-        if(this.context.state.amOn){
-          let newVol = convertToLog(this.context.state.amLevel, 0, 1, 0.01, 15); // AM amplitud;e set between 0.01 and 15 (arbitray choices)
-          let newFreq = convertToLog(this.context.state.amRate, 0, 1, 0.5, 50); // AM frequency set between 0.5 and 50 hz (arbitray choices)
-          this.amSignals[newVoice].volume.exponentialRampToValueAtTime(newVol, this.props.audioContext.currentTime+1); // Ramps to AM amplitude in 1 sec
-          this.amSignals[newVoice].triggerAttack(newFreq);
-        }
-        // FM
-        if(this.context.state.fmOn){
-          let modIndex = (1-freqToIndex(freq, 20000, 20, 1)) *1.2 // FM index ranges from 0 - 2
-          let newVol = convertToLog(this.context.state.fmLevel, 0, 1, 25, 50); // FM amplitude set between 30 and 60 (arbitrary choices)
-          let newFreq = convertToLog(this.context.state.fmRate, 0, 1, 0.5, 50); // FM Frequency set between 0.5 and 50 (arbitray choices)
-          // let newFreq = convertToLog(yPercent, 0, 1, 0.5, 20); // FM Frequency set between 0.5 and 20 (arbitray choices)
-          this.fmSignals[newVoice].volume.exponentialRampToValueAtTime(newVol*modIndex, this.props.audioContext.currentTime+RAMPVALUE); // Ramps to FM amplitude*modIndex in RAMPVALUE sec
-          this.fmSignals[newVoice].triggerAttack(newFreq);
-        }
-
-        this.drawPitchBendButton(this.state.pitchButtonPressed);
-        if(this.state.pitchButtonPressed){
-          this.bendStartPercents[newVoice] = yPercent;
-          this.bendStartFreqs[newVoice] = freq;
-          this.bendStartVolumes[newVoice] = gain;
-        }
-
-      } else {
-        let newVoice = (this.state.currentVoice + 1) % NUM_VOICES;
-        for (let i = 0; i < e.touches.length; i++) {
-          let pos = getMousePos(this.canvas, e.touches[i]);
-          let index = e.touches[i].identifier % NUM_VOICES;
+      if(this.context.state.noteLinesOn){
+        this.renderNoteLines();
+      }
+      // For each finger, do the same as above in onMouseDown
+      for (let i = 0; i < e.changedTouches.length; i++) {
+        let pos = getMousePos(this.canvas, e.changedTouches[i]);
+        if (!this.isPitchButton(pos.x, pos.y)){
           let yPercent = 1 - pos.y / this.context.state.height;
           let xPercent = 1 - pos.x / this.context.state.width;
           let gain = getGain(xPercent);
           let freq = this.getFreq(yPercent);
-          if (!this.isPitchButton(pos.x, pos.y)){
-            this.bendStartPercents[index] = yPercent;
-            this.bendStartFreqs[index] = freq;
-            this.bendStartVolumes[index] = gain;
-
+          let newVoice = e.changedTouches[i].identifier % NUM_VOICES;
+          if(newVoice < 0) newVoice = NUM_VOICES + newVoice;
+          this.setState({
+            touch: true,
+          });
+          if(this.context.state.quantize){
+            let id = Tone.Transport.scheduleRepeat(time => {
+              this.synths[newVoice].triggerAttackRelease(this.heldFreqs[newVoice], "@8n."); // Starts the synth at frequency = freq
+            }, "4n");
+            this.heldFreqs[newVoice] = freq;
+            this.heldIds[newVoice] = id;
+          } else {
+            this.synths[newVoice].triggerAttack(freq);
           }
-        }
-        this.drawPitchBendButton(true);
-        this.setState({pitchButtonPressed: true});
-        }
+          this.synths[newVoice].volume.value = gain;
+          // Am
+          if(this.context.state.amOn){
+            let newVol = convertToLog(this.context.state.amLevel, 0, 1, 0.01, 15); // AM amplitud;e set between 0.01 and 15 (arbitray choices)
+            let newFreq = convertToLog(this.context.state.amRate, 0, 1, 0.5, 50); // AM frequency set between 0.5 and 50 hz (arbitray choices)
+            this.amSignals[newVoice].volume.exponentialRampToValueAtTime(newVol, this.props.audioContext.currentTime+1); // Ramps to AM amplitude in 1 sec
+            this.amSignals[newVoice].triggerAttack(newFreq);
+          }
+          // FM
+          if(this.context.state.fmOn){
+            let modIndex = (1-freqToIndex(freq, 20000, 20, 1)) *1.2 // FM index ranges from 0 - 2
+            let newVol = convertToLog(this.context.state.fmLevel, 0, 1, 25, 50); // FM amplitude set between 30 and 60 (arbitrary choices)
+            let newFreq = convertToLog(this.context.state.fmRate, 0, 1, 0.5, 50); // FM Frequency set between 0.5 and 50 (arbitray choices)
+            // let newFreq = convertToLog(yPercent, 0, 1, 0.5, 20); // FM Frequency set between 0.5 and 20 (arbitray choices)
+            this.fmSignals[newVoice].volume.exponentialRampToValueAtTime(newVol*modIndex, this.props.audioContext.currentTime+RAMPVALUE); // Ramps to FM amplitude*modIndex in RAMPVALUE sec
+            this.fmSignals[newVoice].triggerAttack(newFreq);
+          }
 
-    }
-    for (let i = 0; i < e.touches.length; i++) {
-      let pos = getMousePos(this.canvas, e.touches[i]);
-      let yPercent = 1 - pos.y / this.context.state.height;
-      let xPercent = 1 - pos.x / this.context.state.width;
-      let freq = this.getFreq(yPercent);
-      if (!this.isPitchButton(pos.x, pos.y)){
-        this.label(freq, pos.x, pos.y);
+          this.drawPitchBendButton(this.state.pitchButtonPressed);
+          if(this.state.pitchButtonPressed){
+            this.bendStartPercents[newVoice] = yPercent;
+            this.bendStartFreqs[newVoice] = freq;
+            this.bendStartVolumes[newVoice] = gain;
+          }
+
+        } else {
+          let newVoice = (this.state.currentVoice + 1) % NUM_VOICES;
+          for (let i = 0; i < e.touches.length; i++) {
+            let pos = getMousePos(this.canvas, e.touches[i]);
+            let index = e.touches[i].identifier % NUM_VOICES;
+            let yPercent = 1 - pos.y / this.context.state.height;
+            let xPercent = 1 - pos.x / this.context.state.width;
+            let gain = getGain(xPercent);
+            let freq = this.getFreq(yPercent);
+            if (!this.isPitchButton(pos.x, pos.y)){
+              this.bendStartPercents[index] = yPercent;
+              this.bendStartFreqs[index] = freq;
+              this.bendStartVolumes[index] = gain;
+
+            }
+          }
+          this.drawPitchBendButton(true);
+          this.setState({pitchButtonPressed: true});
+          }
+
+      }
+      for (let i = 0; i < e.touches.length; i++) {
+        let pos = getMousePos(this.canvas, e.touches[i]);
+        let yPercent = 1 - pos.y / this.context.state.height;
+        let xPercent = 1 - pos.x / this.context.state.width;
+        let freq = this.getFreq(yPercent);
+        if (!this.isPitchButton(pos.x, pos.y)){
+          this.label(freq, pos.x, pos.y);
+        }
       }
     }
-
   }
+
   onTouchMove(e) {
     console.log("MOVE")
     e.preventDefault(); // Always need to prevent default browser choices
     // Check if more fingers were moved than allowed
-    if(e.changedTouches.length > NUM_VOICES ){
-      return;
-    }
-    let {width, height} = this.context.state;
-    // If touch is pressed (Similar to mouseDown = true, although there should never be a case where this is false)
-    this.ctx.clearRect(0, 0, width, height);
-    if(this.context.state.noteLinesOn){
-      this.renderNoteLines();
-    }
     if (this.state.touch) {
+      if(e.changedTouches.length > NUM_VOICES ){
+        return;
+      }
+      let {width, height} = this.context.state;
+      // If touch is pressed (Similar to mouseDown = true, although there should never be a case where this is false)
+      this.ctx.clearRect(0, 0, width, height);
+      if(this.context.state.noteLinesOn){
+        this.renderNoteLines();
+      }
       // Determines the current "starting" index to change
       // For each changed touch, do the same as onMouseMove
       for (let i = 0; i < e.changedTouches.length; i++) {
@@ -568,88 +575,185 @@ class SoundMaking extends Component {
   }
   onTouchEnd(e) {
     e.preventDefault(); // Always need to prevent default browser choices
-    let {width, height} = this.context.state;
-    this.ctx.clearRect(0, 0, width, height);
-    if(this.context.state.noteLinesOn){
-      this.renderNoteLines();
-    }
-    // Check if there are more touches changed than on the screen and release everything (mostly as an fail switch)
-    if (e.changedTouches.length === e.touches.length + 1) {
-      Tone.Transport.cancel();
-      for (var i = 0; i < NUM_VOICES; i++) {
-        this.synths[i].triggerRelease();
-        this.amSignals[i].triggerRelease();
-        this.fmSignals[i].triggerRelease();
+    if(this.state.touch){
+      let {width, height} = this.context.state;
+      this.ctx.clearRect(0, 0, width, height);
+      if(this.context.state.noteLinesOn){
+        this.renderNoteLines();
       }
-      this.goldIndices = [];
-      this.drawPitchBendButton(false);
+      // Check if there are more touches changed than on the screen and release everything (mostly as an fail switch)
+      if (e.changedTouches.length === e.touches.length + 1) {
+        Tone.Transport.cancel();
+        for (var i = 0; i < NUM_VOICES; i++) {
+          this.synths[i].triggerRelease();
+          this.amSignals[i].triggerRelease();
+          this.fmSignals[i].triggerRelease();
+        }
+        this.goldIndices = [];
+        this.drawPitchBendButton(false);
 
-      this.setState({voices: 0, touch: false, notAllRelease: false, currentVoice: -1, pitchButtonPressed: false});
-    } else {
-      let checkButton = false;
-      // Does the same as onTouchMove, except instead of changing the voice, it deletes it.
-      for (let i = 0; i < e.changedTouches.length; i++) {
-        let pos = getMousePos(this.canvas, e.changedTouches[i]);
-        let index = e.changedTouches[i].identifier % NUM_VOICES;
-        if(index < 0) index = NUM_VOICES + index;
+        this.setState({voices: 0, touch: false, notAllRelease: false, currentVoice: -1, pitchButtonPressed: false});
+      } else {
+          let checkButton = false;
+          // Does the same as onTouchMove, except instead of changing the voice, it deletes it.
+          for (let i = 0; i < e.changedTouches.length; i++) {
+            let pos = getMousePos(this.canvas, e.changedTouches[i]);
+            let index = e.changedTouches[i].identifier % NUM_VOICES;
+            if(index < 0) index = NUM_VOICES + index;
 
-        if(!this.isPitchButton(pos.x, pos.y)){
-          if(this.state.pitchButtonPressed){
-            // Ramps to new Frequency and Volume
-            this.synths[index].frequency.exponentialRampToValueAtTime(this.bendStartFreqs[index], this.props.audioContext.currentTime+0.2);
-            // Ramp to new Volume
-            this.synths[index].volume.exponentialRampToValueAtTime(this.bendStartVolumes[index], this.props.audioContext.currentTime+0.05);
-            this.bendStartPercents[index] = 0;
-            this.bendStartFreqs[index] = 0;
-            this.bendStartVolumes[index] = 0;
-          }
-          else {
-            this.goldIndices.splice(index, 1);
-            this.synths[index].triggerRelease();
-            this.amSignals[index].triggerRelease();
-            this.fmSignals[index].triggerRelease();
-            if(this.context.state.quantize){
-              Tone.Transport.clear(this.heldIds[index]);
-            }
-          }
-          this.drawPitchBendButton(this.state.pitchButtonPressed);
-        } else {
-          if(e.touches.length == 0){
-              for (var i = 0; i < NUM_VOICES; i++) {
-                this.synths[i].triggerRelease();
-                this.fmSignals[i].triggerRelease();
-                this.amSignals[i].triggerRelease();
+            if(!this.isPitchButton(pos.x, pos.y)){
+              if(this.state.pitchButtonPressed){
+                // Ramps to new Frequency and Volume
+                this.synths[index].frequency.exponentialRampToValueAtTime(this.bendStartFreqs[index], this.props.audioContext.currentTime+0.2);
+                // Ramp to new Volume
+                this.synths[index].volume.exponentialRampToValueAtTime(this.bendStartVolumes[index], this.props.audioContext.currentTime+0.05);
+                this.bendStartPercents[index] = 0;
+                this.bendStartFreqs[index] = 0;
+                this.bendStartVolumes[index] = 0;
+              }
+              else {
+                this.goldIndices.splice(index, 1);
+                this.synths[index].triggerRelease();
+                this.amSignals[index].triggerRelease();
+                this.fmSignals[index].triggerRelease();
+                if(this.context.state.quantize){
+                  Tone.Transport.clear(this.heldIds[index]);
+                }
+              }
+              this.drawPitchBendButton(this.state.pitchButtonPressed);
+            } else {
+              if(e.touches.length == 0){
+                  for (var i = 0; i < NUM_VOICES; i++) {
+                    this.synths[i].triggerRelease();
+                    this.fmSignals[i].triggerRelease();
+                    this.amSignals[i].triggerRelease();
+                  }
+              }
+              this.setState({pitchButtonPressed: false});
+              this.drawPitchBendButton(false);
+              checkButton = true;
               }
           }
-          this.setState({pitchButtonPressed: false});
-          this.drawPitchBendButton(false);
-          checkButton = true;
+          if(!checkButton){
+            let newVoice = this.state.currentVoice - e.changedTouches.length;
+            newVoice = (newVoice < 0)
+              ? (NUM_VOICES + newVoice)
+              : newVoice;
+            this.setState({currentVoice: newVoice});
           }
-      }
-      if(!checkButton){
-        let newVoice = this.state.currentVoice - e.changedTouches.length;
-        newVoice = (newVoice < 0)
-          ? (NUM_VOICES + newVoice)
-          : newVoice;
-        this.setState({currentVoice: newVoice});
-      }
+        }
 
-
-      }
-
-
-
-
-
-    //Redraw Labels
-    for (let i = 0; i < e.touches.length; i++) {
-      let pos = getMousePos(this.canvas, e.touches[i]);
-      let yPercent = 1 - pos.y / this.context.state.height;
-      let freq = this.getFreq(yPercent);
-      if(!this.isPitchButton(pos.x,pos.y)){
-        this.label(freq, pos.x, pos.y);
+      //Redraw Labels
+      for (let i = 0; i < e.touches.length; i++) {
+        let pos = getMousePos(this.canvas, e.touches[i]);
+        let yPercent = 1 - pos.y / this.context.state.height;
+        let freq = this.getFreq(yPercent);
+        if(!this.isPitchButton(pos.x,pos.y)){
+          this.label(freq, pos.x, pos.y);
+        }
       }
     }
+  }
+
+  MIDINoteOn=(e)=>{
+    // console.log("On", e);
+    this.setAudioVariables();
+    let {resolutionMax, resolutionMin, height, width} = this.context.state;
+    this.ctx.clearRect(0, 0, width, height);
+
+    if (this.context.state.noteLinesOn) {
+      this.renderNoteLines();
+    }
+    // For each note, do the same as above in onMouseDown
+    let xPercent = 1 - e.velocity;
+    let gain = getGain(xPercent);
+    let freq = midiToFreq(e.note.number);
+    let yPos = freqToIndex(freq, resolutionMax, resolutionMin, height);
+    let yPercent = 1 - yPos / height;
+    let newVoice = (this.state.currentVoice + 1) % NUM_VOICES;
+    if (this.context.state.quantize) {
+      let id = Tone.Transport.scheduleRepeat(time => {
+        this.synths[newVoice].triggerAttackRelease(this.heldFreqs[newVoice], "@8n."); // Starts the synth at frequency = freq
+      }, "4n");
+      this.heldFreqs[newVoice] = freq;
+      this.heldIds[newVoice] = id;
+    } else {
+      // console.log(e.note.number, freq, gain)
+      this.synths[newVoice].triggerAttack(freq);
+    }
+    this.synths[newVoice].volume.value = gain;
+    // Am
+    if (this.context.state.amOn) {
+      let newVol = convertToLog(this.context.state.amLevel, 0, 1, 0.01, 15); // AM amplitud;e set between 0.01 and 15 (arbitray choices)
+      let newFreq = convertToLog(this.context.state.amRate, 0, 1, 0.5, 50); // AM frequency set between 0.5 and 50 hz (arbitray choices)
+      this.amSignals[newVoice].volume.exponentialRampToValueAtTime(newVol, this.props.audioContext.currentTime + 1); // Ramps to AM amplitude in 1 sec
+      this.amSignals[newVoice].triggerAttack(newFreq);
+    }
+    // FM
+    if (this.context.state.fmOn) {
+      let modIndex = (1 - freqToIndex(freq, 20000, 20, 1)) * 1.2 // FM index ranges from 0 - 2
+      let newVol = convertToLog(this.context.state.fmLevel, 0, 1, 25, 50); // FM amplitude set between 30 and 60 (arbitrary choices)
+      let newFreq = convertToLog(this.context.state.fmRate, 0, 1, 0.5, 50); // FM Frequency set between 0.5 and 50 (arbitray choices)
+      // let newFreq = convertToLog(yPercent, 0, 1, 0.5, 20); // FM Frequency set between 0.5 and 20 (arbitray choices)
+      this.fmSignals[newVoice].volume.exponentialRampToValueAtTime(newVol * modIndex, this.props.audioContext.currentTime + RAMPVALUE); // Ramps to FM amplitude*modIndex in RAMPVALUE sec
+      this.fmSignals[newVoice].triggerAttack(newFreq);
+    }
+
+    this.drawPitchBendButton(this.state.pitchButtonPressed);
+    if (this.state.pitchButtonPressed) {
+      this.bendStartPercents[newVoice] = yPercent;
+      this.bendStartFreqs[newVoice] = freq;
+      this.bendStartVolumes[newVoice] = gain;
+    }
+    this.midiNotes[newVoice] = {
+      xPercent: xPercent, 
+      yPercent: yPercent, 
+      label: e.note.name + (parseInt(e.note.octave) - 1),
+      id: newVoice
+    };
+    this.setState({currentVoice: newVoice});
+    
+    this.midiNotes.forEach((item)=>{
+      if(item){
+        let pos = {
+          x: (1 - item.xPercent) * width,
+          y: (1 - item.yPercent) * height
+        }
+        let freq = getFreq(item.yPercent, resolutionMin, resolutionMax);        
+        // console.log(item, pos, freq)
+        this.label(item.label, pos.x, pos.y);
+      }
+    });
+
+  }
+
+  MIDINoteOff=(e)=>{
+    // console.log("Off", e)
+    let {resolutionMax, resolutionMin, height, width} = this.context.state;
+    this.ctx.clearRect(0, 0, width, height);
+    if (this.context.state.noteLinesOn) {
+      this.renderNoteLines();
+    }
+    let freq = midiToFreq(e.note.number);
+    let yPos = freqToIndex(freq, resolutionMax, resolutionMin, height);
+    let yPercent = 1 - yPos / height;
+    this.midiNotes.forEach((item, index, arr)=>{
+      if (item && !isNaN(item.xPercent)) {
+        if (item.yPercent === yPercent) {
+           this.synths[item.id].triggerRelease();
+           arr[index] = {};
+          } else{
+            let pos = {
+              x: (1 - item.xPercent) * width,
+              y: (1 - item.yPercent) * height
+            }
+            //  let freq = getFreq(item.yPercent, resolutionMin, resolutionMax);
+            //  console.log(item, pos, freq)
+         this.label(item.label, pos.x, pos.y);
+        }
+       }
+      });      
+    this.drawPitchBendButton(this.state.pitchButtonPressed);
 
   }
 
@@ -735,7 +839,10 @@ class SoundMaking extends Component {
     this.ctx.font = '20px Inconsolata';
     this.ctx.fillStyle = 'white';
     if(this.context.state.soundOn){
-      if (!this.context.state.scaleOn) {
+      if(this.context.state.midi){
+        this.ctx.fillText(freq, x + offset, y - offset);
+      }
+      else if (!this.context.state.scaleOn) {
         this.ctx.fillText(freq + ' Hz', x + offset, y - offset);
       } else {
         this.ctx.fillText(this.scaleLabel, x + offset, y - offset);

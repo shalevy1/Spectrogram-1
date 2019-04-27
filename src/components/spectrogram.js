@@ -45,6 +45,7 @@ class Spectrogram extends Component {
       microphone: true,
       frequencyLabel: '',
       noteLinesRendered: false,
+      midi: false
       // deferredPrompt: null,
       // showAddToHomeScreen: false
     }
@@ -93,8 +94,21 @@ class Spectrogram extends Component {
     } //else {
     //   this.context.menuClose();
     // }
+    WebMidi.enable((err)=> {
 
+      if (err) {
+        console.log("WebMidi could not be enabled.", err);
+      } 
+      console.log("Success");
+      this.context.handleMIDIEnabled();
+      // let input = WebMidi.inputs[0];
+      // input.addListener('noteon', "all", this.soundMakingRef.current.MIDINoteOn);
+      // input.addListener('noteoff', "all", this.soundMakingRef.current.MIDINoteOff);
+
+    });
+    
   }
+
 
 // Sets up the microphone stream after the Spectrogram is started
 // It connects the graph by connecting the microphone to gain and gain to
@@ -183,6 +197,33 @@ class Spectrogram extends Component {
         }
 
         this.setState({microphone: !this.state.microphone});
+      }
+      if(this.context.state.midi && !this.state.midi){
+        try {
+          let input = WebMidi.inputs[0];
+          input.addListener('noteon', "all", this.soundMakingRef.current.MIDINoteOn);
+          input.addListener('noteoff', "all", this.soundMakingRef.current.MIDINoteOff);
+          this.setState({midi: true});
+        } catch(e){
+          console.error("No MIDI Device 1");
+          this.context.handleMIDIChange();          
+
+        }
+        // finally {
+        // }
+      } else if(!this.context.state.midi && this.state.midi){
+        try{
+        let input = WebMidi.inputs[0];
+        input.removeListener('noteon', "all", this.soundMakingRef.current.MIDINoteOn);
+        input.removeListener('noteoff', "all", this.soundMakingRef.current.MIDINoteOff);
+        // this.setState({midi: false});
+        } catch(e){
+          console.error("NO MIDI Device 2");
+        }
+        finally{
+        this.setState({midi: false});
+
+        }
       }
     }
   }

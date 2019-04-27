@@ -71,4 +71,8 @@ function freqToIndex(freq, max, min, height) {
   return 0;
 }
 
-export {convertToLog, convertToLinear, getMousePos, getFreq, getGain, calculateNewMax, calculateNewMin, freqToIndex, getTempo}
+function midiToFreq(midi){
+  return Math.pow(2, ((midi - 69) / 12)) * 440;
+}
+
+export {convertToLog, convertToLinear, getMousePos, getFreq, getGain, calculateNewMax, calculateNewMin, freqToIndex, getTempo, midiToFreq}

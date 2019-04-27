@@ -48,6 +48,8 @@ class MyProvider extends Component {
     fmLevel: 0.5,
     editScales: false,
     quantize: false,
+    midiEnabled: false,
+    midi: false,
     //hidePanes: false,
     isStarted: false,
   }
@@ -267,6 +269,8 @@ class MyProvider extends Component {
           }
         },
         handleEditScalesChange: () => this.setState({editScales: !this.state.editScales}),
+        handleMIDIEnabled: () => this.setState({midiEnabled: true}),
+        handleMIDIChange: () => this.setState({midi: !this.state.midi}),
         start: ()=> this.setState({isStarted: true}),
         reset: ()=> this.setState({
           resolutionMax: 20000,//Real Max
