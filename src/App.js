@@ -4,6 +4,7 @@ import Spectrogram from './components/spectrogram';
 import Menu from './components/menu';
 import { Button, Icon } from 'semantic-ui-react';
 import MyProvider, {MyContext} from './components/my-provider';
+import WebMidi from 'webmidi';
 
 
 // Main Class that Renders Menu and Spectrogram Components
@@ -14,6 +15,7 @@ class App extends Component {
     fullScreen: false
   }
 }
+
   // Maximizes screen
   toggleFullScreen = ()=> {
     if ((document.fullScreenElement && document.fullScreenElement !== null) ||
@@ -87,5 +89,5 @@ class App extends Component {
     );
   }
 }
-
+App.contextType = MyContext;
 export default App;

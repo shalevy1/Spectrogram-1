@@ -9,10 +9,12 @@ import SoundMaking from './sound-making';
 import { convertToLog, getFreq } from '../util/conversions';
 import { Button, Icon } from 'semantic-ui-react';
 import KeyHandler, { KEYUP } from 'react-key-handler';
-import MyProvider, {MyContext} from './my-provider';
+import {MyContext} from './my-provider';
 
 
 import Logo from '../headphoneSlash.svg';
+import Logo2 from '../midi-red.svg';
+import Logo3 from '../midi-grey.svg';
 
 import WebMidi from 'webmidi';
 
@@ -54,7 +56,13 @@ class Spectrogram extends Component {
     window.addEventListener("resize", this.handleResize);
     this.ctx = this.canvas.getContext('2d');
     this.tempCanvas = document.createElement('canvas');
-
+    WebMidi.enable((err) => {
+      if (err) {
+        console.log("WebMidi could not be enabled.", err);
+      }
+      console.log("Success");
+      this.context.handleMIDIEnabled();
+    });
     // window.addEventListener('beforeinstallprompt', (e) => {
     //   // Prevent Chrome 67 and earlier from automatically showing the prompt
     //   e.preventDefault();
@@ -94,18 +102,6 @@ class Spectrogram extends Component {
     } //else {
     //   this.context.menuClose();
     // }
-    WebMidi.enable((err)=> {
-
-      if (err) {
-        console.log("WebMidi could not be enabled.", err);
-      } 
-      console.log("Success");
-      this.context.handleMIDIEnabled();
-      // let input = WebMidi.inputs[0];
-      // input.addListener('noteon', "all", this.soundMakingRef.current.MIDINoteOn);
-      // input.addListener('noteoff', "all", this.soundMakingRef.current.MIDINoteOff);
-
-    });
     
   }
 
@@ -314,13 +310,17 @@ class Spectrogram extends Component {
   // }
 
   render() {
-    let headphoneStyle={'backgroundColor': ''}
-    let microphoneStyle={'backgroundColor': ''}
+    let headphoneStyle={'backgroundColor': ''};
+    let microphoneStyle={'backgroundColor': ''};
+    let midiStyle={'backgroundColor': ''};
     if(this.context.state.headphoneMode){
-      headphoneStyle = {'backgroundColor': '#2769d8'}
+      headphoneStyle = {'backgroundColor': '#2769d8'};
     }
     if(this.context.state.microphone){
-      microphoneStyle = {'backgroundColor': '#2769d8'}
+      microphoneStyle = {'backgroundColor': '#2769d8'};
+    }
+    if(this.context.state.midi){
+      microphoneStyle = {'backgroundColor': '#2769d8'};
     }
 
     return (
@@ -330,6 +330,12 @@ class Spectrogram extends Component {
           <canvas width={context.state.width} height={context.state.height} onKeyPress = {this.onKeyPress} ref={(c) => {
             this.canvas = c;
           }}/>
+          <link rel="preload" href="../midi-red.svg"/>
+          <link rel="preload" href="../midi-grey.svg"/>
+          <link rel="preload" href="../headphoneSlash.svg"/>
+
+
+
           {context.state.isStarted &&
             <React.Fragment>
             {context.state.freqControls &&
@@ -361,6 +367,10 @@ class Spectrogram extends Component {
               target = "_blank"
               rel = "noopener noreferrer" >              
             <Icon name="info" color="red" className="info-button-icon"/>
+            </Button>
+            <Button icon onClick={this.context.handleMIDIChange} className="midi-button" style={midiStyle} disabled={!context.state.midiEnabled}>
+              {context.state.midi ? <img src={Logo2} height={20} width={15} className="midi-logo"/> :
+              <img src={Logo3} height={14.5} width={13.25} className="midi-logo"/>}
             </Button>
             <div className="color-map-container">
               <div className="color-map-labels">
@@ -414,7 +424,8 @@ class Spectrogram extends Component {
         )}
         </MyContext.Consumer>
     );
-
+{
+  /*MIDI by Jonathan Higley from the Noun Project*/}
   }
 
 }

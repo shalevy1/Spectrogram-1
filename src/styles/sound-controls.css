@@ -12,9 +12,6 @@
   min-width: 780px;
 }
 
-.slider {
-  width: 100px;
-}
 
 .timbre-text {
   color: red;
@@ -68,11 +65,6 @@
 .edit-scales-button {
   position: absolute;
   right: 0%;
-  bottom: 10%;
-}
-.midi-button {
-  position: absolute;
-  right: 25%;
   bottom: 10%;
 }
 
