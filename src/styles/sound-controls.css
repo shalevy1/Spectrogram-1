@@ -23,6 +23,7 @@
 
 .timbre-dropdown {
   margin-top: 8%!important;
+  min-width: 100px!important;
 }
 
 .quantize-margin {

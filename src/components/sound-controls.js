@@ -122,7 +122,7 @@ class SoundControls extends Component {
                 </Menu.Item>*/}
                 <br></br>
                 {/** Output Volume **/}
-                  <div className="menu-header">Output Volume</div>
+                  {/* <div className="menu-header">Output Volume</div>
                   <Slider
                   min={1}
                   max={100}
@@ -132,11 +132,11 @@ class SoundControls extends Component {
                   className="slider"/>
                   <div>
                     {context.state.outputVolume}
-                  </div>
-                </Menu.Item>
+                  </div> */}
+                {/* </Menu.Item> */}
 
                 {/** Timbre **/}
-                <Menu.Item className="vert">
+                {/* <Menu.Item className="vert"> */}
                   <div className="menu-header">Timbre</div>
                       <Dropdown
                       text={context.state.timbre}

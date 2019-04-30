@@ -263,6 +263,8 @@
   border: none!important;
   min-height: 1rem!important;
   user-select: none;
+  font-variant: small-caps;
+  font-weight: 700!important;
 }
 
 
