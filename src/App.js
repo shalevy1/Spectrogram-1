@@ -57,6 +57,8 @@ class App extends Component {
       handleTuningModeOff={context.handleTuningModeOff}
       handleFreqControlsOn={context.handleFreqControlsOn}
       handleFreqControlsOff={context.handleFreqControlsOff}
+      outputVolume={context.state.outputVolume}
+      handleOutputVolumeChange={context.handleOutputVolumeChange}
       hidePanes={context.state.hidePanes}
       handleHidePanesCompletion={context.handleHidePanesCompletion}
       editScales={context.state.editScales}
@@ -70,14 +72,9 @@ class App extends Component {
       </MyContext.Consumer>
 
 
-      <p id="about">
-        {/*<h4 id="about-text">Based on the Spectrogram by {' '}
-          <a href="https://github.com/borismus" target="_blank" rel="noopener noreferrer" >Boris Smus</a>
-          <br></br>
-          while he was working at Google
-        </h4>*/}
+      {/* <p id="about">
         <a href="https://github.com/ListeningToWaves/Spectrogram" target="_blank" rel="noopener noreferrer" >about</a>
-      </p>
+      </p> */}
 
       {/* Full Screen Button */}
       <Button icon onClick={this.toggleFullScreen} className="fullscreenbutton">

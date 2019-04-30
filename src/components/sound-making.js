@@ -875,8 +875,9 @@ class SoundMaking extends Component {
     } else {
       this.ctx.fillStyle = "#56caff";
     }
-    const x = 40;
-    const y = this.context.state.height - this.context.state.height * 0.15;
+    //40 - 10, 0.15 - 0.12
+    const x = 10;
+    const y = this.context.state.height - this.context.state.height * 0.12;
     const width = this.context.state.width * 0.05;
     const height = width;
     const arcsize = 25;
@@ -897,9 +898,9 @@ class SoundMaking extends Component {
 
   isPitchButton(x, y){
     let {height, width} = this.context.state;
-    let condition1 = x >= 30 && x <=  width * 0.05 + 30;
-    let condition2 = y >= height - height * 0.15 && y <= width * 0.05 +
-      height - height * 0.15;
+    let condition1 = x >= 0 && x <=  width * 0.05 + 30;
+    let condition2 = y >= height - height * 0.12 && y <= width * 0.05 +
+      height - height * 0.12;
     if(condition1 && condition2){
       return true;
     }

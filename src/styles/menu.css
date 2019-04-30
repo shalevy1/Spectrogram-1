@@ -161,7 +161,7 @@
   padding: 0!important;
 }
 
-@media screen and (max-width: 1200px)  {
+/* @media screen and (max-width: 1200px)  {
   .microphone-positioning {
       left: 15%!important;
 
@@ -171,5 +171,108 @@
 .microphone-positioning {
   position: absolute;
   left: 25%;
-  /* margin-left: calc(15%; */
+} */
+
+/* .app-bar-overlay{
+  position: absolute;
+  z-index: 40;
+  background-color: rgba(0, 0, 0, 0.2);
+  height: 100vh;
+  width: 100vw;
+  position: absolute;
+  left: 0%;
+  top: 0%;
 }
+
+.app-bar-container {
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  width: 300px;
+  z-index: 50;
+  box-shadow: 0px 8px 10px -5px rgba(0, 0, 0, 0.2),
+  0px 16px 24px 2px rgba(0, 0, 0, 0.14),
+  0px 6px 30px 5px rgba(0, 0, 0, 0.12);
+}
+
+.app-bar-title-container {
+  height: 15vh;
+  background-color: white;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.app-bar-title {
+  padding-left: 1rem;
+  text-align: left;
+  font-size: 20px;
+  color: grey;
+}
+
+.app-bar-about {
+  position: absolute;
+  right: 2%;
+  bottom: 2%;
+}
+
+.app-bar-hr {
+  height: 1px;
+  margin: 0;
+  border: none; 
+  background-color: rgba(0, 0, 0, 0.12);
+}
+
+.app-bar-buttons-container {
+  display: flex;
+  flex-direction:column;
+  width: 300px;
+  margin-top: 2%;
+}
+
+.app-bar-button {
+  text-align: left;
+  width: 300px;
+  margin-bottom: 1rem;
+  cursor: pointer;
+  padding: 1rem 1rem;
+  color: black;
+  font-size: 2em;
+  outline: none;
+  line-height: 1em;
+  background-color: white;
+  border: 0px;
+}
+
+.app-bar-button:hover {
+  background-color: #F5F5F5;
+}
+
+.app-bar-chevron {
+  position: absolute;
+  right: 0%;
+} */
+.app-bar-dropdown-container {
+  padding-left: 0px !important;
+  z-index: 40;
+}
+
+.app-bar-dropdown {
+  font-size: 1.25rem;
+  min-width: 13rem!important;
+  border: none!important;
+  min-height: 1rem!important;
+  user-select: none;
+}
+
+
+.app-bar-dropdown-menu {
+  height: 225%;
+  border: none!important;
+}
+
+.output-volume-label {
+  margin-right: 0.5rem;
+}
+
+

@@ -59,20 +59,6 @@ a:visited {
   color: black;
 }
 
-#about {
-  position: absolute;
-  left: 1%;
-  bottom: 0.5%;
-  font-family: 'Inconsolata';
-  z-index: 23;
-  user-select: none;
-
-
-}
-#about-text {
-  margin: 0;
-  padding: 0;
-}
 
 .fullscreenbutton {
   position: absolute;

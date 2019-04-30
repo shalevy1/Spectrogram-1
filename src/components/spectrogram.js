@@ -355,12 +355,19 @@ class Spectrogram extends Component {
               {context.state.microphone ? <Icon name="microphone" color="red"/> :
               <Icon name="microphone slash" color="red"/>}
             </Button>
+            <Button 
+            className="info-button" 
+            href = "https://github.com/ListeningToWaves/Spectrogram"
+              target = "_blank"
+              rel = "noopener noreferrer" >              
+            <Icon name="info" color="red" className="info-button-icon"/>
+            </Button>
             <div className="color-map-container">
-              <div className="color-map-text">Graph Scale</div>
-              <div className="color-map"></div>
               <div className="color-map-labels">
-                Soft<span>Loud</span>
+                <div>Soft</div><div>Graph Scale</div><div>Loud</div>
+              {/* <div className="color-map-text">Graph Scale</div> */}
               </div>
+              <div className="color-map"></div>
             </div>
             <KeyHandler
             keyEventName={KEYUP}

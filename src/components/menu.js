@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Menu} from 'semantic-ui-react';
+import {Menu, Icon, Button, Dropdown} from 'semantic-ui-react';
 import "../styles/menu.css";
 import GraphControls from './graph-controls';
 import SoundControls from './sound-controls';
@@ -10,6 +10,31 @@ import Slider from 'react-rangeslider';
 // To include the default styles
 import 'react-rangeslider/lib/index.css';
 
+function AppBar(props){
+  return (
+    <div className="app-bar-overlay" id="overlay" onClick={e=>props.toggleAppBar(e)}>
+      <div className="app-bar-container">
+        <div className="app-bar-title-container">
+          <div className="app-bar-title">LISTENING TO WAVES</div>
+            <a href = "https://github.com/ListeningToWaves/Spectrogram"
+              target = "_blank"
+              rel = "noopener noreferrer" 
+              className="app-bar-about"> 
+              about 
+            </a>             
+        </div>
+        <hr className="app-bar-hr"></hr>
+        <div className="app-bar-buttons-container">
+        <button size="huge" className="app-bar-button">Signal Generator</button>
+        <button size = "huge" className = "app-bar-button" style = {{"borderRight": "5px solid #ABE2FB"}}> Spectrogram </button>
+        <button size="huge" className="app-bar-button">Oscilloscope</button>
+        {/* <Icon name="chevron right" className="app-bar-chevron" size="large"/> */}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // Main Menu Class that renders children as individual tab panes
 class MyMenu extends Component {
   state = {
@@ -19,6 +44,8 @@ class MyMenu extends Component {
     editScales: false,
     soundOn: false,
   }
+
+
 
   // Function that switches between Menu Panes (children components)
   handleItemClick = (e, {name}) => {
@@ -99,6 +126,24 @@ class MyMenu extends Component {
     }
   }
 
+  toggleAppBar = e =>{
+    if(this.state.activeItem !== 'submenu'){
+      this.setState({
+        pane: <AppBar toggleAppBar={this.toggleAppBar}/>,
+        activeItem: 'submenu',
+        ediScales: false
+      });
+    } else {
+      if(e.target.id === "overlay"){
+        this.setState({
+          pane: null,
+          activeItem: null,
+          editScales: false
+        });
+      }
+    }
+  }
+
   // Function that handle switch between modes
   // handleTuningModeToggle = () =>{
   //   this.setState({tuningMode: !this.state.tuningMode});
@@ -109,7 +154,7 @@ class MyMenu extends Component {
   // as well as the graph scale and which tab to render
   render() {
     const {activeItem} = this.state;
-    const activeStyle = {'borderBottom': '4px solid #ABE2FB'}
+    const activeStyle = {'borderBottom': '0px solid #ABE2FB'}
     const defaultStyle= {'borderBottom': '0'}
     // let style={'backgroundColor': '' }
     let tuningStyle=defaultStyle;
@@ -128,12 +173,37 @@ class MyMenu extends Component {
     return (
       <div className="menu-container">
         <Menu color="#ABE2FB" tabular pointing className="menu-menu" attached="bottom">
-          <Menu.Item className="function-switch-button-container">
-            <button className="function-switch-button" onClick={this.switchToSignalGenerator}>Signal Generator</button>
+          {/* <Menu.Item className="function-switch-button-container"> */}
+            {/* <button className="function-switch-button" onClick={this.switchToSignalGenerator}>Signal Generator</button> */}
+          {/* </Menu.Item> */}
+          <Menu.Item className="app-bar-dropdown-container"> 
+            <Dropdown text="Spectrogram" className="app-bar-dropdown" selection>
+              {/* <div className="dropdown-menu-container"> */}
+                <Dropdown.Menu className="app-bar-dropdown-menu">
+                
+                  <Dropdown.Item text = 'Signal Generator' />
+                  <Dropdown.Item text = "Oscilloscope" />
+                </Dropdown.Menu>
+              {/* </div> */}
+              {/* <Icon fitted name = "bars" size="large" onClick={this.toggleAppBar} style={{"cursor":"pointer"}} id="bars"/> */}
+            </Dropdown>
           </Menu.Item>
           <Menu.Item name='tuning' active={activeItem === 'tuning'} onClick={this.handleItemClick} className="tab-item" style={tuningStyle}/>
           <Menu.Item name='sound-making' active={activeItem === 'sound-making'} onClick={this.handleItemClick} className="tab-item" style={soundStyle}/>
           {/*<Menu.Item name='advanced' active={activeItem === 'advanced'} onClick={this.handleItemClick} className="tab-item"/>*/}
+          <Menu.Item>
+            <div className="output-volume-label"> Output Volume</div>
+            <Slider
+            min={1}
+            max={100}
+            value={this.props.outputVolume}
+            onChange={this.props.handleOutputVolumeChange}
+            tooltip={this.props.isStarted}
+            className="slider"/>
+            {/* <div>
+              {this.props.outputVolume}
+            </div> */}
+          </Menu.Item>
 
           {/* Microphone Gain */}
           <Menu.Item className="microphone-positioning">
@@ -153,7 +223,7 @@ class MyMenu extends Component {
             <button onClick={this.showFreqControls} className="freq-button">Frequency Range</button>
           </Menu.Item>
 
-          <Menu.Header className="menu-title" active="false">Spectrogram</Menu.Header>
+          {/* <Menu.Header className="menu-title" active="false">Spectrogram</Menu.Header> */}
         </Menu>
         {/* Renders the current pane beneath the menu */}
         {this.state.pane}
