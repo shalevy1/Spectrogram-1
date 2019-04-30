@@ -63,4 +63,4 @@ We welcome contributors.
 This project is inspired from a [Spectrogram](https://borismus.github.io/spectrogram/) by [Boris Smus](https://github.com/borismus)
 You can read more about his spectrogram [here](http://smus.com/spectrogram-and-oscillator/)
 
-
+MIDI Icon by Jonathan Higley from the Noun Project
