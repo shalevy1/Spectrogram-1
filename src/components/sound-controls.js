@@ -89,6 +89,7 @@ class SoundControls extends Component {
       <MyContext.Consumer>
         {(context) => (
           <React.Fragment>
+          {console.log(context.state.isStarted)}
             <Segment compact className="menu-pane-container sound-pane-container">
               <Menu className="menu-pane">
                 {/** Sound Toggle **/}

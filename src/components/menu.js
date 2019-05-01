@@ -6,7 +6,7 @@ import SoundControls from './sound-controls';
 import TuningControls from './tuning-controls';
 import EditScales from "./edit-scales";
 import Slider from 'react-rangeslider';
-
+import {withRouter} from "react-router-dom";
 // To include the default styles
 import 'react-rangeslider/lib/index.css';
 let options = [
@@ -74,9 +74,12 @@ class MyMenu extends Component {
   closeMenu = () => this.setState({pane: null, activeItem: null, editScales: false});
 
   // Function that switches to the signal generator on click
-  switchToSignalGenerator = () => {
-    console.log("SWITCH");
-    window.location = "https://listeningtowaves.github.io/Oscilloscope-v2/"
+  switchToSignalGenerator = (e,data) => {
+    if(data.value === "Signal Generator"){
+      this.props.history.push('/SignalGenerator');
+    }
+    // console.log("SWITCH");
+    // window.location = "https://listeningtowaves.github.io/Oscilloscope-v2/"
   }
   // Function that handles the change of the Microphone gain
   handleGainChange = gain => {
@@ -168,4 +171,4 @@ class MyMenu extends Component {
   }
 }
 
-export default MyMenu;
+export default withRouter(MyMenu);
