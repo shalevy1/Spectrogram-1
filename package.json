@@ -19,6 +19,7 @@
     "react-rangeslider": "^2.2.0",
     "react-router": "^5.0.0",
     "react-router-dom": "^5.0.0",
+    "react-router-transition": "^1.3.0",
     "react-scripts": "^1.1.4",
     "semantic-ui-css": "^2.3.0",
     "semantic-ui-react": "^0.78.3",
