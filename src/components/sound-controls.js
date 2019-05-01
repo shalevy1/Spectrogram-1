@@ -7,9 +7,9 @@ import {Segment, Menu, Dropdown, Checkbox, Button, Icon} from 'semantic-ui-react
 
 import "../styles/sound-controls.css";
 // Using an ES6 transpiler like Babel
-import Slider from 'react-rangeslider';
+// import Slider from 'react-rangeslider';
 // To include the default styles
-import 'react-rangeslider/lib/index.css';
+// import 'react-rangeslider/lib/index.css';
 import {timbreOptions, scaleOptions, keyOptions, accidentalOptions, effectOptions} from '../util/dropdownOptions';
 
 function EffectRender(props){

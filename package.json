@@ -8,10 +8,12 @@
     "node": "8.10.0"
   },
   "dependencies": {
+    "merge": "^1.2.1",
     "npm": "^6.9.0",
     "rc-slider": "^8.6.1",
     "react": "^16.8.1",
     "react-animation-frame": "^1.0.1",
+    "react-dev-utils": "^9.0.0",
     "react-dom": "^16.8.1",
     "react-key-handler": "^1.2.0-beta.3",
     "react-rangeslider": "^2.2.0",
@@ -19,6 +21,7 @@
     "semantic-ui-css": "^2.3.0",
     "semantic-ui-react": "^0.78.3",
     "tone": "^13.8.9",
+    "url-parse": "^1.4.7",
     "webmidi": "^2.2.0"
   },
   "scripts": {

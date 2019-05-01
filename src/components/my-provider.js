@@ -5,7 +5,6 @@ import {convertToLog, convertToLinear} from "../util/conversions";
 export const MyContext = React.createContext();
 
 // Then create provider component
-let defaultState = {};
 class MyProvider extends Component {
   //All Controls
   state = {
@@ -52,12 +51,6 @@ class MyProvider extends Component {
     midi: false,
     //hidePanes: false,
     isStarted: false,
-  }
-
-
-  // Save state for reset
-  componentDidMount(){
-    defaultState = this.state;
   }
 
   //Functions that setState based on Controls
@@ -281,9 +274,6 @@ class MyProvider extends Component {
           max: 20000, // Temp Max for Input
           graphPreset: 'default'
         })
-
-        // reset: ()=> this.setState({ ...defaultState, isStarted: this.state.isStarted})
-
       }}>
         {this.props.children}
       </MyContext.Provider>

@@ -4,7 +4,6 @@ import Spectrogram from './components/spectrogram';
 import Menu from './components/menu';
 import { Button, Icon } from 'semantic-ui-react';
 import MyProvider, {MyContext} from './components/my-provider';
-import WebMidi from 'webmidi';
 
 
 // Main Class that Renders Menu and Spectrogram Components

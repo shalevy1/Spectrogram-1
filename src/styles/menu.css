@@ -19,6 +19,7 @@
 
 .menu-menu {
   height: 10vh;
+  max-height: 10vh;
   margin: 0!important;
   border-bottom: 1px solid black!important;
   width: 100vw!important;

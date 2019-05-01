@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Menu, Icon, Button, Dropdown} from 'semantic-ui-react';
+import {Menu, Dropdown} from 'semantic-ui-react';
 import "../styles/menu.css";
 import GraphControls from './graph-controls';
 import SoundControls from './sound-controls';
@@ -53,9 +53,9 @@ class MyMenu extends Component {
           editScales = false;
         }
         break;
-      case 'graph': 
+      case 'frequency range': 
         if (name !== this.state.activeItem) {
-          pane = <GraphControls closeMenu={this.closeMenu} handleFreqControlsToggle={this.props.handleFreqControlsToggle} reset={this.props.reset}/>,
+          pane = <GraphControls closeMenu={this.closeMenu} handleFreqControlsToggle={this.props.handleFreqControlsToggle} reset={this.props.reset}/>;
           this.props.handleFreqControlsOn();
         } else {
           name = null;
@@ -118,20 +118,27 @@ class MyMenu extends Component {
             {/* <button className="function-switch-button" onClick={this.switchToSignalGenerator}>Signal Generator</button> */}
           {/* </Menu.Item> */}
           <Menu.Item className="app-bar-dropdown-container"> 
-            <Dropdown text="Spectrogram" className="app-bar-dropdown" selection options={options}>
-              {/* <div className="dropdown-menu-container"> */}
-                {/* <Dropdown.Menu className="app-bar-dropdown-menu">
-                
-                  <Dropdown.Item text = 'Signal Generator' />
-                  <Dropdown.Item text = "Oscilloscope" />
-                </Dropdown.Menu> */}
-              {/* </div> */}
+            <Dropdown text="Spectrogram" className="app-bar-dropdown" selection options={options} onChange={this.switchToSignalGenerator}>              
               {/* <Icon fitted name = "bars" size="large" onClick={this.toggleAppBar} style={{"cursor":"pointer"}} id="bars"/> */}
             </Dropdown>
           </Menu.Item>
           <Menu.Item name='tuning' active={activeItem === 'tuning'} onClick={this.handleItemClick} className="tab-item" style={tuningStyle}/>
           <Menu.Item name='sound-making' active={activeItem === 'sound-making'} onClick={this.handleItemClick} className="tab-item" style={soundStyle}/>
           {/*<Menu.Item name='advanced' active={activeItem === 'advanced'} onClick={this.handleItemClick} className="tab-item"/>*/}
+
+          {/* Microphone Gain */}
+          <Menu.Item className="microphone-positioning">
+          <div className = "slider-label"> Mic Gain </div>
+              <Slider
+              min={1}
+              max={100}
+              value={this.state.value}
+              onChange={this.handleGainChange}
+              tooltip={false}
+              className="slider"/>
+          </Menu.Item>
+          
+          {/* Output Volume */}
           <Menu.Item>
             <div className="slider-label"> Output Volume</div>
             <Slider
@@ -146,19 +153,8 @@ class MyMenu extends Component {
             </div> */}
           </Menu.Item>
 
-          {/* Microphone Gain */}
-          <Menu.Item className="microphone-positioning">
-          <div className = "slider-label"> Mic Gain </div>
-              <Slider
-              min={1}
-              max={100}
-              value={this.state.value}
-              onChange={this.handleGainChange}
-              tooltip={false}
-              className="slider"/>
-          </Menu.Item>
           {/* Scale Controls */}
-          <Menu.Item name='graph' position="right" active={activeItem === 'graph'} onClick={this.handleItemClick} className="tab-item"/>
+          <Menu.Item name='frequency range' position="right" active={activeItem === 'frequency range'} onClick={this.handleItemClick} className="tab-item"/>
 
           {/* <Menu.Header className="menu-title" active="false">Spectrogram</Menu.Header> */}
         </Menu>

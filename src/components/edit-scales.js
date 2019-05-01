@@ -1,11 +1,11 @@
 import React, {Component} from 'react';
-import {Button, Icon, Form, Segment, Menu, Input, Radio} from 'semantic-ui-react';
+import {Segment} from 'semantic-ui-react';
 import {MyContext} from './my-provider';
 
 import "../styles/edit-scales.css";
-import 'rc-slider/assets/index.css';
+// import 'rc-slider/assets/index.css';
 
-import Range from 'rc-slider/lib/Range';
+// import Range from 'rc-slider/lib/Range';
 
 import generateScale from '../util/generateScale';
 

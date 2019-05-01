@@ -355,7 +355,7 @@ class Spectrogram extends Component {
             </Button>
             <Button icon onClick={this.handleHeadphoneModeToggle} className="headphone-mode-button" style={headphoneStyle}>
               {context.state.headphoneMode ? <Icon fitted name="headphones" color="red"/>:
-              <img src={Logo} height={12.5} width={13.25} className="headphone-slash-logo"/>}
+              <img src={Logo} height={12.5} width={13.25} className="headphone-slash-logo" alt="headphone slash"/>}
             </Button>
             <Button icon onClick={this.handleMicrophoneToggle} className="microphone-mode-button" style={microphoneStyle}>
               {context.state.microphone ? <Icon name="microphone" color="red"/> :
@@ -369,8 +369,8 @@ class Spectrogram extends Component {
             <Icon name="info" color="red" className="info-button-icon"/>
             </Button>
             <Button icon onClick={this.context.handleMIDIChange} className="midi-button" style={midiStyle} disabled={!context.state.midiEnabled}>
-              {context.state.midi ? <img src={Logo2} height={20} width={15} className="midi-logo"/> :
-              <img src={Logo3} height={14.5} width={13.25} className="midi-logo"/>}
+              {context.state.midi ? <img src={Logo2} height={20} width={15} className="midi-logo" alt="midi on"/> :
+              <img src={Logo3} height={14.5} width={13.25} className="midi-logo" alt="midi off"/>}
             </Button>
             <div className="color-map-container">
               <div className="color-map-labels">
@@ -424,8 +424,7 @@ class Spectrogram extends Component {
         )}
         </MyContext.Consumer>
     );
-{
-  /*MIDI by Jonathan Higley from the Noun Project*/}
+
   }
 
 }

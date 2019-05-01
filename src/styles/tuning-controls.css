@@ -8,13 +8,14 @@
   justify-content: flex-end;
   align-items: center;
 }
-.edit-scales-button {
+.edit-scales-button-tuning {
   position: absolute;
   right: 0%;
-  bottom: 10%;
+  bottom: 0%;
 }
-.scales-bottom {
+.scales-bottom-tuning {
   width: 100%;
   display: flex;
-  padding: 0.1em 0.5em
+  padding: 0.5em 0.5em
 }
+

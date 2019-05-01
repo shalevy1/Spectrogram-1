@@ -4,9 +4,9 @@ import {MyContext} from './my-provider';
 import {Segment, Menu, Dropdown, Checkbox} from 'semantic-ui-react';
 import "../styles/tuning-controls.css";
 // Using an ES6 transpiler like Babel
-import Slider from 'react-rangeslider';
+// import Slider from 'react-rangeslider';
 // To include the default styles
-import 'react-rangeslider/lib/index.css';
+// import 'react-rangeslider/lib/index.css';
 import {scaleOptions, keyOptions, accidentalOptions} from '../util/dropdownOptions';
 import { Button, Icon } from 'semantic-ui-react';
 
@@ -39,7 +39,7 @@ class TuningControls extends Component {
                 <br></br>
                 </Menu.Item>
                 {/** Output Volume **/}
-                <Menu.Item className="vert">
+                {/* <Menu.Item className="vert">
                   <div className="menu-header">Output Volume</div>
                   <Slider
                     min={1}
@@ -51,7 +51,7 @@ class TuningControls extends Component {
                     <div>
                       {context.state.outputVolume}
                     </div>
-                </Menu.Item>
+                </Menu.Item> */}
 
                 {/** Scale Menu **/}
                 <Menu.Item className="vert">
@@ -85,12 +85,12 @@ class TuningControls extends Component {
                     </Menu.Item>
                   </Menu.Menu>
 
-                  <div className="scales-bottom">
+                  <div className="scales-bottom-tuning">
                   <div>
                   {/* Render Scale Name to screen. Don't render 'chromatic' scale name or accidental */}
                   {(context.state.scale.name === "Chromatic")? "" : context.state.musicKey.name}{(context.state.scale.name === "Chromatic")? "" : context.state.accidental.name}{context.state.scale.name}
                   </div>
-                  <Button className="edit-scales-button" onClick={context.handleEditScalesChange}>Edit </Button>
+                  <Button className="edit-scales-button-tuning" onClick={context.handleEditScalesChange}>Edit </Button>
                   </div>
                 </Menu.Item>
               </Menu>
