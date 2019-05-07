@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import generateScale from '../util/generateScale';
 import Tone from 'tone';
 import '../styles/tuning.css';
-import { MyContext } from './my-provider';
+import { SpectrogramContext } from './spectrogram-provider';
 
 import {
   getGain,
@@ -389,7 +389,7 @@ class Tuning extends Component {
 
   render() {
     return (
-      <MyContext.Consumer>
+      <SpectrogramContext.Consumer>
       {(context) => (
           <React.Fragment>
             <canvas
@@ -407,9 +407,9 @@ class Tuning extends Component {
             />
           </React.Fragment>
         )}
-      </MyContext.Consumer>
+      </SpectrogramContext.Consumer>
     );
   }
 }
-Tuning.contextType = MyContext;
+Tuning.contextType = SpectrogramContext;
 export default Tuning;

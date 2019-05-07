@@ -73,7 +73,7 @@
   }
 
   .color-map-container {
-    width: 20%;
+    width: 15%;
     position: absolute;
     right: 15%;
     bottom: 0%;
@@ -86,10 +86,11 @@
   }
 
   .color-map {
-    border: 2px solid gold;
+    border: 1px solid white;
     background: linear-gradient(to right, black 15%, blue 30%, green, red);
     width: 100%;
-    height: 20px;
+    height: 1em;
+    position: relative;
   }
 
   .color-map-text {
@@ -105,6 +106,13 @@
     display: flex;
     justify-content: space-between;
     font-family: 'Lato';
+    position: absolute;
+    left: 0%;
+    top: 50%;
+    width: 100%;
+    padding: 0px 5px;
+    z-index: 10;
+    font-size: 0.75em;
     /* background-color: black; */
   }
 

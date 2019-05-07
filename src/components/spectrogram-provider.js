@@ -2,10 +2,10 @@ import React, { Component } from 'react';
 import {convertToLog, convertToLinear} from "../util/conversions";
 // React new Context API
 // Create Context
-export const MyContext = React.createContext();
+export const SpectrogramContext = React.createContext();
 
 // Then create provider component
-class MyProvider extends Component {
+class SpectrogramProvider extends Component {
   //All Controls
   state = {
     soundOn: false,
@@ -56,7 +56,7 @@ class MyProvider extends Component {
   //Functions that setState based on Controls
   render() {
     return (
-      <MyContext.Provider value={{
+      <SpectrogramContext.Provider value={{
         state: this.state,
         handleGainChange: value => {
           if(this.state.isStarted){
@@ -115,8 +115,7 @@ class MyProvider extends Component {
             this.setState({noteLinesOn: false});
           }
         },
-        handleFreqControlsOn: () => this.setState({freqControls: true}),
-        handleFreqControlsOff: () => this.setState({freqControls: false}),
+        handleFreqControls: controls => this.setState({freqControls: controls}),
         handleRangeChange: value => {
           if(value.length){
             let newMin = Math.round(convertToLog(value[0], 1,100, 1, 20000));
@@ -276,10 +275,10 @@ class MyProvider extends Component {
         })
       }}>
         {this.props.children}
-      </MyContext.Provider>
+      </SpectrogramContext.Provider>
     );
   };
 
 
 }
-export default MyProvider;
+export default SpectrogramProvider;

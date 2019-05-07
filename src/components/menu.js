@@ -30,6 +30,7 @@ class MyMenu extends Component {
   handleItemClick = (e, {name}) => {
     let pane = null;
     let editScales = false;
+    let freqControls;
     switch (name) {
       case "tuning":
         if (name !== this.state.activeItem) {
@@ -40,6 +41,7 @@ class MyMenu extends Component {
           name = null;
           editScales = false;
         }
+          freqControls = false;
         break;
       case "sound-making":
         if (name !== this.state.activeItem) {
@@ -52,21 +54,24 @@ class MyMenu extends Component {
           name = null;
           editScales = false;
         }
+          freqControls = false;
         break;
       case 'frequency range': 
         if (name !== this.state.activeItem) {
           pane = <GraphControls closeMenu={this.closeMenu} handleFreqControlsToggle={this.props.handleFreqControlsToggle} reset={this.props.reset}/>;
-          this.props.handleFreqControlsOn();
+          freqControls = true;
         } else {
           name = null;
+          freqControls = false;
         }
         editScales = false
         break;
       default:
         pane = null;
+        freqControls = false;
     }
     this.setState({activeItem: name, pane: pane, editScales: editScales});
-    this.props.handleFreqControlsOff();
+    this.props.handleFreqControls(freqControls);
 
   }
 
@@ -131,7 +136,7 @@ class MyMenu extends Component {
 
           {/* Microphone Gain */}
           <Menu.Item className="microphone-positioning">
-          <div className = "slider-label"> Mic Gain </div>
+          <div className = "slider-label"> Microphone Gain </div>
               <Slider
               min={1}
               max={100}
@@ -150,7 +155,7 @@ class MyMenu extends Component {
             value={this.props.outputVolume}
             onChange={this.props.handleOutputVolumeChange}
             tooltip={this.props.isStarted}
-            className="slider"/>
+            className="slider"/> 
             {/* <div>
               {this.props.outputVolume}
             </div> */}

@@ -9,7 +9,7 @@ import SoundMaking from './sound-making';
 import { convertToLog, getFreq } from '../util/conversions';
 import { Button, Icon } from 'semantic-ui-react';
 import KeyHandler, { KEYUP } from 'react-key-handler';
-import {MyContext} from './my-provider';
+import {SpectrogramContext} from './spectrogram-provider';
 
 
 import Logo from '../headphoneSlash.svg';
@@ -324,7 +324,7 @@ class Spectrogram extends Component {
     }
 
     return (
-      <MyContext.Consumer>
+      <SpectrogramContext.Consumer>
       {(context) => (
         <div onClick={this.startSpectrogram} >
           <canvas width={context.state.width} height={context.state.height} onKeyPress = {this.onKeyPress} ref={(c) => {
@@ -373,11 +373,9 @@ class Spectrogram extends Component {
               <img src={Logo3} height={14.5} width={13.25} className="midi-logo" alt="midi off"/>}
             </Button>
             <div className="color-map-container">
-              <div className="color-map-labels">
-                <div>Soft</div><div>Graph Scale</div><div>Loud</div>
-              {/* <div className="color-map-text">Graph Scale</div> */}
-              </div>
+              <div className="color-map-text">Graph Scale</div>
               <div className="color-map"></div>
+              <div className="color-map-labels"><div>Soft</div><div>Loud</div></div>
             </div>
             <KeyHandler
             keyEventName={KEYUP}
@@ -422,13 +420,13 @@ class Spectrogram extends Component {
             {/* } */}
         </div>
         )}
-        </MyContext.Consumer>
+        </SpectrogramContext.Consumer>
     );
 
   }
 
 }
 
-Spectrogram.contextType = MyContext;
+Spectrogram.contextType = SpectrogramContext;
 
 export default ReactAnimationFrame(Spectrogram);

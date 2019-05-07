@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Button, Icon, Form, Segment, Menu, Input, Radio} from 'semantic-ui-react';
-import {MyContext} from './my-provider';
+import {SpectrogramContext} from './spectrogram-provider';
 
 import "../styles/graph-controls.css";
 import 'rc-slider/assets/index.css';
@@ -11,7 +11,7 @@ import Range from 'rc-slider/lib/Range';
 class GraphControls extends Component {
   render(){
     return (
-      <MyContext.Consumer>
+      <SpectrogramContext.Consumer>
         {(context) => (
           <React.Fragment>
             <Segment className="menu-pane-container compact graph-container">
@@ -117,7 +117,7 @@ class GraphControls extends Component {
             </Segment>
           </React.Fragment>
         )}
-      </MyContext.Consumer>
+      </SpectrogramContext.Consumer>
 
     );
   }

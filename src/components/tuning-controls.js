@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {MyContext} from './my-provider';
+import {SpectrogramContext} from './spectrogram-provider';
 
 import {Segment, Menu, Dropdown, Checkbox} from 'semantic-ui-react';
 import "../styles/tuning-controls.css";
@@ -17,7 +17,7 @@ class TuningControls extends Component {
 
   render() {
     return (
-      <MyContext.Consumer>
+      <SpectrogramContext.Consumer>
         {(context) => (
           <React.Fragment>
             <Segment compact className="menu-pane-container tuning-container">
@@ -103,7 +103,7 @@ class TuningControls extends Component {
             </Segment>
           </React.Fragment>
         )}
-      </MyContext.Consumer>
+      </SpectrogramContext.Consumer>
     );
   }
 }

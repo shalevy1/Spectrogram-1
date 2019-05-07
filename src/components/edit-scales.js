@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Segment} from 'semantic-ui-react';
-import {MyContext} from './my-provider';
+import {SpectrogramContext} from './spectrogram-provider';
 
 import "../styles/edit-scales.css";
 // import 'rc-slider/assets/index.css';
@@ -79,5 +79,5 @@ class EditScales extends Component {
   }
 
 }
-EditScales.contextType = MyContext;
+EditScales.contextType = SpectrogramContext;
 export default EditScales;

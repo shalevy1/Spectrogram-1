@@ -3,7 +3,7 @@ import '../styles/spectrogram-container.css';
 import Spectrogram from './spectrogram';
 import Menu from './menu';
 import { Button, Icon } from 'semantic-ui-react';
-import MyProvider, {MyContext} from './my-provider';
+import SpectrogramProvider, {SpectrogramContext} from './spectrogram-provider';
 
 
 // Main Class that Renders Menu and Spectrogram Components
@@ -43,8 +43,8 @@ class SpectrogramContainer extends Component {
   render() {
     return (
       <div>
-      <MyProvider>
-      <MyContext.Consumer>
+      <SpectrogramProvider>
+      <SpectrogramContext.Consumer>
       {(context) => (
       <React.Fragment>
       <Menu
@@ -56,8 +56,7 @@ class SpectrogramContainer extends Component {
       tuningMode={context.state.tuningMode}
       handleTuningModeOn={context.handleTuningModeOn}
       handleTuningModeOff={context.handleTuningModeOff}
-      handleFreqControlsOn={context.handleFreqControlsOn}
-      handleFreqControlsOff={context.handleFreqControlsOff}
+      handleFreqControls={context.handleFreqControls}
       outputVolume={context.state.outputVolume}
       handleOutputVolumeChange={context.handleOutputVolumeChange}
       hidePanes={context.state.hidePanes}
@@ -70,7 +69,7 @@ class SpectrogramContainer extends Component {
       </React.Fragment>
       )}
 
-      </MyContext.Consumer>
+      </SpectrogramContext.Consumer>
 
 
       {/* <p id="about">
@@ -83,10 +82,10 @@ class SpectrogramContainer extends Component {
       <Icon fitted name="compress" color="orange" size="large"/> }
       </Button>
 
-      </MyProvider>
+      </SpectrogramProvider>
       </div>
     );
   }
 }
-SpectrogramContainer.contextType = MyContext;
+SpectrogramContainer.contextType = SpectrogramContext;
 export default SpectrogramContainer;

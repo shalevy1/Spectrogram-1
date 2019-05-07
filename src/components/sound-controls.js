@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {MyContext} from './my-provider';
+import {SpectrogramContext} from './spectrogram-provider';
 
 import EffectModule from './effect-module';
 
@@ -86,10 +86,9 @@ function EffectRender(props){
 class SoundControls extends Component {
   render() {
     return (
-      <MyContext.Consumer>
+      <SpectrogramContext.Consumer>
         {(context) => (
           <React.Fragment>
-          {console.log(context.state.isStarted)}
             <Segment compact className="menu-pane-container sound-pane-container">
               <Menu className="menu-pane">
                 {/** Sound Toggle **/}
@@ -279,7 +278,7 @@ class SoundControls extends Component {
             </Segment>
           </React.Fragment>
         )}
-      </MyContext.Consumer>
+      </SpectrogramContext.Consumer>
     );
   }
 }

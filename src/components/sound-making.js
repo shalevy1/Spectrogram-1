@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import Tone from 'tone';
 import "../styles/sound-making.css";
-import {MyContext} from './my-provider';
+import {SpectrogramContext} from './spectrogram-provider';
 
 import generateScale from '../util/generateScale';
 import { getFreq, getGain, getTempo, freqToIndex, getMousePos, convertToLog, midiToFreq } from "../util/conversions";
@@ -923,7 +923,7 @@ class SoundMaking extends Component {
 
   render() {
     return (
-      <MyContext.Consumer>
+      <SpectrogramContext.Consumer>
       {(context) => (
         <canvas
         className="osc-canvas"
@@ -939,10 +939,10 @@ class SoundMaking extends Component {
         height={context.state.height}
         ref={(c) => {this.canvas = c;}}/>
       )}
-    </MyContext.Consumer>
+    </SpectrogramContext.Consumer>
     )
   }
 }
 
-SoundMaking.contextType = MyContext;
+SoundMaking.contextType = SpectrogramContext;
 export default SoundMaking;
