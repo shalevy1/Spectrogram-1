@@ -156,7 +156,7 @@ class MyMenu extends Component {
             max={100}
             value={this.props.outputVolume}
             onChange={this.props.handleOutputVolumeChange}
-            tooltip={this.props.isStarted}
+            tooltip={false}
             className="slider"/> 
             {/* <div>
               {this.props.outputVolume}
