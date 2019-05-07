@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import '../styles/spectrogram.css';
 
 import Axes from './axes';
-import ScaleControls from './scale-controls'
+import FrequencyRange from './frequency-range'
 import Tuning from './tuning';
 import SoundMaking from './sound-making';
 
@@ -28,14 +28,14 @@ let audioTrack = null;
 
 const fftSize = 8192;
 // Spectrogram Graph that renders itself and 3 children canvases
-// (SoundMaking/TuningMode, Axes and ScaleControls)
+// (SoundMaking/TuningMode, Axes and FrequencyRange)
 
 class Spectrogram extends Component {
   constructor(props) {
     super(props);
     this.tuningRef = React.createRef();
     this.axesRef = React.createRef();
-    this.scaleControlsRef = React.createRef();
+    this.frequencyRangeRef = React.createRef();
     this.soundMakingRef = React.createRef();
 
     this.state = {
@@ -161,8 +161,8 @@ class Spectrogram extends Component {
         if(this.tuningRef.current){
           this.tuningRef.current.renderNoteLines();
         }
-        if(this.scaleControlsRef.current && !this.context.state.noteLines){
-          // this.scaleControlsRef.current.renderNoteLines();
+        if(this.frequencyRangeRef.current && !this.context.state.noteLines){
+          // this.frequencyRangeRef.current.renderNoteLines();
         }
         if(this.soundMakingRef.current && this.context.state.noteLinesOn){
           this.soundMakingRef.current.removeNoteLines();
@@ -338,8 +338,8 @@ class Spectrogram extends Component {
 
           {context.state.isStarted &&
             <React.Fragment>
-            {context.state.freqControls &&
-            <ScaleControls
+            {/* {context.state.freqControls &&
+            <FrequencyRange
             resolutionMax={context.state.resolutionMax}
             resolutionMin={context.state.resolutionMin}
             width={context.state.width}
@@ -347,8 +347,8 @@ class Spectrogram extends Component {
             handleZoom={context.handleZoom}
             handleResize={this.handleResize}
             noteLinesOn={context.state.noteLinesOn}
-            ref={this.scaleControlsRef}
-            />}
+            ref={this.frequencyRangeRef}
+            />} */}
             <Button icon onClick={context.handlePause} className="pause-button">
             {!context.state.speed  ?  <Icon fitted name="circle outline" color="red"/> :
               <Icon fitted name="circle" color="red"/>}

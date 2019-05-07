@@ -393,7 +393,7 @@ class Tuning extends Component {
       {(context) => (
           <React.Fragment>
             <canvas
-            className = "note-lines-canvas"
+            className = "tuning-canvas"
             width = {context.state.width}
             height = {context.state.height}
             onMouseDown = {this.onMouseDown}

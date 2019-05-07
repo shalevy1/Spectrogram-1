@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Menu, Dropdown} from 'semantic-ui-react';
+import {Menu, Dropdown, Icon} from 'semantic-ui-react';
 import "../styles/menu.css";
 import GraphControls from './graph-controls';
 import SoundControls from './sound-controls';
@@ -136,7 +136,8 @@ class MyMenu extends Component {
 
           {/* Microphone Gain */}
           <Menu.Item className="microphone-positioning">
-          <div className = "slider-label"> Microphone Gain </div>
+            <Icon name="microphone"/>
+          {/* <div className = "slider-label"> Microphone Gain </div> */}
               <Slider
               min={1}
               max={100}
@@ -148,7 +149,8 @@ class MyMenu extends Component {
           
           {/* Output Volume */}
           <Menu.Item>
-            <div className="slider-label"> Output Volume</div>
+            <Icon name="volume up"/>
+            {/* <div className="slider-label"> Output Volume</div> */}
             <Slider
             min={1}
             max={100}

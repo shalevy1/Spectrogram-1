@@ -236,7 +236,7 @@ class SoundControls extends Component {
 
                   </Menu.Menu>
                   <div className="scales-bottom">
-                  <div className="note-lines">
+                  <div className="tuning">
                     <div>Note Lines</div>
                     <Checkbox
                     toggle

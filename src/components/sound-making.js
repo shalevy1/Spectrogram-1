@@ -843,6 +843,7 @@ class SoundMaking extends Component {
     const height = width;
     const arcsize = 25;
     this.ctx.beginPath();
+    this.ctx.moveTo(x, y);
     this.ctx.moveTo(x+arcsize, y);
     this.ctx.lineTo(x+width-arcsize, y);
     this.ctx.arcTo(x+width, y, x+width, y+arcsize, arcsize);
