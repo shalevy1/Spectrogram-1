@@ -153,6 +153,51 @@
 .ui.slider.checkbox .box:before, .ui.slider.checkbox label:before {
   background-color: #7CB342!important;
 }
+.ui.toggle.button {
+  vertical-align: middle;
+}
+.ui.toggle.button.active {
+  /* margin-right: 6.325px;
+  margin-left: 2.325px; */
+  /* Active color */
+  background-color: #7CB342!important;
+}
+#effectSettings,
+#effectSettingsWithHeight {
+  padding: 4px 11px 1px 11px;
+  margin: 0px;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  font-size: 1.25rem;
+  height: 26px;
+}
+#effectSettingsWithHeight {
+  height: 40px;
+}
+#effectSwitch.ui.toggle.button,
+#effectSwitch.ui.toggle.button.active {
+  padding: 6px 21px 6px 11px;
+  width: 116px;
+  margin:1px 0px 1px 2px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  -webkit-box-shadow: inset -1px 0 0 0 rgba(34,36,38,.15);
+  box-shadow: inset -1px 0 0 0 rgba(34,36,38,.15);
+}
+#toggleButton {
+  font-size: 1em;
+  /* margin:0px; */
+}
+
+#scaleButton{
+  width: 92.479px;
+  font-size: 1rem;
+  /* margin-top: -11px; */
+}
+.scale-adjust {
+  box-shadow: 0px 0px 0px 1px rgba(34,36,38,.1)!important;
+}
+
 
 .no-margin {
   margin: 0!important;

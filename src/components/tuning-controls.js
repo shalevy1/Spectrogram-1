@@ -26,12 +26,13 @@ class TuningControls extends Component {
                 <Menu.Item className="vert">
                   <div className="menu-header">Sound</div>
                   <div className="sound-toggle-container">
-                  <Checkbox
+                  <Button
                   toggle
-                  checked={context.state.soundOn}
-                  onChange={context.handleSoundToggle}
+                  active={context.state.soundOn}
+                  onClick={context.handleSoundToggle}
                   disabled={!context.state.isStarted}
-                  />
+                  id="toggleButton"
+                  >Sound</Button>
 
                   </div>
 
