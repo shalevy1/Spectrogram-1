@@ -34,7 +34,7 @@ class SpectrogramProvider extends Component {
     graphPreset: 'default',
     headphoneMode: true,
     microphone: true,
-    effectValue: "Reverb",
+    effectValue: "notset",
     reverbOn: false,
     reverbDecay: 0.5,
     delayOn: false,
@@ -51,6 +51,15 @@ class SpectrogramProvider extends Component {
     midi: false,
     //hidePanes: false,
     isStarted: false,
+    // soundButtonText: 'OFF',
+    reverbText: 'OFF',
+    delayText: 'OFF',
+    amText: 'OFF',
+    fmText: 'OFF',
+    reverbSwitch: false,
+    delaySwitch: false,
+    amSwitch: false,
+    fmSwitch: false,
   }
 
   //Functions that setState based on Controls
@@ -63,7 +72,14 @@ class SpectrogramProvider extends Component {
             this.setState({microphoneGain: value});
           }
         },
-        handleSoundToggle: () => this.setState({soundOn: !this.state.soundOn}),
+        handleSoundToggle: () => {
+          this.setState({soundOn: !this.state.soundOn});
+          if (this.state.soundOn) {
+            this.setState({ soundButtonText: 'OFF'})
+          }
+          else
+            this.setState({ soundButtonText: 'ON'})
+        },
         handleScaleToggle: () => {
           if(this.state.scaleOn){
               this.setState({scaleOn: false, noteLinesOn: false});
@@ -220,14 +236,59 @@ class SpectrogramProvider extends Component {
         },
         handleHeadphoneModeToggle: () => this.setState({headphoneMode: !this.state.headphoneMode}),
         handleMicrophoneToggle: () => this.setState({microphone: !this.state.microphone}),
-        handleEffectChoiceChange: choice => this.setState({effectValue: choice}),
-        handleReverbToggle: () => this.setState({reverbOn: !this.state.reverbOn}),
+        handleEffectChoiceChange: (choice) => {
+          this.setState({reverbSwitch: false});
+          this.setState({delaySwitch: false});
+          this.setState({amSwitch: false});
+          this.setState({fmSwitch: false});
+          if (this.state.effectValue === choice) {
+            this.setState({effectValue: "notset"});
+          }
+          else {
+            this.setState({effectValue: choice});   
+            switch (choice) {
+              case "Reverb":
+                this.setState({reverbSwitch: true});
+                break;
+              case "Delay":
+                this.setState({delaySwitch: true});
+                break;
+              case "Amplitude Modulation":
+                this.setState({amSwitch: true});
+                break;
+              case "Frequency Modulation":
+                this.setState({fmSwitch: true});
+                break;
+              default:
+                this.setState({reverbSwitch: false});
+                this.setState({delaySwitch: false});
+                this.setState({amSwitch: false});
+                this.setState({fmSwitch: false});
+                break;
+            }
+          }
+        },
+        handleReverbToggle: () => {
+          this.setState({reverbOn: !this.state.reverbOn});
+          if (this.state.reverbOn) {
+            this.setState({ reverbText: "OFF"});
+          }
+          else
+            this.setState({ reverbText: "ON"});
+        },
         handleReverbDecayChange: value => {
           if(this.state.reverbOn){
             this.setState({reverbDecay: Math.round(value*100)/100});
           }
         },
-        handleDelayToggle: () => this.setState({delayOn: !this.state.delayOn}),
+        handleDelayToggle: () => {
+          this.setState({delayOn: !this.state.delayOn});
+          if (this.state.delayOn) {
+            this.setState({ delayText: "OFF"});
+          }
+          else
+            this.setState({ delayText: "ON"});
+        },
         handleDelayTimeChange: value => {
           if(this.state.delayOn){
             this.setState({delayTime: Math.round(value*100)/100});
@@ -238,7 +299,14 @@ class SpectrogramProvider extends Component {
             this.setState({delayFeedback: Math.round(value*100)/100});
           }
         },
-        handleAmToggle: () => this.setState({amOn: !this.state.amOn}),
+        handleAmToggle: () => {
+          this.setState({amOn: !this.state.amOn});
+          if (this.state.amOn) {
+            this.setState({ amText: "OFF"});
+          }
+          else
+            this.setState({ amText: "ON"});
+        },
         handleAmRateChange: value => {
           if(this.state.amOn){
             this.setState({amRate: Math.round(value*100)/100});
@@ -249,7 +317,14 @@ class SpectrogramProvider extends Component {
             this.setState({amLevel: Math.round(value*100)/100});
           }
         },
-        handleFmToggle: () => this.setState({fmOn: !this.state.fmOn}),
+        handleFmToggle: () => {
+          this.setState({fmOn: !this.state.fmOn});
+          if (this.state.fmOn) {
+            this.setState({ fmText: "OFF"});
+          }
+          else
+            this.setState({ fmText: "ON"});
+        },
         handleFmRateChange: value => {
           if(this.state.fmOn){
             this.setState({fmRate: Math.round(value*100)/100});

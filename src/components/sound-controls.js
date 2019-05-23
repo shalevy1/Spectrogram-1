@@ -11,61 +11,73 @@ import "../styles/sound-controls.css";
 // To include the default styles
 // import 'react-rangeslider/lib/index.css';
 import {timbreOptions, scaleOptions, keyOptions, accidentalOptions, effectOptions} from '../util/dropdownOptions';
+// Settings icon
+import {FaSlidersH} from "react-icons/fa";
+// import {MdSettings} from "react-icons/md";
 
 function EffectRender(props){
-  let name, toggle, toggleChange, controlNames, controls, controlChanges, disable;
+  let name, text, toggle, toggleChange, controlNames, controls, controlChanges, disable;
   switch (props.context.state.effectValue) {
     case "Reverb":
-      name = "Reverb";
-      toggle=props.context.state.reverbOn
-      toggleChange=props.context.handleReverbToggle
+      name = "Reverb"
+      text=props.context.state.reverbText
+      // toggle=props.context.state.reverbOn
+      // toggleChange=props.context.handleReverbToggle
       controlNames=["Decay Time"]
       controls=[props.context.state.reverbDecay]
       controlChanges=[props.context.handleReverbDecayChange]
-      disable=!props.context.state.isStarted
+      // disable=!props.context.state.isStarted
       break;
     case "Delay":
       name="Delay"
-      toggle=props.context.state.delayOn
-      toggleChange=props.context.handleDelayToggle
+      text=props.context.state.delayText
+      // toggle=props.context.state.delayOn
+      // toggleChange=props.context.handleDelayToggle
       controlNames=["Delay Time", "Feedback"]
       controls=[props.context.state.delayTime, props.context.state.delayFeedback]
       controlChanges=[props.context.handleDelayTimeChange, props.context.handleDelayFeedbackChange]
-      disable=!props.context.state.isStarted
+      // disable=!props.context.state.isStarted
       break;
     case "Amplitude Modulation":
       name="Amplitude Modulation"
-      toggle=props.context.state.amOn
-      toggleChange=props.context.handleAmToggle
+      text=props.context.state.amText
+      // toggle=props.context.state.amOn
+      // toggleChange=props.context.handleAmToggle
       controlNames=["Frequency", "Amplitude"]
       controls=[props.context.state.amRate, props.context.state.amLevel]
       controlChanges=[props.context.handleAmRateChange, props.context.handleAmLevelChange]
-      disable=!props.context.state.isStarted
+      // disable=!props.context.state.isStarted
       break;
     case "Frequency Modulation":
       name="Frequency Modulation"
-      toggle=props.context.state.fmOn
-      toggleChange=props.context.handleFmToggle
+      text=props.context.state.fmText
+      // toggle=props.context.state.fmOn
+      // toggleChange=props.context.handleFmToggle
       controlNames=["Frequency", "Amplitude"]
       controls=[props.context.state.fmRate, props.context.state.fmLevel]
       controlChanges=[props.context.handleFmRateChange, props.context.handleFmLevelChange]
-      disable=!props.context.state.isStarted
+      // disable=!props.context.state.isStarted
       break;
     default:
-      name = "Reverb";
-      toggle=props.context.state.reverbOn
-      toggleChange=props.context.handleReverbToggle
+      name = "notset"
+      text = props.context.state.reverbText
+      // toggle=props.context.state.reverbOn
+      // toggleChange=props.context.handleReverbToggle
       controlNames=["Decay Time"]
       controls=[props.context.state.reverbDecay]
       controlChanges=[props.context.handleReverbDecayChange]
-      disable=!props.context.state.isStarted
+      // disable=!props.context.state.isStarted
       break;
 
   }
-    if(typeof(name) !== "undefined"){
+    if (name == "notset") {
+      return <div></div>
+    }
+    else if(typeof(name) !== "undefined"){
       return (
         <EffectModule
         name={name}
+        text={text}
         toggle={toggle}
         toggleChange={toggleChange}
         controlNames={controlNames}
@@ -93,14 +105,16 @@ class SoundControls extends Component {
               <Menu className="menu-pane">
                 {/** Sound Toggle **/}
                 <Menu.Item className="vert">
-                  <div className="menu-header">Sound</div>
+                  {/* <div className="menu-header">Sound</div> */}
+                  <br></br>
                   <div className="sound-toggle-container">
-                  <Checkbox
-                  toggle
-                  checked={context.state.soundOn}
-                  onChange={context.handleSoundToggle}
-                  disabled={!context.state.isStarted}
-                  />
+                    <Button
+                    toggle
+                    active={context.state.soundOn}
+                    onClick={context.handleSoundToggle}
+                    disabled={!context.state.isStarted}
+                    id="toggleButton"
+                    >Sound</Button>
 
                   </div>
                 {/*</Menu.Item>*/}
@@ -133,33 +147,21 @@ class SoundControls extends Component {
                   <div>
                     {context.state.outputVolume}
                   </div> */}
-                {/* </Menu.Item> */}
+
+                  <div>
+                    <div className="menu-header">Timbre</div>
+                    <Dropdown
+                    text={context.state.timbre}
+                    fluid
+                    options={timbreOptions}
+                    onChange={context.handleTimbreChange}
+                    disabled={!context.state.isStarted}
+                    className="timbre-dropdown"/>
+                  </div>
+                </Menu.Item>
 
                 {/** Timbre **/}
-                {/* <Menu.Item className="vert"> */}
-                  <div className="menu-header">Timbre</div>
-                      <Dropdown
-                      text={context.state.timbre}
-                      fluid
-                      options={timbreOptions}
-                      onChange={context.handleTimbreChange}
-                      disabled={!context.state.isStarted}
-                      className="timbre-dropdown"/>
-                      {/*<div className="timbre-text">
-                        {context.state.timbre}
-                      </div>*/}
-                      {/*<div className="menu-header quantize-margin">Quantize</div>
-                      <div className="sound-toggle-container">
-                      <Checkbox
-                      toggle
-                      checked={context.state.quantize}
-                      onChange={context.handleQuantizeChange}
-                      disabled={!context.state.isStarted}
-                      />
-
-                      </div>*/}
-
-                </Menu.Item>
+                {/* SECTION REMOVED */}
 
                 {/** ADSR **/}
                 {/*<Menu.Item className="vert">
@@ -193,69 +195,160 @@ class SoundControls extends Component {
                 </Menu.Item>*/}
 
                 {/** Scale Menu **/}
-                <Menu.Item className="vert">
-                  <div className="menu-header">Scales</div>
-                  <Menu.Menu className="horiz">
-                    <Menu.Item className="vert no-line no-padding">
-                      <div>Scale Mode</div>
-                      <Checkbox
+                <Menu.Item className="vert no-line no-padding">
+                  {/* <div className="menu-header">Scales</div> */}
+                    <br></br>
+                    <div>
+                      <Button
                       toggle
-                      className="scales-checkbox"
-                      checked={context.state.scaleOn}
-                      onChange={context.handleScaleToggle}
-                      disabled={!context.state.isStarted || context.state.tuningMode}/>
-                    </Menu.Item>
-                    <Menu.Item className="scale-choice">
-                      <Dropdown
-                      compact
-                      text='Key'
-                      options={keyOptions}
-                      onChange={context.handleKeyChange}
-                      disabled={!context.state.isStarted}
-                      >
-                      </Dropdown>
-                    </Menu.Item>
-                    <Menu.Item className="scale-choice">
-                      <Dropdown
-                      text='#/b'
-                      compact
-                      options={accidentalOptions}
-                      onChange={context.handleAccidentalChange}
-                      disabled={!context.state.isStarted}/>
-                    </Menu.Item>
-                    <Menu.Item className="scale-choice">
-                      <Dropdown
-                      text='Scale'
-                      compact
-                      options={scaleOptions}
-                      onChange={context.handleScaleChange}
-                      disabled={!context.state.isStarted}
-                      scrolling
-                      />
-                    </Menu.Item>
-
-                  </Menu.Menu>
-                  <div className="scales-bottom">
-                  <div className="tuning">
-                    <div>Note Lines</div>
-                    <Checkbox
-                    toggle
-                    className="scales-checkbox"
-                    checked={context.state.noteLinesOn}
-                    onChange={context.handleNoteLinesToggle}
-                    disabled={!context.state.isStarted || !context.state.scaleOn}/>
-                  </div>
-                  <div>
-                  {/* Render Scale Name to screen. Don't render 'chromatic' scale name or accidental */}
-                  {(context.state.scale.name === "Chromatic")? "" : context.state.musicKey.name}{(context.state.scale.name === "Chromatic")? "" : context.state.accidental.name}{context.state.scale.name}
-                  </div>
-                  <Button className="edit-scales-button" onClick={context.handleEditScalesChange}>Edit </Button>
-                  </div>
+                      active={context.state.scaleOn}
+                      onClick={context.handleScaleToggle}
+                      disabled={!context.state.isStarted || context.state.tuningMode}
+                      id="toggleButton"
+                      >Scales</Button>
+                    </div>
+                    <br></br>
+                    <div>
+                      <Button
+                      toggle
+                      // className="scales-checkbox"
+                      active={context.state.noteLinesOn}
+                      onClick={context.handleNoteLinesToggle}
+                      disabled={!context.state.isStarted || !context.state.scaleOn}
+                      id="scaleButton"
+                      >Note Lines</Button>
+                    </div>
                 </Menu.Item>
+                <Menu.Item className="vert">
+                  <br></br>
+                  <Menu.Menu className="horiz scale-adjust">
+                    <Menu.Item className="vert no-line no-padding">
+                      <div>
+                        <div className="scale-choice divider">
+                          <Dropdown
+                          compact
+                          text='Key'
+                          options={keyOptions}
+                          onChange={context.handleKeyChange}
+                          disabled={!context.state.isStarted}
+                          >
+                          </Dropdown>
+                        </div>
+                        <div className="scale-choice divider">
+                          <Dropdown
+                          text='#/b'
+                          compact
+                          options={accidentalOptions}
+                          onChange={context.handleAccidentalChange}
+                          disabled={!context.state.isStarted}/>
+                        </div>
+                        <div className="scale-choice">
+                          <Dropdown
+                          text='Scale'
+                          compact
+                          options={scaleOptions}
+                          onChange={context.handleScaleChange}
+                          disabled={!context.state.isStarted}
+                          scrolling
+                          />
+                        </div>
+                      </div>
+                    </Menu.Item>
+                    <Menu.Item className="vert no-line no-padding">
+                      {/* <div className="scales-bottom"> */}
+                      <div className="scale-choice">
+                      {/* Render Scale Name to screen. Don't render 'chromatic' scale name or accidental */}
+                      {(context.state.scale.name === "Chromatic")? "" : context.state.musicKey.name}{(context.state.scale.name === "Chromatic")? "" : context.state.accidental.name}{context.state.scale.name}
+                      </div>
+                      <br></br>
+                      <Button
+                        className="edit-scales-button"
+                        onClick={context.handleEditScalesChange}
+                        disabled={!context.state.isStarted}
+                      >Edit </Button>
+                      {/* </div> */}
+                    </Menu.Item>
+                  </Menu.Menu>
+                </Menu.Item>
+
+                
                   {/* Effects */}
-                <Menu.Item className="vert effects-stretch">
+                <Menu.Item className="vert">
                 <div className="menu-header">Effects</div>
-                <Dropdown
+                  {/* Reverb */}
+                  <span>
+                  <Button
+                  id='effectSwitch'
+                  toggle
+                  active={context.state.reverbOn}
+                  onClick={context.handleReverbToggle}
+                  disabled={!context.state.isStarted}
+                  >Reverb</Button>
+                  <Button
+                  id='effectSettings'
+                  toggle
+                  active={context.state.reverbSwitch}
+                  onClick={()=>context.handleEffectChoiceChange("Reverb")}
+                  disabled={!context.state.isStarted}
+                  ><FaSlidersH/></Button>
+                  </span>
+
+                  {/* Delay */}
+                  <span>
+                  <Button
+                  id='effectSwitch'
+                  toggle
+                  active={context.state.delayOn}
+                  onClick={context.handleDelayToggle}
+                  disabled={!context.state.isStarted}
+                  >Delay</Button>
+                  <Button
+                  id='effectSettings'
+                  toggle
+                  active={context.state.delaySwitch}
+                  onClick={()=>context.handleEffectChoiceChange("Delay")}
+                  disabled={!context.state.isStarted}
+                  ><FaSlidersH/></Button>
+                  </span>
+
+                  {/* AM */}
+                  <span>
+                  <Button
+                  id='effectSwitch'
+                  toggle
+                  active={context.state.amOn}
+                  onClick={context.handleAmToggle}
+                  disabled={!context.state.isStarted}
+                  >Amplitude Modulation</Button>
+                  <Button
+                  id='effectSettingsWithHeight'
+                  toggle
+                  active={context.state.amSwitch}
+                  onClick={()=>context.handleEffectChoiceChange("Amplitude Modulation")}
+                  disabled={!context.state.isStarted}
+                  ><FaSlidersH/></Button>
+                  </span>
+
+                  {/* FM */}
+                  <span>
+                  <Button
+                  id='effectSwitch'
+                  toggle
+                  active={context.state.fmOn}
+                  onClick={context.handleFmToggle}
+                  disabled={!context.state.isStarted}
+                  >Frequency Modulation</Button>
+                  <Button
+                  id='effectSettingsWithHeight'
+                  toggle
+                  active={context.state.fmSwitch}
+                  onClick={()=>context.handleEffectChoiceChange("Frequency Modulation")}
+                  disabled={!context.state.isStarted}
+                  ><FaSlidersH/></Button>
+                  </span>
+
+
+                {/* <Dropdown
                 className="effects-dropdown"
                 placeholder= "Select Effect"
                 selection
@@ -263,9 +356,51 @@ class SoundControls extends Component {
                 options={effectOptions}
                 value={context.state.effectValue}
                 onChange={(e, data)=>context.handleEffectChoiceChange(data.value)}
+                /> */}
+                {/* <EffectRender context={context} /> */}
+                {/* <EffectModule
+                  name = {"Reverb"}
+                  text={context.state.reverbText}
+                  toggle={context.state.reverbOn}
+                  toggleChange={context.handleReverbToggle}
+                  controlNames={["Decay Time"]}
+                  controls={[context.state.reverbDecay]}
+                  controlChanges={[context.handleReverbDecayChange]}
+                  disable={!context.state.isStarted}
+                 />
+                <EffectModule
+                  name={"Delay"}
+                  text={context.state.delayText}
+                  toggle={context.state.delayOn}
+                  toggleChange={context.handleDelayToggle}
+                  controlNames={["Delay Time", "Feedback"]}
+                  controls={[context.state.delayTime, context.state.delayFeedback]}
+                  controlChanges={[context.handleDelayTimeChange, context.handleDelayFeedbackChange]}
+                  disable={!context.state.isStarted}
                 />
-                <EffectRender context={context} />
-
+                <EffectModule
+                  name={"Amplitude Modulation"}
+                  text={context.state.amText}
+                  toggle={context.state.amOn}
+                  toggleChange={context.handleAmToggle}
+                  controlNames={["Frequency", "Amplitude"]}
+                  controls={[context.state.amRate, context.state.amLevel]}
+                  controlChanges={[context.handleAmRateChange, context.handleAmLevelChange]}
+                  disable={!context.state.isStarted}
+                />
+                <EffectModule
+                  name={"Frequency Modulation"}
+                  text={context.state.fmText}
+                  toggle={context.state.fmOn}
+                  toggleChange={context.handleFmToggle}
+                  controlNames={["Frequency", "Amplitude"]}
+                  controls={[context.state.fmRate, context.state.fmLevel]}
+                  controlChanges={[context.handleFmRateChange, context.handleFmLevelChange]}
+                  disable={!context.state.isStarted}
+                /> */}
+                </Menu.Item>
+                <Menu.Item className="vert no-line no-padding">
+                  <EffectRender context={context} />
                 </Menu.Item>
 
               </Menu>

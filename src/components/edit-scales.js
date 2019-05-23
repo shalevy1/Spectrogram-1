@@ -55,7 +55,7 @@ class EditScales extends Component {
     this.regenerateScale(false);
     var notes = [];
     let className;
-    for (let i = 0; i < NUM_TONES; i++) {
+    for (let i = NUM_TONES-1; i >= 0; i--) {
       if(this.state.scale[i]){
         className = "note activeNote";
       } else {
