@@ -14,6 +14,8 @@
   margin: 20px 10px;
   display: flex;
   padding: 0!important;
+  height: 1rem !important;
+
 }
 
 .graph-limit-container {
@@ -25,7 +27,7 @@
 }
 
 .multi-slider * {
-  height: 12px!important;
+  height: 1rem!important;
 }
 
 .rc-slider-handle {
@@ -36,6 +38,11 @@
 .rc-slider {
   height: 0px!important;
 }
+
+.resolution-input-container {
+  margin-top: 20%; 
+}
+
 .resolution-container {
 display: flex;
 justify-content: center;

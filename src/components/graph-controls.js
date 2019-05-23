@@ -30,8 +30,7 @@ class GraphControls extends Component {
                   className="multi-slider"
                   disabled={!context.state.isStarted}
                   onChange={context.handleRangeChange}/>
-                  <br></br>
-                  <div>
+                  <div className = "resolution-input-container">
                   <Form onKeyPress={context.handleInputChange} className="resolution-container">
                   <Form.Field className="resolution-input">
                   <Input value={context.state.min} disabled={!context.state.isStarted} onChange={context.handleMinChange} maxLength="6"/>

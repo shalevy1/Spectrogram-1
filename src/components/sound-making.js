@@ -160,7 +160,17 @@ class SoundMaking extends Component {
         this.setState({feedback: false});
       }
     }
-    if(this.context.state.reverbOn){
+    if(this.context.state.delayOn && this.delayVolume.mute){
+      this.delayVolume.mute = false;
+      this.masterVolume.disconnect(this.delay);
+      this.delay = null;
+      this.delay = new Tone.FeedbackDelay(this.context.state.delayTime+0.01, this.context.state.delayFeedback);
+      this.delay.connect(this.delayVolume);
+      this.masterVolume.connect(this.delay);
+    } else if(!this.context.state.delayOn && !this.delayVolume.mute) {
+      this.delayVolume.mute = true;
+    }
+    if(this.context.state.reverbOn && this.reverbVolume.mute){
       this.reverbVolume.mute = false;
       this.masterVolume.disconnect(this.reverb);
       this.reverb = null;
@@ -176,25 +186,29 @@ class SoundMaking extends Component {
         });
       }
       this.masterVolume.connect(this.reverb)
-    } else {
+    } else if(!this.context.state.reverbOn && !this.reverbVolume.mute) {
       this.reverbVolume.mute = true;
-    }
-    if(this.context.state.delayOn){
-      this.delayVolume.mute = false;
-      this.masterVolume.disconnect(this.delay);
-      this.delay = null;
-      this.delay = new Tone.FeedbackDelay(this.context.state.delayTime+0.01, this.context.state.delayFeedback);
-      this.delay.connect(this.delayVolume);
-      this.masterVolume.connect(this.delay);
-    } else {
-      this.delayVolume.mute = true;
     }
     if(iOS){
       this.masterVolume.connect(this.props.analyser);
       this.reverbVolume.connect(this.props.analyser);
       this.delayVolume.connect(this.props.analyser);
-      this.masterVolume.connect(Tone.Master); // Master volume receives all of the synthesizer inputs and sends them to the speakers
+      this.masterVolume.connect(this.reverb);
+      this.masterVolume.connect(this.delay)
+      // this.reverbVolume.connect(Tone.Master);
+      // this.delayVolume.connect(Tone.Master);
+      this.masterVolume.connect(Tone.Master); 
     }    
+  }
+
+  checkHeldFreq(voice){
+    let int = window.setInterval(()=>{
+      if(this.synths[voice].oscillator.state === "stopped"){
+        window.clearInterval(int);
+      } else {
+        this.synths[voice].triggerRelease();
+      }
+    }, 1000);
   }
 
   componentWillUnmount() {
@@ -207,7 +221,7 @@ class SoundMaking extends Component {
   */
   onMouseDown(e) {
     e.preventDefault(); // Always need to prevent default browser choices
-    if(!this.context.state.midi){
+    if(!this.context.state.midi && this.context.state.soundOn){
       this.setAudioVariables();
       let pos = getMousePos(this.canvas, e);
       // Calculates x and y value in respect to width and height of screen
@@ -330,6 +344,7 @@ class SoundMaking extends Component {
       this.synths[this.state.currentVoice].triggerRelease(); // Relase frequency, volume goes to -Infinity
       this.amSignals[this.state.currentVoice].triggerRelease();
       this.fmSignals[this.state.currentVoice].triggerRelease();
+      this.checkHeldFreq(this.state.currentVoice);
       this.setState({mouseDown: false});
       this.goldIndices = [];
       // Clears the label
@@ -349,6 +364,7 @@ class SoundMaking extends Component {
       this.synths[this.state.currentVoice].triggerRelease();
       this.amSignals[this.state.currentVoice].triggerRelease();
       this.fmSignals[this.state.currentVoice].triggerRelease();
+      this.checkHeldFreq(this.state.currentVoice);
       this.setState({mouseDown: false});
       this.goldIndices = [];
       // Clears the label
@@ -367,10 +383,9 @@ class SoundMaking extends Component {
   (implmented as a circular array).
   */
   onTouchStart(e) {
-    console.log("START")
     e.preventDefault(); // Always need to prevent default browser choices
     e.stopPropagation();
-    if(!this.context.state.midi){
+    if(!this.context.state.midi && this.context.state.soundOn){
       this.setAudioVariables();
 
       if(e.touches.length > NUM_VOICES ){
@@ -432,6 +447,7 @@ class SoundMaking extends Component {
           for (let i = 0; i < e.touches.length; i++) {
             let pos = getMousePos(this.canvas, e.touches[i]);
             let index = e.touches[i].identifier % NUM_VOICES;
+            if (index < 0) index = NUM_VOICES + index;
             let yPercent = 1 - pos.y / this.context.state.height;
             let xPercent = 1 - pos.x / this.context.state.width;
             let gain = getGain(xPercent);
@@ -558,6 +574,7 @@ class SoundMaking extends Component {
           this.synths[i].triggerRelease();
           this.amSignals[i].triggerRelease();
           this.fmSignals[i].triggerRelease();
+          this.checkHeldFreq(i);
         }
         this.goldIndices = [];
         this.drawPitchBendButton(false);
@@ -585,6 +602,7 @@ class SoundMaking extends Component {
                 this.synths[index].triggerRelease();
                 this.amSignals[index].triggerRelease();
                 this.fmSignals[index].triggerRelease();
+                this.checkHeldFreq(index);
                 if(this.context.state.quantize){
                   Tone.Transport.clear(this.heldIds[index]);
                 }
@@ -596,6 +614,7 @@ class SoundMaking extends Component {
                     this.synths[i].triggerRelease();
                     this.fmSignals[i].triggerRelease();
                     this.amSignals[i].triggerRelease();
+                    this.checkHeldFreq(i);
                   }
               }
               this.setState({pitchButtonPressed: false});
@@ -707,9 +726,10 @@ class SoundMaking extends Component {
     this.midiNotes.forEach((item, index, arr)=>{
       if (item && !isNaN(item.xPercent)) {
         if (item.yPercent === yPercent) {
-           this.synths[item.id].triggerRelease();
-           arr[index] = {};
-          } else{
+          this.synths[item.id].triggerRelease();
+          this.checkHeldFreq(item.id);
+          arr[index] = {};
+          } else {
             let pos = {
               x: (1 - item.xPercent) * width,
               y: (1 - item.yPercent) * height
@@ -816,7 +836,7 @@ class SoundMaking extends Component {
         this.ctx.fillStyle = "rgba(218, 218, 218, 0.8)";
         this.ctx.fillRect(scaleOffset - 2, index - 2*scaleOffset, width, 3.5*scaleOffset);
         this.ctx.fillStyle = "white";
-        this.ctx.fillText(freq + ' Hz', scaleOffset, index+scaleOffset/2);
+        this.ctx.fillText(freq + ' Hz', scaleOffset -2 + width/2, index+scaleOffset/2);
       }
       // Draw Circle for point
     const startingAngle = 0;
@@ -856,6 +876,11 @@ class SoundMaking extends Component {
     this.ctx.lineTo(x+arcsize, y);
     this.ctx.stroke();
     this.ctx.fill();
+    this.ctx.fillStyle = "white";
+    this.ctx.font = '20px Inconsolata';
+    this.ctx.textAlign = "center";
+    this.ctx.fillText("Bend", x+width/2, y+height/2+5);
+
   }
 
   isPitchButton(x, y){
