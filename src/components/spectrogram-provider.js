@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {convertToLog, convertToLinear} from "../util/conversions";
+import {convertToLog, convertToLinear, getColorIndicesForCoord} from "../util/conversions";
 // React new Context API
 // Create Context
 export const SpectrogramContext = React.createContext();
@@ -11,6 +11,12 @@ class SpectrogramProvider extends Component {
     soundOn: false,
     microphoneGain: 50,
     timbre: 'Sine',
+    numHarmonics: 0,   
+    harmonicWeights: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    drawFilter: false,
+    filterCtx: null,
+    filterWidth: 0,
+    filterHeight: 0,
     scaleOn: false,
     noteLinesOn: false,
     musicKey: {name: 'C', value: 0 },
@@ -97,6 +103,51 @@ class SpectrogramProvider extends Component {
           let newTimbre = data.options[data.value].text;
           this.setState({timbre: newTimbre});
         },
+        handleHarmonicsChange: (e, data)=>{
+          let value;
+          if(!isNaN(e)){
+            value = Number(e);
+          } else {
+            value = Number(data.value);
+          }
+          if(!isNaN(value) && value > -1 && value < 10){
+            this.setState({numHarmonics: value});
+          }            
+        },
+        handleToggleDrawFilter: () => this.setState({drawFilter: !this.state.drawFilter}),
+        setFilter: (ctx, width, height) =>{
+          this.setState({filterCtx: ctx, filterWidth: width, filterHeight: height});
+        },
+        queryFilter: yPercent => {
+          if (!this.state.filterCtx) {
+            return 1;
+          }
+          let yPos = yPercent * this.state.filterHeight;
+          console.log(yPos, this.state.filterWidth)
+          for (let xPos = 0; xPos < this.state.filterWidth; xPos+=10) {
+            let colorData = this.state.filterCtx.getImageData(xPos, yPos, 10, 10);
+            let colorIndices = getColorIndicesForCoord(xPos,yPos,this.state.filterWidth);
+            var redIndex = colorIndices[0];
+            var greenIndex = colorIndices[1];
+            var blueIndex = colorIndices[2];
+            var alphaIndex = colorIndices[3];
+
+            var redForCoord = colorData.data[redIndex];
+            var greenForCoord = colorData.data[greenIndex];
+            var blueForCoord = colorData.data[blueIndex];
+            var alphaForCoord = colorData.data[alphaIndex];
+            // console.log(redForCoord, greenForCoord, blueForCoord)
+            
+            // for (let v = 0; v < color.length; v++) {
+            //   if (color[v]) {
+            //     console.log("xPos", xPos, "color", color[v])
+            //     return 1-xPos/this.state.filterWidth;
+            //   }
+            // }
+          }
+          return 0;
+        },
+        handleSustainToggle: ()=> this.setState({sustain: !this.state.sustain}),
         handleQuantizeChange: () =>this.setState({quantize: !this.state.quantize}),
         handleAttackChange: value => {
           if(this.state.isStarted && !this.state.tuningMode){

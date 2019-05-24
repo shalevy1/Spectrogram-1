@@ -5,6 +5,7 @@ import GraphControls from './graph-controls';
 import SoundControls from './sound-controls';
 import TuningControls from './tuning-controls';
 import EditScales from "./edit-scales";
+import Filter from "./filter"
 import Slider from 'react-rangeslider';
 import {withRouter} from "react-router-dom";
 // To include the default styles
@@ -175,6 +176,7 @@ class MyMenu extends Component {
         {this.state.pane}
 
         {this.props.editScales && this.state.editScales && <EditScales/> }
+        {this.props.drawFilter && <Filter handleResize={this.props.handleResize}/>}
       </div>
 
     )

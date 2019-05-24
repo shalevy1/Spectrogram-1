@@ -71,8 +71,17 @@ function freqToIndex(freq, max, min, height) {
   return 0;
 }
 
+function gainToLinear(gain) {
+  return (-1*(gain / 30) + 0.1);
+}
+
 function midiToFreq(midi){
   return Math.pow(2, ((midi - 69) / 12)) * 440;
 }
 
-export {convertToLog, convertToLinear, getMousePos, getFreq, getGain, calculateNewMax, calculateNewMin, freqToIndex, getTempo, midiToFreq}
+function getColorIndicesForCoord(x, y, width) {
+  var red = y * (width * 4) + x * 4;
+  return [red, red + 1, red + 2, red + 3];
+}
+
+export {convertToLog, convertToLinear, getMousePos, getFreq, getGain, calculateNewMax, calculateNewMin, freqToIndex, getTempo, midiToFreq, gainToLinear, getColorIndicesForCoord}

@@ -7,9 +7,9 @@ import {Segment, Menu, Dropdown, Checkbox, Button, Icon} from 'semantic-ui-react
 
 import "../styles/sound-controls.css";
 // Using an ES6 transpiler like Babel
-// import Slider from 'react-rangeslider';
+import Slider from 'react-rangeslider';
 // To include the default styles
-// import 'react-rangeslider/lib/index.css';
+import 'react-rangeslider/lib/index.css';
 import {timbreOptions, scaleOptions, keyOptions, accidentalOptions, effectOptions} from '../util/dropdownOptions';
 // Settings icon
 import {FaSlidersH} from "react-icons/fa";
@@ -147,21 +147,45 @@ class SoundControls extends Component {
                   <div>
                     {context.state.outputVolume}
                   </div> */}
-
-                  <div>
-                    <div className="menu-header">Timbre</div>
-                    <Dropdown
-                    text={context.state.timbre}
-                    fluid
-                    options={timbreOptions}
-                    onChange={context.handleTimbreChange}
-                    disabled={!context.state.isStarted}
-                    className="timbre-dropdown"/>
-                  </div>
-                </Menu.Item>
+                {/* </Menu.Item> */}
 
                 {/** Timbre **/}
-                {/* SECTION REMOVED */}
+                {/* <Menu.Item className="vert"> */}
+                  <div className="menu-header">Harmonics</div>
+                      <Slider
+                      min={0}
+                      max={9}
+                      value={context.state.numHarmonics}
+                      onChange={context.handleHarmonicsChange}
+                      className="harmonics-slider"/>
+                      {context.state.numHarmonics}
+                    <div>
+                      <Button onClick={context.handleSustainToggle} className="sustain-button">Sustain</Button> 
+                      <Button onClick={context.handleToggleDrawFilter} className="toggle-button">Draw Filter</Button>
+                    </div>
+                    
+                      {/* <Dropdown
+                      text={context.state.timbre}
+                      fluid
+                      options={timbreOptions}
+                      onChange={context.handleTimbreChange}
+                      disabled={!context.state.isStarted}
+                      className="timbre-dropdown"/> */}
+                      {/*<div className="timbre-text">
+                        {context.state.timbre}
+                      </div>*/}
+                      {/*<div className="menu-header quantize-margin">Quantize</div>
+                      <div className="sound-toggle-container">
+                      <Checkbox
+                      toggle
+                      checked={context.state.quantize}
+                      onChange={context.handleQuantizeChange}
+                      disabled={!context.state.isStarted}
+                      />
+
+                      </div>*/}
+
+                </Menu.Item>
 
                 {/** ADSR **/}
                 {/*<Menu.Item className="vert">

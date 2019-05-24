@@ -4,7 +4,7 @@ import "../styles/sound-making.css";
 import {SpectrogramContext} from './spectrogram-provider';
 
 import generateScale from '../util/generateScale';
-import { getFreq, getGain, getTempo, freqToIndex, getMousePos, convertToLog, midiToFreq } from "../util/conversions";
+import { getFreq, getGain, getTempo, freqToIndex, getMousePos, convertToLog, midiToFreq, gainToLinear } from "../util/conversions";
 // import WebMidi from 'webmidi';
 const NUM_VOICES = 6;
 const RAMPVALUE = 0.2;
@@ -55,7 +55,9 @@ class SoundMaking extends Component {
     this.ctx = this.canvas.getContext('2d');
     let options = {
       oscillator: {
-        type: this.context.state.timbre.toLowerCase()
+        type: "custom",
+        partials: [1],
+        attack: 0.1
       }
     };
     let options2 = {
@@ -128,10 +130,17 @@ class SoundMaking extends Component {
     if (this.masterVolume.mute === false && this.context.state.outputVolume && this.context.state.outputVolume !== this.masterVolume.volume.value ) {
       this.masterVolume.volume.value = getGain(1 - (this.context.state.outputVolume) / 100);
     }
-    if (this.context.state.timbre !== this.synths[0].oscillator.type) {
-      let newTimbre = this.context.state.timbre.toLowerCase();
+    // if (this.context.state.timbre !== this.synths[0].oscillator.type) {
+    //   let newTimbre = this.context.state.timbre.toLowerCase();
+    //   for (let i = 0; i < NUM_VOICES; i++) {
+    //     this.synths[i].oscillator.type = newTimbre;
+    //   }
+    // }
+
+    if(this.context.state.numHarmonics + 1 !== this.synths[0].oscillator.partials.length){
       for (let i = 0; i < NUM_VOICES; i++) {
-        this.synths[i].oscillator.type = newTimbre;
+        this.synths[i].oscillator.type = "custom";
+        this.synths[i].oscillator.partials = this.context.state.harmonicWeights.slice(0, this.context.state.numHarmonics + 1);
       }
     }
     if (this.context.state.attack !== this.synths[0].envelope.attack) {
@@ -241,8 +250,13 @@ class SoundMaking extends Component {
         // Tone.Transport.bpm.value = getTempo(xPercent);
         this.synths[newVoice].volume.value = gain; // Starts the synth at volume = gain
       } else {
-        this.synths[newVoice].triggerAttack(freq); // Starts the synth at frequency = freq
-        this.synths[newVoice].volume.value = gain; // Starts the synth at volume = gain
+        this.synths[newVoice].triggerAttack(freq); // Starts the synth at frequency = freq            
+        this.synths[newVoice].volume.value = gain; // Starts the synth at volume = gain        
+        this.synths[newVoice].oscillator.partials = this.context.state.harmonicWeights
+        .slice(0, this.context.state.numHarmonics + 1)
+        .map((weight, index) => {
+            return this.getFilterCoeficients(freq*(index+1))*weight;
+        });
       }
 
       // Am
@@ -267,7 +281,8 @@ class SoundMaking extends Component {
       if(this.context.state.noteLinesOn){
         this.renderNoteLines();
       }
-      this.label(freq, pos.x, pos.y); // Labels the point
+      //this.label(freq, pos.x, pos.y); // Labels the point
+      this.drawHarmonics(newVoice, freq, pos.x);
       this.drawPitchBendButton(false);
     }
 
@@ -275,7 +290,7 @@ class SoundMaking extends Component {
 
   onMouseMove(e) {
     e.preventDefault(); // Always need to prevent default browser choices
-    if (this.state.mouseDown) { // Only want to change when mouse is pressed
+    if (this.state.mouseDown && !this.context.state.sustain) { // Only want to change when mouse is pressed
       // The next few lines are similar to onMouseDown
 
       let {height, width} = this.context.state
@@ -332,14 +347,20 @@ class SoundMaking extends Component {
         this.renderNoteLines();
       }
       this.drawPitchBendButton(false);
-      this.label(freq, pos.x, pos.y);
+      // this.label(freq, pos.x, pos.y);
+      this.synths[this.state.currentVoice].oscillator.partials = this.context.state.harmonicWeights
+        .slice(0, this.context.state.numHarmonics + 1)
+        .map((weight, index) => {
+          return this.getFilterCoeficients(freq * (index + 1)) * weight;
+        });
+      this.drawHarmonics(this.state.currentVoice, freq, pos.x);
     }
   }
 
   onMouseUp(e) {
     e.preventDefault(); // Always need to prevent default browser choices
     // Only need to trigger release if synth exists (a.k.a mouse is down)
-    if (this.state.mouseDown) {
+    if (this.state.mouseDown && !this.context.state.sustain) {
       Tone.Transport.cancel();
       this.synths[this.state.currentVoice].triggerRelease(); // Relase frequency, volume goes to -Infinity
       this.amSignals[this.state.currentVoice].triggerRelease();
@@ -359,7 +380,7 @@ class SoundMaking extends Component {
   /* This is a similar method to onMouseUp. Occurs when mouse exists canvas */
   onMouseOut(e) {
     e.preventDefault(); // Always need to prevent default browser choices
-    if (this.state.mouseDown) {
+    if (this.state.mouseDown && !this.context.state.sustain) {
       Tone.Transport.cancel();
       this.synths[this.state.currentVoice].triggerRelease();
       this.amSignals[this.state.currentVoice].triggerRelease();
@@ -442,6 +463,11 @@ class SoundMaking extends Component {
             this.bendStartFreqs[newVoice] = freq;
             this.bendStartVolumes[newVoice] = gain;
           }
+          this.synths[newVoice].oscillator.partials = this.context.state.harmonicWeights
+            .slice(0, this.context.state.numHarmonics + 1)
+            .map((weight, index) => {
+              return this.getFilterCoeficients(freq * (index + 1)) * weight;
+            });
 
         } else {
           for (let i = 0; i < e.touches.length; i++) {
@@ -470,17 +496,18 @@ class SoundMaking extends Component {
         // let xPercent = 1 - pos.x / this.context.state.width;
         let freq = this.getFreq(yPercent);
         if (!this.isPitchButton(pos.x, pos.y)){
-          this.label(freq, pos.x, pos.y);
+          // this.label(freq, pos.x, pos.y);
+          let index = e.touches[i].identifier % NUM_VOICES;
+          this.drawHarmonics(index, freq, pos.x);
         }
       }
     }
   }
 
   onTouchMove(e) {
-    console.log("MOVE")
     e.preventDefault(); // Always need to prevent default browser choices
     // Check if more fingers were moved than allowed
-    if (this.state.touch) {
+    if (this.state.touch && !this.context.state.sustain) {
       if(e.changedTouches.length > NUM_VOICES ){
         return;
       }
@@ -544,6 +571,11 @@ class SoundMaking extends Component {
             this.fmSignals[index].volume.exponentialRampToValueAtTime(newVol*modIndex, this.props.audioContext.currentTime+RAMPVALUE); // Ramps to FM amplitude*modIndex in RAMPVALUE sec
             this.fmSignals[index].triggerAttack(newFreq);
           }
+          this.synths[index].oscillator.partials = this.context.state.harmonicWeights
+            .slice(0, this.context.state.numHarmonics + 1)
+            .map((weight, index) => {
+              return this.getFilterCoeficients(freq * (index + 1)) * weight;
+            });
       }
 
       //Redraw Labels
@@ -553,7 +585,9 @@ class SoundMaking extends Component {
         let yPercent = 1 - pos.y / this.context.state.height;
         let freq = this.getFreq(yPercent);
         if (!this.isPitchButton(pos.x, pos.y)){
-          this.label(freq, pos.x, pos.y);
+          // this.label(freq, pos.x, pos.y);
+          let index = e.touches[i].identifier % NUM_VOICES;
+          this.drawHarmonics(index, freq, pos.x);
         }
       }
     }
@@ -561,7 +595,7 @@ class SoundMaking extends Component {
 
   onTouchEnd(e) {
     e.preventDefault(); // Always need to prevent default browser choices
-    if(this.state.touch){
+    if(this.state.touch && !this.context.state.sustain){
       let {width, height} = this.context.state;
       this.ctx.clearRect(0, 0, width, height);
       if(this.context.state.noteLinesOn){
@@ -637,7 +671,9 @@ class SoundMaking extends Component {
         let yPercent = 1 - pos.y / this.context.state.height;
         let freq = this.getFreq(yPercent);
         if(!this.isPitchButton(pos.x,pos.y)){
-          this.label(freq, pos.x, pos.y);
+          let index = e.touches[i].identifier % NUM_VOICES;
+          this.drawHarmonics(index, freq, pos.x);
+          // this.label(freq, pos.x, pos.y);
         }
       }
     }
@@ -665,7 +701,6 @@ class SoundMaking extends Component {
       this.heldFreqs[newVoice] = freq;
       this.heldIds[newVoice] = id;
     } else {
-      // console.log(e.note.number, freq, gain)
       this.synths[newVoice].triggerAttack(freq);
     }
     this.synths[newVoice].volume.value = gain;
@@ -706,8 +741,8 @@ class SoundMaking extends Component {
           x: (1 - item.xPercent) * width,
           y: (1 - item.yPercent) * height
         }
-        // console.log(item, pos, freq)
-        this.label(item.label, pos.x, pos.y);
+        this.drawHarmonics(newVoice, Math.round(freq), pos.x);        
+        // this.label(item.label, pos.x, pos.y);
       }
     });
 
@@ -734,13 +769,73 @@ class SoundMaking extends Component {
               x: (1 - item.xPercent) * width,
               y: (1 - item.yPercent) * height
             }
-            //  let freq = getFreq(item.yPercent, resolutionMin, resolutionMax);
-            //  console.log(item, pos, freq)
-         this.label(item.label, pos.x, pos.y);
+             let freq = getFreq(item.yPercent, resolutionMin, resolutionMax);
+          this.drawHarmonics(index, Math.round(freq), pos.x);  
+        this.label(item.label, pos.x, pos.y);
         }
        }
       });      
     this.drawPitchBendButton(this.state.pitchButtonPressed);
+  }
+
+  sustainChangeHarmonic(){
+    let {soundOn, height, width, numHarmonics, noteLinesOn} = this.context.state;
+    if(soundOn){
+      this.ctx.clearRect(0, 0, width, height);
+      for (let i = 0; i < NUM_VOICES; i++) {
+        this.synths[i].oscillator.type = "custom";
+        this.synths[i].oscillator.partials = this.context.state.harmonicWeights.slice(0, numHarmonics + 1);
+        if(this.synths[i].oscillator.state === "started"){
+          let xPos = (1 - gainToLinear(this.synths[i].volume.value)) * width;
+          this.drawHarmonics(i, this.synths[i].frequency.value, xPos);
+        }
+      }  
+      if (noteLinesOn) {
+        this.renderNoteLines();
+      }
+      this.drawPitchBendButton(this.state.pitchButtonPressed);
+    }
+  }
+
+  getFilterCoeficients(freq){
+    let {height, width, resolutionMax, resolutionMin} = this.context.state;
+    let f = x => Math.pow(Math.E,(-0.0002*x));
+    let y = this.context.queryFilter(freqToIndex(freq, resolutionMax, resolutionMin, height)/height);
+    // console.log(y)
+    return y;
+    // return f(freq);
+  }
+
+  releaseAll(){
+    for (let i = 0; i < NUM_VOICES; i++) {
+      if(this.synths[i].oscillator.state === "started"){
+        this.synths[i].triggerRelease();
+        this.checkHeldFreq(i);
+      }
+    }
+    this.setState({mouseDown: false, touch: false});
+    let {height, width} = this.context.state;
+    this.ctx.clearRect(0, 0, width, height);
+    if (this.context.state.noteLinesOn) {
+      this.renderNoteLines();
+    }
+    this.drawPitchBendButton(this.state.pitchButtonPressed);
+  }
+
+  drawHarmonics(index, fundamental, xPos){
+    let {height, width, resolutionMax, resolutionMin} = this.context.state;
+    for(let i = 0; i < this.context.state.numHarmonics + 1; i++){
+      let freq = fundamental * (i+1);
+      let pos = {
+        x: this.synths[index].oscillator.partials[i] * xPos,
+        y: freqToIndex(freq, resolutionMax, resolutionMin, height)
+      }
+      if(i == 0){
+      this.label(freq, xPos, pos.y);
+      } else {
+      this.label("", pos.x, pos.y);
+      }
+    }
   }
 
   // Helper function that determines the frequency to play based on the mouse/finger position
@@ -824,10 +919,10 @@ class SoundMaking extends Component {
     this.ctx.font = '20px Inconsolata';
     this.ctx.fillStyle = 'white';
     if(this.context.state.soundOn){
-      if(this.context.state.midi){
+      if(this.context.state.midi || freq === ""){
         this.ctx.fillText(freq, x + offset, y - offset);
       }
-      else if (!this.context.state.scaleOn) {
+      else if (!this.context.state.scaleOn){ //|| this.context.state.numHarmonics > 1) {
         this.ctx.fillText(freq + ' Hz', x + offset, y - offset);
       } else {
         this.ctx.fillText(this.scaleLabel, x + offset, y - offset);
@@ -836,7 +931,7 @@ class SoundMaking extends Component {
         this.ctx.fillStyle = "rgba(218, 218, 218, 0.8)";
         this.ctx.fillRect(scaleOffset - 2, index - 2*scaleOffset, width, 3.5*scaleOffset);
         this.ctx.fillStyle = "white";
-        this.ctx.fillText(freq + ' Hz', scaleOffset -2 + width/2, index+scaleOffset/2);
+        this.ctx.fillText(freq + ' Hz', scaleOffset, index+scaleOffset/2);
       }
       // Draw Circle for point
     const startingAngle = 0;

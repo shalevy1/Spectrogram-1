@@ -1,0 +1,8 @@
+.filter-canvas {
+    z-index: 50;
+    width: 30%;
+    position: absolute;
+    top: 100%;
+    background-color: lightblue;
+
+}

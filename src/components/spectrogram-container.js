@@ -62,6 +62,8 @@ class SpectrogramContainer extends Component {
       hidePanes={context.state.hidePanes}
       handleHidePanesCompletion={context.handleHidePanesCompletion}
       editScales={context.state.editScales}
+      drawFilter={context.state.drawFilter}
+      handleResize={context.handleResize}
       />
       <Spectrogram
       handleResize={context.handleResize}

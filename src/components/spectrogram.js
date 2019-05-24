@@ -47,7 +47,9 @@ class Spectrogram extends Component {
       microphone: true,
       frequencyLabel: '',
       noteLinesRendered: false,
-      midi: false
+      midi: false,
+      sustainOn: false,
+      numHarmonics: 1
       // deferredPrompt: null,
       // showAddToHomeScreen: false
     }
@@ -136,7 +138,22 @@ class Spectrogram extends Component {
           }
 
           if(!this.context.state.noteLinesOn){
-            this.setState({noteLinesRendered: false})
+            this.setState({noteLinesRendered: false});
+          }
+          if(this.context.state.soundOn && this.context.state.sustain && this.context.state.numHarmonics != this.state.numHarmonics){
+            this.soundMakingRef.current.sustainChangeHarmonic();
+            this.setState({numHarmonics: this.context.state.numHarmonics});
+          }
+          if(this.context.state.soundOn &&this.context.state.sustain && !this.state.sustainOn){
+          
+            this.setState({sustainOn: true});
+          }
+          else if(!this.context.state.sustain && this.state.sustainOn){
+            this.soundMakingRef.current.releaseAll();
+            this.setState({sustainOn: false});
+          }
+          else if(this.context.state.sustain && !this.context.state.soundOn && this.state.sustainOn){
+            this.soundMakingRef.current.releaseAll();
           }
         }
 
