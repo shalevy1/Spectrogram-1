@@ -81,10 +81,10 @@ class MyMenu extends Component {
   // Function that switches to the signal generator on click
   switchToSignalGenerator = (e,data) => {
     if(data.value === "Signal Generator"){
-      window.location.href = 'signalgenerator.sciencemusic.org';
+      window.location.href = "https://signalgenerator.sciencemusic.org/"
     }
     if (data.value === "Oscilloscope") {
-      window.location.href = 'oscilloscope.sciencemusic.org';
+      window.location.href = "https://oscilloscope.sciencemusic.org/"
     }
     // console.log("SWITCH");
     // window.location = "https://listeningtowaves.github.io/Oscilloscope-v2/"
