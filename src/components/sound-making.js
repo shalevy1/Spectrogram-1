@@ -160,18 +160,22 @@ class SoundMaking extends Component {
         this.setState({feedback: false});
       }
     }
-    if(this.context.state.delayOn && this.delayVolume.mute){
-      this.delayVolume.mute = false;
+    if(this.context.state.delayOn){
+      if(this.delayVolume.mute){
+        this.delayVolume.mute = false;
+      }
       this.masterVolume.disconnect(this.delay);
       this.delay = null;
-      this.delay = new Tone.FeedbackDelay(this.context.state.delayTime+0.01, this.context.state.delayFeedback);
+      this.delay = new Tone.FeedbackDelay(this.context.state.delayTime + 0.01, this.context.state.delayFeedback * 0.95);
       this.delay.connect(this.delayVolume);
       this.masterVolume.connect(this.delay);
     } else if(!this.context.state.delayOn && !this.delayVolume.mute) {
       this.delayVolume.mute = true;
     }
-    if(this.context.state.reverbOn && this.reverbVolume.mute){
-      this.reverbVolume.mute = false;
+    if(this.context.state.reverbOn){
+      if(this.reverbVolume.mute){
+        this.reverbVolume.mute = false;
+      }
       this.masterVolume.disconnect(this.reverb);
       this.reverb = null;
       if(iOS){
