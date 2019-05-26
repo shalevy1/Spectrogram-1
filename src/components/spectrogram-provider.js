@@ -14,9 +14,9 @@ class SpectrogramProvider extends Component {
     numHarmonics: 0,   
     harmonicWeights: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     drawFilter: false,
-    filterCtx: null,
-    filterWidth: 0,
-    filterHeight: 0,
+    filterHeights: null,
+    filterCanvasWidth: 0,
+    filterCanvasHeight: 0,
     scaleOn: false,
     noteLinesOn: false,
     musicKey: {name: 'C', value: 0 },
@@ -32,7 +32,7 @@ class SpectrogramProvider extends Component {
     resolutionMax: 20000,//Real Max
     resolutionMin: 20, // Real Min
     limitMax: 100, // Range slider max
-    limitMin: 29, // Range slider Min
+    limitMin: 31, // Range slider Min
     min: 20, // Temp Min for Input
     max: 20000, // Temp Max for Input
     tuningMode: false,// Mode Switcher
@@ -115,37 +115,25 @@ class SpectrogramProvider extends Component {
           }            
         },
         handleToggleDrawFilter: () => this.setState({drawFilter: !this.state.drawFilter}),
-        setFilter: (ctx, width, height) =>{
-          this.setState({filterCtx: ctx, filterWidth: width, filterHeight: height});
+        setFilter: (heights, filterWidth, filterHeight) =>{
+          this.setState({filterHeights: heights, filterCanvasWidth: filterWidth, filterCanvasHeight: filterHeight});
         },
         queryFilter: yPercent => {
-          if (!this.state.filterCtx) {
+          if (!this.state.filterHeights) {
             return 1;
           }
-          let yPos = yPercent * this.state.filterHeight;
-          console.log(yPos, this.state.filterWidth)
-          for (let xPos = 0; xPos < this.state.filterWidth; xPos+=10) {
-            let colorData = this.state.filterCtx.getImageData(xPos, yPos, 10, 10);
-            let colorIndices = getColorIndicesForCoord(xPos,yPos,this.state.filterWidth);
-            var redIndex = colorIndices[0];
-            var greenIndex = colorIndices[1];
-            var blueIndex = colorIndices[2];
-            var alphaIndex = colorIndices[3];
-
-            var redForCoord = colorData.data[redIndex];
-            var greenForCoord = colorData.data[greenIndex];
-            var blueForCoord = colorData.data[blueIndex];
-            var alphaForCoord = colorData.data[alphaIndex];
-            // console.log(redForCoord, greenForCoord, blueForCoord)
-            
-            // for (let v = 0; v < color.length; v++) {
-            //   if (color[v]) {
-            //     console.log("xPos", xPos, "color", color[v])
-            //     return 1-xPos/this.state.filterWidth;
-            //   }
-            // }
+          let yPos = yPercent * this.state.filterCanvasHeight;
+          let max = 0;
+          let range = 6;
+          let start = Math.round(yPos) - Math.round(range/2);
+          let end = Math.round(yPos) + Math.round(range/2);
+          for (let i = start; i < end; i++){
+            let val = (this.state.filterCanvasWidth - this.state.filterHeights[i]) / this.state.filterCanvasWidth;
+            if(val > max){
+              max = val;
+            }
           }
-          return 0;
+          return max;
         },
         handleSustainToggle: ()=> this.setState({sustain: !this.state.sustain}),
         handleQuantizeChange: () =>this.setState({quantize: !this.state.quantize}),
@@ -187,6 +175,7 @@ class SpectrogramProvider extends Component {
           if(value.length){
             let newMin = Math.round(convertToLog(value[0], 1,100, 1, 20000));
             let newMax = Math.round(convertToLog(value[1], 1,100, 1, 20000));
+            console.log(newMin, newMax, value[0], value[1])
             this.setState({
               min: newMin,
               max: newMax,

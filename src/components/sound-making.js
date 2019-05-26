@@ -255,9 +255,11 @@ class SoundMaking extends Component {
         this.synths[newVoice].oscillator.partials = this.context.state.harmonicWeights
         .slice(0, this.context.state.numHarmonics + 1)
         .map((weight, index) => {
+            // console.log(this.getFilterCoeficients(freq * (index + 1)) * weight)
             return this.getFilterCoeficients(freq*(index+1))*weight;
         });
       }
+      // console.log(this.synths[newVoice].oscillator.partials)
 
       // Am
       if(this.context.state.amOn){

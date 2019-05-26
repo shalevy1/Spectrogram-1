@@ -11,15 +11,21 @@ class Filter extends Component {
     componentDidMount(){
         this.ctx = this.canvas.getContext('2d');
         this.renderAxesLabels();
-
-
+        this.heights = new Array(this.canvas.height);
+        for(let i = 0; i < this.heights.length; i++){
+            this.heights[i] = this.canvas.width;
+        }
+        // console.log(this.canvas.width, this.canvas.height)
     }
+
     onMouseDown = e =>{
         let pos = getMousePos(this.canvas, e);
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); // Clears canvas for redraw of label
+        // this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); // Clears canvas for redraw of label
+        this.ctx.clearRect(0, pos.y, this.canvas.width, 10); // Clears canvas for redraw of label
         this.renderAxesLabels();
         this.ctx.fillStyle = 'black';
         this.ctx.fillRect(pos.x, pos.y, this.canvas.width - pos.x, 10);
+        this.heights[Math.round(pos.y)] = pos.x;
         this.setState({mouseDown: true}); 
 
         // this.ctx.beginPath();
@@ -32,16 +38,22 @@ class Filter extends Component {
             this.ctx.fillStyle = 'black';
             this.ctx.clearRect(0, pos.y, this.canvas.width, 10); // Clears canvas for redraw of label
             this.ctx.fillRect(pos.x, pos.y, this.canvas.width - pos.x, 10);
+            this.heights[Math.round(pos.y)] = pos.x;
             this.renderAxesLabels();
         }
     }
 
     onMouseUp = e =>{
         this.setState({mouseDown: false});
-        this.context.setFilter(this.ctx, this.canvas.width, this.canvas.height)
+        this.context.setFilter(this.heights, this.canvas.width, this.canvas.height);
+        // console.log(this.heights)
+        // this.heights = new Array(this.canvas.height);
+
     }
 
     onMouseOut = e =>{
+        this.setState({mouseDown: false});
+        this.context.setFilter(this.heights, this.canvas.width, this.canvas.height);
     }
 
      renderAxesLabels(){
