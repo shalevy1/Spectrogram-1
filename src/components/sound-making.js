@@ -83,11 +83,14 @@ class SoundMaking extends Component {
     this.goldIndices = []; // Array to hold indices on the screen of gold note lines (touched/clicked lines)
     this.masterVolume.connect(Tone.Master); // Master volume receives all of the synthesizer inputs and sends them to the speakers
     
-    this.reverbVolume = new Tone.Volume(0);
+    this.reverbVolume = new Tone.Volume(-10);
     this.reverbVolume.mute = true;
     if(iOS){
       this.reverb = new Tone.JCReverb(this.context.state.reverbDecay*0.9);
-      this.reverb.connect(this.reverbVolume);
+      let m = new Tone.Mono();
+      this.reverb.connect(m);
+      m.connect(this.reverbVolume);
+      // this.reverb.connect(this.reverbVolume);
     } else{
       this.reverb = new Tone.Reverb(this.context.state.reverbDecay*10+0.1); // Reverb unit. Runs in parallel to masterVolume
       this.reverb.generate().then(()=>{
@@ -185,7 +188,11 @@ class SoundMaking extends Component {
       this.reverb = null;
       if(iOS){
         this.reverb = new Tone.JCReverb(this.context.state.reverbDecay*0.9);
-        this.reverb.connect(this.reverbVolume);
+        let m = new Tone.Mono();
+        this.reverb.connect(m);
+        m.connect(this.reverbVolume);
+        // console.log(this.reverb.numberOfInputs, this.reverb.numberOfOutputs)
+        // this.reverb.connect(this.reverbVolume);
         
       } else{
         this.reverb = new Tone.Reverb(this.context.state.reverbDecay*10+0.1); // Reverb unit. Runs in parallel to masterVolume
