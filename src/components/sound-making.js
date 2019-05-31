@@ -206,13 +206,13 @@ class SoundMaking extends Component {
   }
 
   checkHeldFreq(voice){
-    let int = window.setInterval(()=>{
-      if(this.synths[voice].oscillator.state === "stopped"){
-        window.clearInterval(int);
-      } else {
-        this.synths[voice].triggerRelease();
-      }
-    }, 1000);
+    // let int = window.setInterval(()=>{
+    //   if(this.synths[voice].oscillator.state === "stopped"){
+    //     window.clearInterval(int);
+    //   } else {
+    //     this.synths[voice].triggerRelease();
+    //   }
+    // }, 1000);
   }
 
   componentWillUnmount() {
