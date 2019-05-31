@@ -7,7 +7,7 @@ import "../styles/tuning-controls.css";
 // import Slider from 'react-rangeslider';
 // To include the default styles
 // import 'react-rangeslider/lib/index.css';
-import {scaleOptions, keyOptions, accidentalOptions} from '../util/dropdownOptions';
+import {scaleOptions, keyOptions,/* accidentalOptions*/} from '../util/dropdownOptions';
 import { Button, Icon } from 'semantic-ui-react';
 
 // Sound Controls Class that renders all of the sound controls and uses the
@@ -61,37 +61,39 @@ class TuningControls extends Component {
                     <Menu.Item className="scale-choice">
                       <Dropdown
                       compact
-                      text='Key'
+                      // text='Key'
+                      defaultValue={0}
                       options={keyOptions}
                       onChange={context.handleKeyChange}
                       disabled={!context.state.isStarted}
                       >
                       </Dropdown>
                     </Menu.Item>
-                    <Menu.Item className="scale-choice">
+                    {/* <Menu.Item className="scale-choice">
                       <Dropdown
                       text='#/b'
                       compact
                       options={accidentalOptions}
                       onChange={context.handleAccidentalChange}
                       disabled={!context.state.isStarted}/>
-                    </Menu.Item>
-                    <Menu.Item className="scale-choice">
+                    </Menu.Item> */}
+                    <div className="scale-choice">
                       <Dropdown
-                      text='Scale'
                       compact
+                      // text='Scale'
+                      defaultValue={0}
                       options={scaleOptions}
                       onChange={context.handleScaleChange}
                       disabled={!context.state.isStarted}/>
-                    </Menu.Item>
+                    </div>
                   </Menu.Menu>
 
                   <div className="scales-bottom-tuning">
-                  <div>
+                  {/* <div> */}
                   {/* Render Scale Name to screen. Don't render 'chromatic' scale name or accidental */}
-                  {(context.state.scale.name === "Chromatic")? "" : context.state.musicKey.name}{(context.state.scale.name === "Chromatic")? "" : context.state.accidental.name}{context.state.scale.name}
-                  </div>
-                  <Button className="edit-scales-button-tuning" onClick={context.handleEditScalesChange}>Edit </Button>
+                  {/* {(context.state.scale.name === "Chromatic")? "" : context.state.musicKey.name}{(context.state.scale.name === "Chromatic")? "" : context.state.accidental.name}{context.state.scale.name} */}
+                  {/* </div> */}
+                  <Button id="edit-scales-button-tuning" onClick={context.handleEditScalesChange}>Edit</Button>
                   </div>
                 </Menu.Item>
               </Menu>

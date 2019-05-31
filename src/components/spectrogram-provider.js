@@ -60,6 +60,10 @@ class SpectrogramProvider extends Component {
     delaySwitch: false,
     amSwitch: false,
     fmSwitch: false,
+    effectVisibility: false,
+    scaleOptionsShow: false,
+    scaleDropdown: false,
+    scaleTypeDropdown: false,
   }
 
   //Functions that setState based on Controls
@@ -83,9 +87,12 @@ class SpectrogramProvider extends Component {
         handleScaleToggle: () => {
           if(this.state.scaleOn){
               this.setState({scaleOn: false, noteLinesOn: false});
+              this.setState({scaleOptionsShow: false});
           } else {
               this.setState({scaleOn: true, noteLinesOn: true});
+              this.setState({scaleOptionsShow: true});
           }
+          
         },
         handleNoteLinesToggle: () => this.setState({noteLinesOn: !this.state.noteLinesOn}),
         handleOutputVolumeChange: value => {
@@ -113,16 +120,21 @@ class SpectrogramProvider extends Component {
           let newKeyValue = data.options[data.value].index;
           this.setState({musicKey: {name: newKeyName, value: newKeyValue}});
         },
-        handleAccidentalChange: (e, data) => {
-          let newAccidentalName = data.options[data.value].text;
-          let newAccidentalValue = data.value;
-          this.setState({accidental: {name: newAccidentalName, value: newAccidentalValue}});
-        },
+        // handleAccidentalChange: (e, data) => {
+        //   let newAccidentalName = data.options[data.value].text;
+        //   let newAccidentalValue = data.value;
+        //   this.setState({accidental: {name: newAccidentalName, value: newAccidentalValue}});
+        // },
         handleScaleChange: (e, data) => {
           let newScaleName = data.options[data.value].text;
           let newScaleValue = data.value;
           this.setState({scale: {name: newScaleName, value: newScaleValue}});
         },
+        handleScaleDropdownOpen: () => this.setState({scaleDropdown: true}),
+        handleScaleDropdownClose: () => this.setState({scaleDropdown: false}),
+        handleScaleTypeDropdownOpen: () => this.setState({scaleTypeDropdown: true}),
+        handleScaleTypeDropdownClose: () => this.setState({scaleTypeDropdown: false}),
+
         handleScaleEdit: data => this.setState({scale: {name: data.name, value: data.value}}),
         handleTuningModeOn: () => this.setState({tuningMode: true, noteLinesOn: true, reverbOn: false, delayOn: false}),
         handleTuningModeOff: () => {
@@ -241,10 +253,12 @@ class SpectrogramProvider extends Component {
           this.setState({delaySwitch: false});
           this.setState({amSwitch: false});
           this.setState({fmSwitch: false});
-          if (this.state.effectValue === choice) {
-            this.setState({effectValue: "notset"});
+          if (this.state.effectVisibility === true && this.state.effectValue === choice) {
+            // this.setState({effectValue: "notset"});
+            this.setState({effectVisibility: false});
           }
           else {
+            this.setState({effectVisibility: true});
             this.setState({effectValue: choice});   
             switch (choice) {
               case "Reverb":

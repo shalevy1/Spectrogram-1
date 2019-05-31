@@ -3,14 +3,14 @@ import {SpectrogramContext} from './spectrogram-provider';
 
 import EffectModule from './effect-module';
 
-import {Segment, Menu, Dropdown, Checkbox, Button, Icon} from 'semantic-ui-react';
+import {Segment, Menu, Dropdown, Checkbox, Button, Icon, Transition, Pagination} from 'semantic-ui-react';
 
 import "../styles/sound-controls.css";
 // Using an ES6 transpiler like Babel
 // import Slider from 'react-rangeslider';
 // To include the default styles
 // import 'react-rangeslider/lib/index.css';
-import {timbreOptions, scaleOptions, keyOptions, accidentalOptions, effectOptions} from '../util/dropdownOptions';
+import {timbreOptions, scaleOptions, keyOptions,/* accidentalOptions,*/ effectOptions} from '../util/dropdownOptions';
 // Settings icon
 import {FaSlidersH} from "react-icons/fa";
 // import {MdSettings} from "react-icons/md";
@@ -60,20 +60,20 @@ function EffectRender(props){
       break;
     default:
       name = "notset"
-      text = props.context.state.reverbText
+      // text = props.context.state.reverbText
       // toggle=props.context.state.reverbOn
       // toggleChange=props.context.handleReverbToggle
-      controlNames=["Decay Time"]
-      controls=[props.context.state.reverbDecay]
-      controlChanges=[props.context.handleReverbDecayChange]
+      // controlNames=["Decay Time"]
+      // controls=[props.context.state.reverbDecay]
+      // controlChanges=[props.context.handleReverbDecayChange]
       // disable=!props.context.state.isStarted
       break;
 
   }
-    if (name == "notset") {
-      return <div></div>
-    }
-    else if(typeof(name) !== "undefined"){
+    // if (name == "notset") {
+    //   return <div></div>
+    // }
+    if(typeof(name) !== "undefined"){
       return (
         <EffectModule
         name={name}
@@ -221,54 +221,60 @@ class SoundControls extends Component {
                 </Menu.Item>
                 <Menu.Item className="vert">
                   <br></br>
-                  <Menu.Menu className="horiz scale-adjust">
-                    <Menu.Item className="vert no-line no-padding">
-                      <div>
-                        <div className="scale-choice divider">
+                  <div className={context.state.scaleOptionsShow ? '' : 'hidden'}>
+                    <Menu.Menu className="vert scale-adjust">
+                      <Menu.Item className="horiz no-line no-padding">
+                        <Menu.Item className="scale-choice">
                           <Dropdown
-                          compact
-                          text='Key'
+                          // text='Key'
+                          // placeholder='Key'
+                          defaultValue={0}
                           options={keyOptions}
                           onChange={context.handleKeyChange}
                           disabled={!context.state.isStarted}
+                          // scrolling={false}
+                          compact
+                          floating
+                          closeOnChange={false}
+                          // open={context.state.scaleDropdown}
+                          // onMouseEnter={context.handleScaleDropdownOpen}
+                          // onMouseLeave={context.handleScaleDropdownClose}
                           >
                           </Dropdown>
-                        </div>
-                        <div className="scale-choice divider">
-                          <Dropdown
-                          text='#/b'
-                          compact
-                          options={accidentalOptions}
-                          onChange={context.handleAccidentalChange}
-                          disabled={!context.state.isStarted}/>
-                        </div>
+                        </Menu.Item>
                         <div className="scale-choice">
                           <Dropdown
-                          text='Scale'
-                          compact
+                          // text='Scale'
+                          // placeholder='Scale'
+                          defaultValue={0}
                           options={scaleOptions}
                           onChange={context.handleScaleChange}
                           disabled={!context.state.isStarted}
-                          scrolling
+                          // scrolling={false}
+                          compact
+                          floating
+                          closeOnChange={false}
+                          // open={context.state.scaleTypeDropdown}
+                          // onMouseEnter={context.handleScaleTypeDropdownOpen}
+                          // onMouseLeave={context.handleScaleTypeDropdownClose}
                           />
                         </div>
-                      </div>
-                    </Menu.Item>
-                    <Menu.Item className="vert no-line no-padding">
-                      {/* <div className="scales-bottom"> */}
-                      <div className="scale-choice">
-                      {/* Render Scale Name to screen. Don't render 'chromatic' scale name or accidental */}
-                      {(context.state.scale.name === "Chromatic")? "" : context.state.musicKey.name}{(context.state.scale.name === "Chromatic")? "" : context.state.accidental.name}{context.state.scale.name}
-                      </div>
-                      <br></br>
-                      <Button
-                        className="edit-scales-button"
-                        onClick={context.handleEditScalesChange}
-                        disabled={!context.state.isStarted}
-                      >Edit </Button>
-                      {/* </div> */}
-                    </Menu.Item>
-                  </Menu.Menu>
+                      </Menu.Item>
+                      {/* <Menu.Item className="vert no-line no-padding"> */}
+                        {/* <div className="scales-bottom"> */}
+                        {/* <div className="scale-choice"> */}
+                        {/* Render Scale Name to screen. Don't render 'chromatic' scale name or accidental */}
+                        {/* {(context.state.scale.name === "Chromatic")? "" : context.state.musicKey.name}{(context.state.scale.name === "Chromatic")? "" : context.state.accidental.name}{context.state.scale.name} */}
+                        {/* </div> */}
+                        <Button
+                          id="edit-scales-button"
+                          onClick={context.handleEditScalesChange}
+                          disabled={!context.state.isStarted}
+                        >Edit</Button>
+                        {/* </div> */}
+                      {/* </Menu.Item> */}
+                    </Menu.Menu>
+                  </div>
                 </Menu.Item>
 
                 
@@ -400,7 +406,12 @@ class SoundControls extends Component {
                 /> */}
                 </Menu.Item>
                 <Menu.Item className="vert no-line no-padding">
-                  <EffectRender context={context} />
+                  <Transition visible={context.state.effectVisibility} animation='fade right' duration={400}>
+                    <div>
+                      <EffectRender context={context} />
+                    </div>
+                  </Transition>
+                    
                 </Menu.Item>
 
               </Menu>
