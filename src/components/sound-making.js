@@ -245,7 +245,8 @@ class SoundMaking extends Component {
       let freq = this.getFreq(yPercent);
       let gain = getGain(xPercent);
       // newVoice = implementation of circular array discussed above.
-      let newVoice = (this.state.currentVoice + 1) % NUM_VOICES; // Mouse always changes to new "voice"
+      // let newVoice = (this.state.currentVoice + 1) % NUM_VOICES; // Mouse always changes to new "voice"
+      let newVoice = 0;
       if(this.context.state.quantize){
         Tone.Transport.scheduleRepeat(time => {
           this.synths[newVoice].triggerAttackRelease(this.heldFreqs[newVoice], "@8n."); // Starts the synth at frequency = freq
@@ -299,7 +300,7 @@ class SoundMaking extends Component {
     e.preventDefault(); // Always need to prevent default browser choices
     if (this.state.mouseDown && !this.context.state.sustain) { // Only want to change when mouse is pressed
       // The next few lines are similar to onMouseDown
-
+      let index = 0;
       let {height, width} = this.context.state
       let pos = getMousePos(this.canvas, e);
       let yPercent = 1 - pos.y / height;
@@ -307,11 +308,11 @@ class SoundMaking extends Component {
       let gain = getGain(xPercent);
       let freq = this.getFreq(yPercent);
       // Remove previous gold indices and update them to new positions
-      this.goldIndices.splice(this.state.currentVoice - 1, 1);
+      this.goldIndices.splice(index - 1, 1);
       if(this.context.state.scaleOn){
         // Jumps to new Frequency and Volume
         if(this.context.state.quantize){
-            this.heldFreqs[this.state.currentVoice] = freq;
+            this.heldFreqs[index] = freq;
             // let tempo = getTempo(xPercent);
             // let outputTempo = 0.5*(tempo + Tone.Transport.bpm.value);
             // console.log(outputTempo)
@@ -320,20 +321,20 @@ class SoundMaking extends Component {
             //   console.log("Changed")
             // }
         } else {
-          this.synths[this.state.currentVoice].frequency.value = freq;
-          this.synths[this.state.currentVoice].volume.value = gain;
+          this.synths[index].frequency.value = freq;
+          this.synths[index].volume.value = gain;
         }
 
       } else {
         if(this.context.state.quantize){
             // let tempo = getTempo(xPercent);
-            this.heldFreqs[this.state.currentVoice] = freq;
+            this.heldFreqs[index] = freq;
             // console.log(tempo)
         } else {
         // Ramps to new Frequency and Volume
-        this.synths[this.state.currentVoice].frequency.exponentialRampToValueAtTime(freq, this.props.audioContext.currentTime+RAMPVALUE);
+        this.synths[index].frequency.exponentialRampToValueAtTime(freq, this.props.audioContext.currentTime+RAMPVALUE);
         // // Ramp to new Volume
-        this.synths[this.state.currentVoice].volume.exponentialRampToValueAtTime(gain,
+        this.synths[index].volume.exponentialRampToValueAtTime(gain,
           this.props.audioContext.currentTime+RAMPVALUE);
         }
       }
@@ -344,8 +345,8 @@ class SoundMaking extends Component {
         let newVol = convertToLog(this.context.state.fmLevel, 0, 1, 40, 100); // FM amplitude set between 30 and 60 (arbitrary choices)
         let newFreq = convertToLog(this.context.state.fmRate, 0, 1, 0.5, 50); // FM Frequency set between 0.5 and 50 (arbitray choices)
         // let newFreq = convertToLog(yPercent, 0, 1, 0.5, 20); // FM Frequency set between 0.5 and 20 (arbitray choices)
-        this.fmSignals[this.state.currentVoice].volume.exponentialRampToValueAtTime(newVol*modIndex, this.props.audioContext.currentTime+RAMPVALUE); // Ramps to FM amplitude*modIndex in RAMPVALUE sec
-        this.fmSignals[this.state.currentVoice].triggerAttack(newFreq);
+        this.fmSignals[index].volume.exponentialRampToValueAtTime(newVol*modIndex, this.props.audioContext.currentTime+RAMPVALUE); // Ramps to FM amplitude*modIndex in RAMPVALUE sec
+        this.fmSignals[index].triggerAttack(newFreq);
       }
 
       // Clears the label
@@ -355,12 +356,12 @@ class SoundMaking extends Component {
       }
       this.drawPitchBendButton(false);
       // this.label(freq, pos.x, pos.y);
-      this.synths[this.state.currentVoice].oscillator.partials = this.context.state.harmonicWeights
+      this.synths[index].oscillator.partials = this.context.state.harmonicWeights
         .slice(0, this.context.state.numHarmonics + 1)
         .map((weight, index) => {
           return this.getFilterCoeficients(freq * (index + 1)) * weight;
         });
-      this.drawHarmonics(this.state.currentVoice, freq, pos.x);
+      this.drawHarmonics(index, freq, pos.x);
     }
   }
 
@@ -368,11 +369,12 @@ class SoundMaking extends Component {
     e.preventDefault(); // Always need to prevent default browser choices
     // Only need to trigger release if synth exists (a.k.a mouse is down)
     if (this.state.mouseDown && !this.context.state.sustain) {
+      let index = 0;
       Tone.Transport.cancel();
-      this.synths[this.state.currentVoice].triggerRelease(); // Relase frequency, volume goes to -Infinity
-      this.amSignals[this.state.currentVoice].triggerRelease();
-      this.fmSignals[this.state.currentVoice].triggerRelease();
-      this.checkHeldFreq(this.state.currentVoice);
+      this.synths[index].triggerRelease(); // Relase frequency, volume goes to -Infinity
+      this.amSignals[index].triggerRelease();
+      this.fmSignals[index].triggerRelease();
+      this.checkHeldFreq(index);
       this.setState({mouseDown: false});
       this.goldIndices = [];
       // Clears the label
@@ -381,7 +383,7 @@ class SoundMaking extends Component {
         this.renderNoteLines();
       }
       this.drawPitchBendButton(false);
-    }
+    } 
   }
 
   /* This is a similar method to onMouseUp. Occurs when mouse exists canvas */
@@ -389,10 +391,11 @@ class SoundMaking extends Component {
     e.preventDefault(); // Always need to prevent default browser choices
     if (this.state.mouseDown && !this.context.state.sustain) {
       Tone.Transport.cancel();
-      this.synths[this.state.currentVoice].triggerRelease();
-      this.amSignals[this.state.currentVoice].triggerRelease();
-      this.fmSignals[this.state.currentVoice].triggerRelease();
-      this.checkHeldFreq(this.state.currentVoice);
+      let index = 0;
+      this.synths[index].triggerRelease();
+      this.amSignals[index].triggerRelease();
+      this.fmSignals[index].triggerRelease();
+      this.checkHeldFreq(index);
       this.setState({mouseDown: false});
       this.goldIndices = [];
       // Clears the label
@@ -742,7 +745,11 @@ class SoundMaking extends Component {
       id: newVoice
     };
     this.setState({currentVoice: newVoice});
-    
+    this.synths[newVoice].oscillator.partials = this.context.state.harmonicWeights
+      .slice(0, this.context.state.numHarmonics + 1)
+      .map((weight, index) => {
+        return this.getFilterCoeficients(freq * (index + 1)) * weight;
+    });
     this.midiNotes.forEach((item)=>{
       if(item){
         let pos = {
@@ -786,16 +793,21 @@ class SoundMaking extends Component {
     this.drawPitchBendButton(this.state.pitchButtonPressed);
   }
 
-  sustainChangeHarmonic(){
+  sustainChangeTimbre(){
     let {soundOn, height, width, numHarmonics, noteLinesOn} = this.context.state;
     if(soundOn){
       this.ctx.clearRect(0, 0, width, height);
       for (let i = 0; i < NUM_VOICES; i++) {
+        let freq = this.synths[i].frequency.value;
         this.synths[i].oscillator.type = "custom";
-        this.synths[i].oscillator.partials = this.context.state.harmonicWeights.slice(0, numHarmonics + 1);
+        this.synths[i].oscillator.partials = this.context.state.harmonicWeights
+          .slice(0, this.context.state.numHarmonics + 1)
+          .map((weight, index) => {
+            return this.getFilterCoeficients(freq * (index + 1)) * weight;
+        });
         if(this.synths[i].oscillator.state === "started"){
           let xPos = (1 - gainToLinear(this.synths[i].volume.value)) * width;
-          this.drawHarmonics(i, this.synths[i].frequency.value, xPos);
+          this.drawHarmonics(i, freq, xPos);
         }
       }  
       if (noteLinesOn) {
@@ -804,6 +816,7 @@ class SoundMaking extends Component {
       this.drawPitchBendButton(this.state.pitchButtonPressed);
     }
   }
+
 
   getFilterCoeficients(freq){
     let {height, width, resolutionMax, resolutionMin} = this.context.state;

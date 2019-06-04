@@ -13,10 +13,19 @@ class Filter extends Component {
     componentDidMount(){
         this.ctx = this.canvas.getContext('2d');
         this.heights = new Array(this.canvas.height);
-        for(let i = 0; i < this.heights.length; i++){
-            this.heights[i] = this.canvas.width;
-            this.ctx.fillStyle = 'black';
-            this.ctx.fillRect(0, i, this.canvas.width, 1);
+        // Load From Previous
+        if(this.context.state.filterHeights){
+            for (let i = 0; i < this.heights.length; i++) {
+                this.heights[i] = this.context.state.filterHeights[i];
+                this.ctx.fillStyle = 'black';
+                this.ctx.fillRect(0, i, this.context.state.filterHeights[i], 1);
+            }
+        } else{
+            for(let i = 0; i < this.heights.length; i++){
+                this.heights[i] = this.canvas.width;
+                this.ctx.fillStyle = 'black';
+                this.ctx.fillRect(0, i, this.canvas.width, 1);
+            }
         }
         this.renderAxesLabels();
     }

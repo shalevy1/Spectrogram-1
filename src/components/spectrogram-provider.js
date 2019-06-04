@@ -17,6 +17,7 @@ class SpectrogramProvider extends Component {
     filterHeights: null,
     filterCanvasWidth: 0,
     filterCanvasHeight: 0,
+    filterSustainChanged: false,
     scaleOn: false,
     noteLinesOn: false,
     musicKey: {name: 'C', value: 0 },
@@ -124,6 +125,9 @@ class SpectrogramProvider extends Component {
         handleToggleDrawFilter: () => this.setState({drawFilter: !this.state.drawFilter}),
         setFilter: (heights, filterWidth, filterHeight) =>{
           this.setState({filterHeights: heights, filterCanvasWidth: filterWidth, filterCanvasHeight: filterHeight});
+          if(this.state.sustain){
+            this.setState({filterSustainChanged: !this.state.filterSustainChanged});
+          }
         },
         queryFilter: yPercent => {
           if (!this.state.filterHeights) {

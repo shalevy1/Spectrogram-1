@@ -49,7 +49,8 @@ class Spectrogram extends Component {
       noteLinesRendered: false,
       midi: false,
       sustainOn: false,
-      numHarmonics: 1
+      numHarmonics: 1,
+      filterSustainChanged: false
       // deferredPrompt: null,
       // showAddToHomeScreen: false
     }
@@ -140,9 +141,9 @@ class Spectrogram extends Component {
           if(!this.context.state.noteLinesOn){
             this.setState({noteLinesRendered: false});
           }
-          if(this.context.state.soundOn && this.context.state.sustain && this.context.state.numHarmonics != this.state.numHarmonics){
-            this.soundMakingRef.current.sustainChangeHarmonic();
-            this.setState({numHarmonics: this.context.state.numHarmonics});
+          if(this.context.state.soundOn && this.context.state.sustain && (this.context.state.numHarmonics != this.state.numHarmonics) || this.context.state.filterSustainChanged != this.state.filterSustainChanged){
+            this.soundMakingRef.current.sustainChangeTimbre();
+            this.setState({numHarmonics: this.context.state.numHarmonics, filterSustainChanged: this.context.state.filterSustainChanged});
           }
           if(this.context.state.soundOn &&this.context.state.sustain && !this.state.sustainOn){
           
