@@ -80,7 +80,6 @@ class SoundMaking extends Component {
       this.bendStartVolumes[i] = 0;
     }
     this.drawPitchBendButton(false);
-    this.goldIndices = []; // Array to hold indices on the screen of gold note lines (touched/clicked lines)
     this.limiter = new Tone.Compressor(-5, 80);
     this.limiter.connect(Tone.Master);
     this.masterVolume.connect(this.limiter); // Master volume receives all of the synthesizer inputs and sends them to the speakers
@@ -308,7 +307,6 @@ class SoundMaking extends Component {
       let gain = getGain(xPercent);
       let freq = this.getFreq(yPercent);
       // Remove previous gold indices and update them to new positions
-      this.goldIndices.splice(index - 1, 1);
       if(this.context.state.scaleOn){
         // Jumps to new Frequency and Volume
         if(this.context.state.quantize){
@@ -376,7 +374,6 @@ class SoundMaking extends Component {
       this.fmSignals[index].triggerRelease();
       this.checkHeldFreq(index);
       this.setState({mouseDown: false});
-      this.goldIndices = [];
       // Clears the label
       this.ctx.clearRect(0, 0, this.context.state.width, this.context.state.height);
       if(this.context.state.noteLinesOn){
@@ -397,12 +394,10 @@ class SoundMaking extends Component {
       this.fmSignals[index].triggerRelease();
       this.checkHeldFreq(index);
       this.setState({mouseDown: false});
-      this.goldIndices = [];
       // Clears the label
       this.ctx.clearRect(0, 0, this.context.state.width, this.context.state.height);
       if(this.context.state.noteLinesOn){
         this.renderNoteLines();
-        // this.amSignals[this.state.currentVoice].stop();
       }
       this.drawPitchBendButton(false);
     }
@@ -547,7 +542,6 @@ class SoundMaking extends Component {
             }
           }
           // These are the same as onMouseMove
-          this.goldIndices.splice(index - 1, 1);
           if(this.context.state.scaleOn && !this.state.pitchButtonPressed){
             // Jumps to new Frequency and Volume
             if(this.context.state.quantize){
@@ -621,7 +615,6 @@ class SoundMaking extends Component {
       //     this.fmSignals[i].triggerRelease();
       //     this.checkHeldFreq(i);
       //   }
-      //   this.goldIndices = [];
       //   this.drawPitchBendButton(false);
       //   this.setState({touch: false, notAllRelease: false, currentVoice: -1, pitchButtonPressed: false});
       // } else {
@@ -643,7 +636,6 @@ class SoundMaking extends Component {
                 this.bendStartVolumes[index] = 0;
               }
               else {
-                this.goldIndices.splice(index, 1);
                 this.synths[index].triggerRelease();
                 this.amSignals[index].triggerRelease();
                 this.fmSignals[index].triggerRelease();
@@ -915,7 +907,6 @@ class SoundMaking extends Component {
       this.scaleLabel = textLabel;
       let index = freqToIndex(freq, resolutionMax, resolutionMin, height);
 
-        this.goldIndices[this.state.currentVoice] = index;
         // notes = s.scale.map(note=>{
         //   return note * finalJ;
         // });
@@ -1044,14 +1035,14 @@ class SoundMaking extends Component {
           let index = freqToIndex(freq, resolutionMax, resolutionMin, height);
           this.frequencies[name] = freq;
 
-          if(this.goldIndices.includes(index) && this.context.state.soundOn){
-            this.ctx.fillStyle = 'gold';
-          } else if(s.scaleNames[i] === s.scaleNames[0]){
-            this.ctx.fillStyle = '#ABE2FB';
-          }
-          else {
+          // if(this.goldIndices.includes(index) && this.context.state.soundOn){
+          //   this.ctx.fillStyle = 'gold';
+          // } else if(s.scaleNames[i] === s.scaleNames[0]){
+          //   this.ctx.fillStyle = '#ABE2FB';
+          // }
+          // else {
             this.ctx.fillStyle = 'white';
-          }
+          // }
           this.ctx.fillRect(0, index, width, 1);
           freq = freq * 2;
         }
