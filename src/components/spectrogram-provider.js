@@ -128,7 +128,7 @@ class SpectrogramProvider extends Component {
           let start = Math.round(yPos) - Math.round(range/2);
           let end = Math.round(yPos) + Math.round(range/2);
           for (let i = start; i < end; i++){
-            let val = (this.state.filterCanvasWidth - this.state.filterHeights[i]) / this.state.filterCanvasWidth;
+            let val = this.state.filterHeights[i] / this.state.filterCanvasWidth;
             if(val > max){
               max = val;
             }

@@ -81,7 +81,9 @@ class SoundMaking extends Component {
     }
     this.drawPitchBendButton(false);
     this.goldIndices = []; // Array to hold indices on the screen of gold note lines (touched/clicked lines)
-    this.masterVolume.connect(Tone.Master); // Master volume receives all of the synthesizer inputs and sends them to the speakers
+    this.limiter = new Tone.Compressor(-5, 80);
+    this.limiter.connect(Tone.Master);
+    this.masterVolume.connect(this.limiter); // Master volume receives all of the synthesizer inputs and sends them to the speakers
     
     this.reverbVolume = new Tone.Volume(-10);
     this.reverbVolume.mute = true;
@@ -97,7 +99,7 @@ class SoundMaking extends Component {
         this.reverb.connect(this.reverbVolume);
       });
     }
-    this.reverbVolume.connect(Tone.Master);
+    this.reverbVolume.connect(this.limiter);
     this.masterVolume.connect(this.reverb);
     this.delay = new Tone.FeedbackDelay(this.context.state.delayTime+0.01, this.context.state.delayFeedback); // delay unit. Runs in parallel to masterVolume
     this.masterVolume.connect(this.delay);
@@ -109,7 +111,7 @@ class SoundMaking extends Component {
 
     this.delay.connect(this.delayVolume);
 
-    this.delayVolume.connect(Tone.Master);
+    this.delayVolume.connect(this.limiter);
     // Sound Off by default
     this.masterVolume.mute = !this.context.state.soundOn;
     // Object to hold all of the note-line frequencies (for checking the gold lines)
@@ -124,7 +126,7 @@ class SoundMaking extends Component {
 
 // Sets up what will happen on controls changes
   setAudioVariables(){
-      this.masterVolume.connect(Tone.Master); // Master volume receives all of the synthesizer inputs and sends them to the speakers
+      this.masterVolume.connect(this.limiter); // Master volume receives all of the synthesizer inputs and sends them to the speakers
     if (this.context.state.soundOn === false) {
       this.masterVolume.mute = true;
     } else {
@@ -159,16 +161,12 @@ class SoundMaking extends Component {
     if(this.context.state.headphoneMode){
       // If Headphone Mode, connect the masterVolume to the graph
       if(!this.state.feedback){
-        this.masterVolume.connect(this.props.analyser);
-        this.reverbVolume.connect(this.props.analyser);
-        this.delayVolume.connect(this.props.analyser);
+        this.limiter.connect(this.props.analyser)
         this.setState({feedback: true});
       }
     } else {
       if(this.state.feedback){
-        this.masterVolume.disconnect(this.props.analyser);
-        this.reverbVolume.disconnect(this.props.analyser);
-        this.delayVolume.disconnect(this.props.analyser);
+        this.limiter.disconnect(this.props.analyser)
         this.setState({feedback: false});
       }
     }
@@ -206,25 +204,21 @@ class SoundMaking extends Component {
       this.reverbVolume.mute = true;
     }
     if(iOS){
-      this.masterVolume.connect(this.props.analyser);
-      this.reverbVolume.connect(this.props.analyser);
-      this.delayVolume.connect(this.props.analyser);
+      this.limiter.connect(this.props.analyser)
       this.masterVolume.connect(this.reverb);
       this.masterVolume.connect(this.delay)
-      // this.reverbVolume.connect(Tone.Master);
-      // this.delayVolume.connect(Tone.Master);
-      this.masterVolume.connect(Tone.Master); 
+      this.masterVolume.connect(this.limiter); 
     }    
   }
 
   checkHeldFreq(voice){
-    let int = window.setInterval(()=>{
-      if(this.synths[voice].oscillator.state === "stopped"){
-        window.clearInterval(int);
-      } else {
-        this.synths[voice].triggerRelease();
-      }
-    }, 1000);
+    // let int = window.setInterval(()=>{
+    //   if(this.synths[voice].oscillator.state === "stopped"){
+    //     window.clearInterval(int);
+    //   } else {
+    //     this.synths[voice].triggerRelease();
+    //   }
+    // }, 1000);
   }
 
   componentWillUnmount() {
@@ -262,7 +256,7 @@ class SoundMaking extends Component {
         this.synths[newVoice].oscillator.partials = this.context.state.harmonicWeights
         .slice(0, this.context.state.numHarmonics + 1)
         .map((weight, index) => {
-            // console.log(this.getFilterCoeficients(freq * (index + 1)) * weight)
+            // console.log(freq*(index+1), this.getFilterCoeficients(freq * (index + 1)) * weight)
             return this.getFilterCoeficients(freq*(index+1))*weight;
         });
       }
@@ -278,7 +272,7 @@ class SoundMaking extends Component {
       // FM
       if(this.context.state.fmOn){
         let modIndex = (1-freqToIndex(freq, 20000, 20, 1))*1.2; // FM index ranges from 0 - 2
-        let newVol = convertToLog(this.context.state.fmLevel, 0, 1, 25, 50); // FM amplitude set between 30 and 60 (arbitrary choices)
+        let newVol = convertToLog(this.context.state.fmLevel, 0, 1, 40, 100); // FM amplitude set between 30 and 60 (arbitrary choices)
         let newFreq = convertToLog(this.context.state.fmRate, 0, 1, 0.5, 50); // FM Frequency set between 0.5 and 50 (arbitray choices)
         // let newFreq = convertToLog(yPercent, 0, 1, 0.5, 20); // FM Frequency set between 0.5 and 20 (arbitray choices)
         this.fmSignals[newVoice].volume.exponentialRampToValueAtTime(newVol*modIndex, this.props.audioContext.currentTime+RAMPVALUE); // Ramps to FM amplitude*modIndex in RAMPVALUE sec
@@ -343,7 +337,7 @@ class SoundMaking extends Component {
       // FM
       if(this.context.state.fmOn){
         let modIndex = (1-freqToIndex(freq, 20000, 20, 1))*1.2
-        let newVol = convertToLog(this.context.state.fmLevel, 0, 1, 25, 50); // FM amplitude set between 30 and 60 (arbitrary choices)
+        let newVol = convertToLog(this.context.state.fmLevel, 0, 1, 40, 100); // FM amplitude set between 30 and 60 (arbitrary choices)
         let newFreq = convertToLog(this.context.state.fmRate, 0, 1, 0.5, 50); // FM Frequency set between 0.5 and 50 (arbitray choices)
         // let newFreq = convertToLog(yPercent, 0, 1, 0.5, 20); // FM Frequency set between 0.5 and 20 (arbitray choices)
         this.fmSignals[this.state.currentVoice].volume.exponentialRampToValueAtTime(newVol*modIndex, this.props.audioContext.currentTime+RAMPVALUE); // Ramps to FM amplitude*modIndex in RAMPVALUE sec
@@ -459,7 +453,7 @@ class SoundMaking extends Component {
           // FM
           if(this.context.state.fmOn){
             let modIndex = (1-freqToIndex(freq, 20000, 20, 1)) *1.2 // FM index ranges from 0 - 2
-            let newVol = convertToLog(this.context.state.fmLevel, 0, 1, 25, 50); // FM amplitude set between 30 and 60 (arbitrary choices)
+            let newVol = convertToLog(this.context.state.fmLevel, 0, 1, 40, 100); // FM amplitude set between 30 and 60 (arbitrary choices)
             let newFreq = convertToLog(this.context.state.fmRate, 0, 1, 0.5, 50); // FM Frequency set between 0.5 and 50 (arbitray choices)
             // let newFreq = convertToLog(yPercent, 0, 1, 0.5, 20); // FM Frequency set between 0.5 and 20 (arbitray choices)
             this.fmSignals[newVoice].volume.exponentialRampToValueAtTime(newVol*modIndex, this.props.audioContext.currentTime+RAMPVALUE); // Ramps to FM amplitude*modIndex in RAMPVALUE sec
@@ -574,7 +568,7 @@ class SoundMaking extends Component {
           // FM
           if(this.context.state.fmOn){
             let modIndex = (1-freqToIndex(freq, 20000, 20, 1)) *1.2;// FM index ranges from 0 - 2
-            let newVol = convertToLog(this.context.state.fmLevel, 0, 1, 25, 50); // FM amplitude set between 30 and 60 (arbitrary choices)
+            let newVol = convertToLog(this.context.state.fmLevel, 0, 1, 40, 100); // FM amplitude set between 30 and 60 (arbitrary choices)
             let newFreq = convertToLog(this.context.state.fmRate, 0, 1, 0.5, 50); // FM Frequency set between 0.5 and 50 (arbitray choices)
             // let newFreq = convertToLog(yPercent, 0, 1, 0.5, 20); // FM Frequency set between 0.5 and 20 (arbitray choices)
             this.fmSignals[index].volume.exponentialRampToValueAtTime(newVol*modIndex, this.props.audioContext.currentTime+RAMPVALUE); // Ramps to FM amplitude*modIndex in RAMPVALUE sec
@@ -611,18 +605,19 @@ class SoundMaking extends Component {
         this.renderNoteLines();
       }
       // Check if there are more touches changed than on the screen and release everything (mostly as an fail switch)
-      if (e.changedTouches.length === e.touches.length + 1) {
-        Tone.Transport.cancel();
-        for (let i = 0; i < NUM_VOICES; i++) {
-          this.synths[i].triggerRelease();
-          this.amSignals[i].triggerRelease();
-          this.fmSignals[i].triggerRelease();
-          this.checkHeldFreq(i);
-        }
-        this.goldIndices = [];
-        this.drawPitchBendButton(false);
-        this.setState({touch: false, notAllRelease: false, currentVoice: -1, pitchButtonPressed: false});
-      } else {
+      if(true){
+      // if (e.changedTouches.length === e.touches.length + 1) {
+      //   Tone.Transport.cancel();
+      //   for (let i = 0; i < NUM_VOICES; i++) {
+      //     this.synths[i].triggerRelease();
+      //     this.amSignals[i].triggerRelease();
+      //     this.fmSignals[i].triggerRelease();
+      //     this.checkHeldFreq(i);
+      //   }
+      //   this.goldIndices = [];
+      //   this.drawPitchBendButton(false);
+      //   this.setState({touch: false, notAllRelease: false, currentVoice: -1, pitchButtonPressed: false});
+      // } else {
           let checkButton = false;
           // Does the same as onTouchMove, except instead of changing the voice, it deletes it.
           for (let i = 0; i < e.changedTouches.length; i++) {
@@ -723,7 +718,7 @@ class SoundMaking extends Component {
     // FM
     if (this.context.state.fmOn) {
       let modIndex = (1 - freqToIndex(freq, 20000, 20, 1)) * 1.2 // FM index ranges from 0 - 2
-      let newVol = convertToLog(this.context.state.fmLevel, 0, 1, 25, 50); // FM amplitude set between 30 and 60 (arbitrary choices)
+      let newVol = convertToLog(this.context.state.fmLevel, 0, 1, 40, 100); // FM amplitude set between 30 and 60 (arbitrary choices)
       let newFreq = convertToLog(this.context.state.fmRate, 0, 1, 0.5, 50); // FM Frequency set between 0.5 and 50 (arbitray choices)
       // let newFreq = convertToLog(yPercent, 0, 1, 0.5, 20); // FM Frequency set between 0.5 and 20 (arbitray choices)
       this.fmSignals[newVoice].volume.exponentialRampToValueAtTime(newVol * modIndex, this.props.audioContext.currentTime + RAMPVALUE); // Ramps to FM amplitude*modIndex in RAMPVALUE sec

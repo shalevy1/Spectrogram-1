@@ -3,6 +3,8 @@ import {SpectrogramContext} from './spectrogram-provider';
 import { getMousePos, getFreq } from "../util/conversions";
 import "../styles/filter.css";
 
+const range = 10;
+
 class Filter extends Component {
     constructor(){
         super();
@@ -10,35 +12,37 @@ class Filter extends Component {
     }
     componentDidMount(){
         this.ctx = this.canvas.getContext('2d');
-        this.renderAxesLabels();
         this.heights = new Array(this.canvas.height);
         for(let i = 0; i < this.heights.length; i++){
             this.heights[i] = this.canvas.width;
+            this.ctx.fillStyle = 'black';
+            this.ctx.fillRect(0, i, this.canvas.width-90, 1);
         }
-        // console.log(this.canvas.width, this.canvas.height)
+        this.renderAxesLabels();
     }
 
     onMouseDown = e =>{
         let pos = getMousePos(this.canvas, e);
         // this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); // Clears canvas for redraw of label
-        this.ctx.clearRect(0, pos.y, this.canvas.width, 10); // Clears canvas for redraw of label
-        this.renderAxesLabels();
+        this.ctx.clearRect(0, pos.y, this.canvas.width, range); // Clears canvas for redraw of label
         this.ctx.fillStyle = 'black';
-        this.ctx.fillRect(pos.x, pos.y, this.canvas.width - pos.x, 10);
-        this.heights[Math.round(pos.y)] = pos.x;
+        this.ctx.fillRect(0, pos.y, pos.x, range);
+        for (let i = 0; i < range; i++) {
+            this.heights[Math.round(pos.y + i)] = pos.x;
+        }
+        this.renderAxesLabels();
         this.setState({mouseDown: true}); 
-
-        // this.ctx.beginPath();
-        // this.ctx.moveTo(pos.x, pos.y);
     }
 
     onMouseMove = e =>{
         if (this.state.mouseDown) {
             let pos = getMousePos(this.canvas, e);
             this.ctx.fillStyle = 'black';
-            this.ctx.clearRect(0, pos.y, this.canvas.width, 10); // Clears canvas for redraw of label
-            this.ctx.fillRect(pos.x, pos.y, this.canvas.width - pos.x, 10);
-            this.heights[Math.round(pos.y)] = pos.x;
+            this.ctx.clearRect(0, pos.y, this.canvas.width, range); // Clears canvas for redraw of label
+            this.ctx.fillRect(0, pos.y, pos.x, range);
+            for(let i =0; i<range; i++){
+                this.heights[Math.round(pos.y+i)] = pos.x;
+            }
             this.renderAxesLabels();
         }
     }
@@ -46,14 +50,13 @@ class Filter extends Component {
     onMouseUp = e =>{
         this.setState({mouseDown: false});
         this.context.setFilter(this.heights, this.canvas.width, this.canvas.height);
-        // console.log(this.heights)
-        // this.heights = new Array(this.canvas.height);
-
     }
 
     onMouseOut = e =>{
-        this.setState({mouseDown: false});
-        this.context.setFilter(this.heights, this.canvas.width, this.canvas.height);
+        if (this.state.mouseDown) {
+            this.setState({mouseDown: false});
+            this.context.setFilter(this.heights, this.canvas.width, this.canvas.height);
+        }
     }
 
      renderAxesLabels(){
