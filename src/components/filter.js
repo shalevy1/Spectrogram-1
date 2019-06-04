@@ -16,7 +16,7 @@ class Filter extends Component {
         for(let i = 0; i < this.heights.length; i++){
             this.heights[i] = this.canvas.width;
             this.ctx.fillStyle = 'black';
-            this.ctx.fillRect(0, i, this.canvas.width-90, 1);
+            this.ctx.fillRect(0, i, this.canvas.width, 1);
         }
         this.renderAxesLabels();
     }
