@@ -8,10 +8,9 @@
   margin: 0!important;
 }
 
-.sound-pane-container {
+/* .sound-pane-container {
   min-width: 630px;
-  /* min-width: 780px; */
-}
+} */
 
 
 .timbre-text {
@@ -59,6 +58,13 @@
   padding: 0.1em 0.5em
 }
 
+#edit-scales-button {
+  margin-top: 5px;
+  padding: 5.5px 21px;
+  font-size: 1rem;
+  margin-bottom: 5px;
+}
+
 .scale-choice {
   padding: 0.5em!important;
 }
@@ -66,12 +72,7 @@
   box-shadow: 0px 2px 0px -1px rgba(34,36,38,.1) !important;
 }
 
-.edit-scales-button {
-  position: absolute;
-  right: 0%;
-  bottom: 10%;
-  font-size: 1rem;
-}
+
 
 .tuning {
   margin-right: 25%;
@@ -81,32 +82,33 @@
   padding: 0px!important;
 }
 
-/* WIP CSS animation... */
+/* Effects Panel Buttons */
 
-.effect-menu-container {
-  overflow: hidden;
-  /* left: 0px; */
+#effectSettings,
+#effectSettingsWithHeight {
+  padding: 4px 11px 1px 11px;
+  margin: 0px;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  font-size: 1.25rem;
+  height: 26px;
+}
+#effectSettingsWithHeight {
+  height: 40px;
+}
+#effectSwitch.ui.toggle.button,
+#effectSwitch.ui.toggle.button.active {
+  padding: 6px 21px 6px 11px;
   width: 116px;
-  -webkit-animation: slide 1s forwards;
-  animation: slide 1s;
+  margin:1px 0px 1px 2px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  -webkit-box-shadow: inset -1px 0 0 0 rgba(34,36,38,.15);
+  box-shadow: inset -1px 0 0 0 rgba(34,36,38,.15);
 }
-.slide-animation {
-  position: relative;
-  transition: 1s;
-  /* left: 0px; */
-  /* width: 116px; */
-  -webkit-animation: slide 1s forwards;
-  animation: slide 1s forwards;
-  animation: slide 1s;
-}
-
-@-webkit-keyframes slide {
-  0% { left: -116px;}
-  100% { left: 0px; }
-}
-@keyframes slide {
-  0% { left: -116px;}
-  100% { left: 0px; }
+#toggleButton {
+  font-size: 1em;
+  /* margin:0px; */
 }
 
 

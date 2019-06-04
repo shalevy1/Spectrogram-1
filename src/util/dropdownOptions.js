@@ -66,63 +66,88 @@ const scaleOptions = [
     text: "Pentatonic 4",
     value: 10
   },
-  {
-    text: "Major Arp",
-    value: 11
-  }
+  // {
+  //   text: "Major Arp",
+  //   value: 11
+  // }
 
 ];
 const keyOptions = [
   {
     text: "C",
     value: 0,
-    index: 0
+    index: 0,
+  },
+  {
+    text: "C#/Db",
+    value: 1,
+    index: 1,
   },
   {
     text: "D",
-    value: 1,
-    index: 2
+    value: 2,
+    index: 2,
+  },
+  {
+    text: "D#/Eb",
+    value: 3,
+    index: 3,
   },
   {
     text: "E",
-    value: 2,
-    index: 4
+    value: 4,
+    index: 4,
   },
   {
     text: "F",
-    value: 3,
-    index: 5
+    value: 5,
+    index: 5,
+  },
+  {
+    text: "F#/Gb",
+    value: 6,
+    index: 6,
   },
   {
     text: "G",
-    value: 4,
-    index: 7
+    value: 7,
+    index: 7,
+  },
+  {
+    text: "G#/Ab",
+    value: 8,
+    index: 8,
   },
   {
     text: "A",
-    value: 5,
-    index: 9
+    value: 9,
+    index: 9,
+  },
+  {
+    text: "A#/Bb",
+    value: 10,
+    index: 10,
   },
   {
     text: "B",
-    value: 6,
-    index: 11
+    value: 11,
+    index: 11,
   },
 ]
-const accidentalOptions = [
-  {
-    text: " ",
-    value: 0
-  },
-  {
-    text: "# ",
-    value: 1
-  },
-  {
-    text: "b ",
-    value: 2
-  },
-]
+// const accidentalOptions = [
+//   {
+//     text: " ",
+//     value: 0
+//   },
+//   {
+//     text: "# ",
+//     value: 1
+//   },
+//   {
+//     text: "b ",
+//     value: 2
+//   },
+// ]
 
 const effectOptions = [
   {
@@ -144,4 +169,4 @@ const effectOptions = [
 
 ]
 
-export {timbreOptions, scaleOptions, keyOptions, accidentalOptions, effectOptions};
+export {timbreOptions, scaleOptions, keyOptions, /*accidentalOptions,*/ effectOptions};
