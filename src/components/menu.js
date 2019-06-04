@@ -22,6 +22,7 @@ class MyMenu extends Component {
     pane: null,
     value: 50,
     editScales: false,
+    drawFilter: false,
     soundOn: false,
   }
 
@@ -31,6 +32,7 @@ class MyMenu extends Component {
   handleItemClick = (e, {name}) => {
     let pane = null;
     let editScales = false;
+    let drawFilter = false;
     let freqControls;
     switch (name) {
       case "tuning":
@@ -43,6 +45,7 @@ class MyMenu extends Component {
           editScales = false;
         }
           freqControls = false;
+          drawFilter = false;
         break;
       case "sound-making":
         if (name !== this.state.activeItem) {
@@ -51,13 +54,15 @@ class MyMenu extends Component {
             this.props.handleTuningModeOff();
           }
           editScales = true;
+          drawFilter = true;
         } else {
           name = null;
           editScales = false;
+          drawFilter = false;
         }
-          freqControls = false;
+        freqControls = false;
         break;
-      case 'frequency range': 
+        case 'frequency range': 
         if (name !== this.state.activeItem) {
           pane = <GraphControls closeMenu={this.closeMenu} handleFreqControlsToggle={this.props.handleFreqControlsToggle} reset={this.props.reset}/>;
           freqControls = true;
@@ -65,19 +70,20 @@ class MyMenu extends Component {
           name = null;
           freqControls = false;
         }
-        editScales = false
+        editScales = false;
+        drawFilter = false;
         break;
       default:
         pane = null;
         freqControls = false;
     }
-    this.setState({activeItem: name, pane: pane, editScales: editScales});
+    this.setState({activeItem: name, pane: pane, editScales: editScales, drawFilter: drawFilter});
     this.props.handleFreqControls(freqControls);
 
   }
 
   // Function that handles the close of the menu
-  closeMenu = () => this.setState({pane: null, activeItem: null, editScales: false});
+  closeMenu = () => this.setState({pane: null, activeItem: null, editScales: false, drawFilter: false});
 
   // Function that switches to the signal generator on click
   switchToSignalGenerator = (e,data) => {
@@ -176,7 +182,7 @@ class MyMenu extends Component {
         {this.state.pane}
 
         {this.props.editScales && this.state.editScales && <EditScales/> }
-        {this.props.drawFilter && <Filter handleResize={this.props.handleResize}/>}
+        {this.props.drawFilter && this.state.drawFilter && <Filter handleResize={this.props.handleResize}/>}
       </div>
 
     )

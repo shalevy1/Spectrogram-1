@@ -80,7 +80,8 @@ class SoundMaking extends Component {
       this.bendStartVolumes[i] = 0;
     }
     this.drawPitchBendButton(false);
-    this.limiter = new Tone.Compressor(-5, 80);
+    // Limiter at -5db
+    this.limiter = new Tone.Compressor(-5, 1000);
     this.limiter.connect(Tone.Master);
     this.masterVolume.connect(this.limiter); // Master volume receives all of the synthesizer inputs and sends them to the speakers
     
@@ -939,11 +940,12 @@ class SoundMaking extends Component {
       } else {
         this.ctx.fillText(this.scaleLabel, x + offset, y - offset);
         let index = freqToIndex(freq, this.context.state.resolutionMax, this.context.state.resolutionMin, this.context.state.height);
+        // Scale Mode Label at side
         let width = ((freq+ ' Hz').length < 7) ? 70 : 80;
         this.ctx.fillStyle = "rgba(218, 218, 218, 0.8)";
         this.ctx.fillRect(scaleOffset - 2, index - 2*scaleOffset, width, 3.5*scaleOffset);
         this.ctx.fillStyle = "white";
-        this.ctx.fillText(freq + ' Hz', scaleOffset, index+scaleOffset/2);
+        this.ctx.fillText(freq + ' Hz', scaleOffset + width/2, index+scaleOffset/2);
       }
       // Draw Circle for point
     const startingAngle = 0;

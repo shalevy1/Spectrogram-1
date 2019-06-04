@@ -16,14 +16,16 @@ class Filter extends Component {
         // Load From Previous
         if(this.context.state.filterHeights){
             for (let i = 0; i < this.heights.length; i++) {
+                this.ctx.fillStyle = "black";
+                this.ctx.fillRect(0, i, this.canvas.width, 1); // Clears canvas for redraw of label
                 this.heights[i] = this.context.state.filterHeights[i];
-                this.ctx.fillStyle = 'black';
+                this.ctx.fillStyle = '#ABE2FB';
                 this.ctx.fillRect(0, i, this.context.state.filterHeights[i], 1);
             }
         } else{
+            this.ctx.fillStyle = '#ABE2FB';
             for(let i = 0; i < this.heights.length; i++){
                 this.heights[i] = this.canvas.width;
-                this.ctx.fillStyle = 'black';
                 this.ctx.fillRect(0, i, this.canvas.width, 1);
             }
         }
@@ -33,8 +35,10 @@ class Filter extends Component {
     onMouseDown = e =>{
         let pos = getMousePos(this.canvas, e);
         // this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); // Clears canvas for redraw of label
-        this.ctx.clearRect(0, pos.y, this.canvas.width, range); // Clears canvas for redraw of label
-        this.ctx.fillStyle = 'black';
+        // this.ctx.clearRect(0, pos.y, this.canvas.width, range); // Clears canvas for redraw of label
+        this.ctx.fillStyle = "black";
+        this.ctx.fillRect(0, pos.y, this.canvas.width, range); // Clears canvas for redraw of label
+        this.ctx.fillStyle = '#ABE2FB';
         this.ctx.fillRect(0, pos.y, pos.x, range);
         for (let i = 0; i < range; i++) {
             this.heights[Math.round(pos.y + i)] = pos.x;
@@ -43,11 +47,13 @@ class Filter extends Component {
         this.setState({mouseDown: true}); 
     }
 
-    onMouseMove = e =>{
+    onMouseMove = e => { 
         if (this.state.mouseDown) {
             let pos = getMousePos(this.canvas, e);
-            this.ctx.fillStyle = 'black';
-            this.ctx.clearRect(0, pos.y, this.canvas.width, range); // Clears canvas for redraw of label
+            // this.ctx.clearRect(0, pos.y, this.canvas.width, range); // Clears canvas for redraw of label
+            this.ctx.fillStyle = "black";
+            this.ctx.fillRect(0, pos.y, this.canvas.width, range); // Clears canvas for redraw of label
+            this.ctx.fillStyle = '#ABE2FB';
             this.ctx.fillRect(0, pos.y, pos.x, range);
             for(let i =0; i<range; i++){
                 this.heights[Math.round(pos.y+i)] = pos.x;
@@ -56,16 +62,51 @@ class Filter extends Component {
         }
     }
 
-    onMouseUp = e =>{
+    onMouseUp = e => {
         this.setState({mouseDown: false});
         this.context.setFilter(this.heights, this.canvas.width, this.canvas.height);
     }
 
-    onMouseOut = e =>{
+    onMouseOut = e => {
         if (this.state.mouseDown) {
             this.setState({mouseDown: false});
             this.context.setFilter(this.heights, this.canvas.width, this.canvas.height);
         }
+    }
+
+    onTouchStart = e => {
+        if(e.changedTouches.length === 1){
+            let pos = getMousePos(this.canvas, e.touches[0]);
+            // this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); // Clears canvas for redraw of label
+            // this.ctx.clearRect(0, pos.y, this.canvas.width, range); // Clears canvas for redraw of label
+            this.ctx.fillStyle = "black";
+            this.ctx.fillRect(0, pos.y, this.canvas.width, range); // Clears canvas for redraw of label
+            this.ctx.fillStyle = '#ABE2FB';
+            this.ctx.fillRect(0, pos.y, pos.x, range);
+            for (let i = 0; i < range; i++) {
+                this.heights[Math.round(pos.y + i)] = pos.x;
+            }
+            this.renderAxesLabels();
+        }
+    }
+
+    onTouchMove = e => {
+        if (e.changedTouches.length === 1) {
+            let pos = getMousePos(this.canvas, e.touches[0]);
+            // this.ctx.clearRect(0, pos.y, this.canvas.width, range); // Clears canvas for redraw of label
+            this.ctx.fillStyle = "black";
+            this.ctx.fillRect(0, pos.y, this.canvas.width, range); // Clears canvas for redraw of label
+            this.ctx.fillStyle = '#ABE2FB';
+            this.ctx.fillRect(0, pos.y, pos.x, range);
+            for (let i = 0; i < range; i++) {
+                this.heights[Math.round(pos.y + i)] = pos.x;
+            }
+            this.renderAxesLabels();
+        }
+    }
+
+    onTouchEnd = e => {
+        this.context.setFilter(this.heights, this.canvas.width, this.canvas.height);
     }
 
      renderAxesLabels(){
@@ -116,6 +157,9 @@ class Filter extends Component {
         onMouseUp={this.onMouseUp}
         onMouseMove={this.onMouseMove}
         onMouseOut={this.onMouseOut}   
+        onTouchStart={this.onTouchStart}
+        onTouchMove={this.onTouchMove}
+        onTouchEnd={this.onTouchEnd}
         ref={(c) => {this.canvas = c;}}/>        
         )
     }

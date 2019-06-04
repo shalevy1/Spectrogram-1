@@ -154,11 +154,11 @@ class SoundControls extends Component {
                   <div className="menu-header">Harmonics</div>
                       <Slider
                       min={0}
-                      max={9}
+                      max={19}
                       value={context.state.numHarmonics}
                       onChange={context.handleHarmonicsChange}
                       className="harmonics-slider"/>
-                      {context.state.numHarmonics}
+                      {/* {context.state.numHarmonics} */}
                     <div>
                       <Button onClick={context.handleSustainToggle} className="sustain-button">Sustain</Button> 
                       <Button onClick={context.handleToggleDrawFilter} className="toggle-button">Draw Filter</Button>
