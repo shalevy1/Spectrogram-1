@@ -504,6 +504,7 @@ class SoundMaking extends Component {
         if (!this.isPitchButton(pos.x, pos.y)){
           // this.label(freq, pos.x, pos.y);
           let index = e.touches[i].identifier % NUM_VOICES;
+          if (index < 0) index = NUM_VOICES + index;
           this.drawHarmonics(index, freq, pos.x);
         }
       }
@@ -592,6 +593,7 @@ class SoundMaking extends Component {
         if (!this.isPitchButton(pos.x, pos.y)){
           // this.label(freq, pos.x, pos.y);
           let index = e.touches[i].identifier % NUM_VOICES;
+          if (index < 0) index = NUM_VOICES + index;
           this.drawHarmonics(index, freq, pos.x);
         }
       }
@@ -676,6 +678,7 @@ class SoundMaking extends Component {
         let freq = this.getFreq(yPercent);
         if(!this.isPitchButton(pos.x,pos.y)){
           let index = e.touches[i].identifier % NUM_VOICES;
+          if (index < 0) index = NUM_VOICES + index;
           this.drawHarmonics(index, freq, pos.x);
           // this.label(freq, pos.x, pos.y);
         }
