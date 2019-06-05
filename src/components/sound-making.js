@@ -81,7 +81,7 @@ class SoundMaking extends Component {
     }
     this.drawPitchBendButton(false);
     // Limiter at -5db
-    this.limiter = new Tone.Compressor(-5, 1000);
+    this.limiter = new Tone.Limiter(-5);
     this.limiter.connect(Tone.Master);
     this.masterVolume.connect(this.limiter); // Master volume receives all of the synthesizer inputs and sends them to the speakers
     
