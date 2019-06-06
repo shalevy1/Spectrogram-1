@@ -154,7 +154,7 @@ class SoundControls extends Component {
                   <div className="menu-header">Harmonics</div>
                       <Slider
                       min={0}
-                      max={19}
+                      max={99}
                       value={context.state.numHarmonics}
                       onChange={context.handleHarmonicsChange}
                       className="harmonics-slider"/>

@@ -9,7 +9,10 @@ import { getFreq, getGain, getTempo, freqToIndex, getMousePos, convertToLog, mid
 const NUM_VOICES = 6;
 const RAMPVALUE = 0.2;
 const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-
+let harmonicWeights = new Array(99);
+for(let i=0; i<99; i++){
+  harmonicWeights[i] = 1;
+}
 // Main sound-making class. Can handle click and touch inputs
 class SoundMaking extends Component {
   constructor(props) {
@@ -85,20 +88,21 @@ class SoundMaking extends Component {
     this.limiter.connect(Tone.Master);
     this.masterVolume.connect(this.limiter); // Master volume receives all of the synthesizer inputs and sends them to the speakers
     
-    this.reverbVolume = new Tone.Volume(-10);
-    this.reverbVolume.mute = true;
     if(iOS){
+      this.reverbVolume = new Tone.Volume(-10);
       this.reverb = new Tone.JCReverb(this.context.state.reverbDecay*0.9);
       let m = new Tone.Mono();
       this.reverb.connect(m);
       m.connect(this.reverbVolume);
       // this.reverb.connect(this.reverbVolume);
     } else{
-      this.reverb = new Tone.Reverb(this.context.state.reverbDecay*10+0.1); // Reverb unit. Runs in parallel to masterVolume
+      this.reverbVolume = new Tone.Volume(0);
+      this.reverb = new Tone.Reverb(this.context.state.reverbDecay*20+0.1); // Reverb unit. Runs in parallel to masterVolume
       this.reverb.generate().then(()=>{
         this.reverb.connect(this.reverbVolume);
       });
     }
+    this.reverbVolume.mute = true;
     this.reverbVolume.connect(this.limiter);
     this.masterVolume.connect(this.reverb);
     this.delay = new Tone.FeedbackDelay(this.context.state.delayTime+0.01, this.context.state.delayFeedback); // delay unit. Runs in parallel to masterVolume
@@ -145,7 +149,7 @@ class SoundMaking extends Component {
     if(this.context.state.numHarmonics + 1 !== this.synths[0].oscillator.partials.length){
       for (let i = 0; i < NUM_VOICES; i++) {
         this.synths[i].oscillator.type = "custom";
-        this.synths[i].oscillator.partials = this.context.state.harmonicWeights.slice(0, this.context.state.numHarmonics + 1);
+        this.synths[i].oscillator.partials = harmonicWeights.slice(0, this.context.state.numHarmonics + 1);
       }
     }
     if (this.context.state.attack !== this.synths[0].envelope.attack) {
@@ -197,7 +201,7 @@ class SoundMaking extends Component {
         // this.reverb.connect(this.reverbVolume);
         
       } else{
-        this.reverb = new Tone.Reverb(this.context.state.reverbDecay*10+0.1); // Reverb unit. Runs in parallel to masterVolume
+        this.reverb = new Tone.Reverb(this.context.state.reverbDecay*20+0.1); // Reverb unit. Runs in parallel to masterVolume
         this.reverb.generate().then(()=>{
           this.reverb.connect(this.reverbVolume);
             // this.reverb.decay = this.context.state.reverbDecay*15;
@@ -258,7 +262,7 @@ class SoundMaking extends Component {
       } else {
         this.synths[newVoice].triggerAttack(freq); // Starts the synth at frequency = freq            
         this.synths[newVoice].volume.value = gain; // Starts the synth at volume = gain        
-        this.synths[newVoice].oscillator.partials = this.context.state.harmonicWeights
+        this.synths[newVoice].oscillator.partials = harmonicWeights
         .slice(0, this.context.state.numHarmonics + 1)
         .map((weight, index) => {
             // console.log(freq*(index+1), this.getFilterCoeficients(freq * (index + 1)) * weight)
@@ -355,7 +359,7 @@ class SoundMaking extends Component {
       }
       this.drawPitchBendButton(false);
       // this.label(freq, pos.x, pos.y);
-      this.synths[index].oscillator.partials = this.context.state.harmonicWeights
+      this.synths[index].oscillator.partials = harmonicWeights
         .slice(0, this.context.state.numHarmonics + 1)
         .map((weight, index) => {
           return this.getFilterCoeficients(freq * (index + 1)) * weight;
@@ -469,7 +473,7 @@ class SoundMaking extends Component {
             this.bendStartFreqs[newVoice] = freq;
             this.bendStartVolumes[newVoice] = gain;
           }
-          this.synths[newVoice].oscillator.partials = this.context.state.harmonicWeights
+          this.synths[newVoice].oscillator.partials = harmonicWeights
             .slice(0, this.context.state.numHarmonics + 1)
             .map((weight, index) => {
               return this.getFilterCoeficients(freq * (index + 1)) * weight;
@@ -577,7 +581,7 @@ class SoundMaking extends Component {
             this.fmSignals[index].volume.exponentialRampToValueAtTime(newVol*modIndex, this.props.audioContext.currentTime+RAMPVALUE); // Ramps to FM amplitude*modIndex in RAMPVALUE sec
             this.fmSignals[index].triggerAttack(newFreq);
           }
-          this.synths[index].oscillator.partials = this.context.state.harmonicWeights
+          this.synths[index].oscillator.partials = harmonicWeights
             .slice(0, this.context.state.numHarmonics + 1)
             .map((weight, index) => {
               return this.getFilterCoeficients(freq * (index + 1)) * weight;
@@ -651,10 +655,12 @@ class SoundMaking extends Component {
             } else {
               if(e.touches.length === 0){
                   for (let i = 0; i < NUM_VOICES; i++) {
-                    this.synths[i].triggerRelease();
-                    this.fmSignals[i].triggerRelease();
-                    this.amSignals[i].triggerRelease();
-                    this.checkHeldFreq(i);
+                    if (this.synths[i].oscillator.state === "started") {
+                      this.synths[i].triggerRelease();
+                      this.fmSignals[i].triggerRelease();
+                      this.amSignals[i].triggerRelease();
+                      this.checkHeldFreq(i);
+                    }
                   }
               }
               this.setState({pitchButtonPressed: false});
@@ -741,7 +747,7 @@ class SoundMaking extends Component {
       id: newVoice
     };
     this.setState({currentVoice: newVoice});
-    this.synths[newVoice].oscillator.partials = this.context.state.harmonicWeights
+    this.synths[newVoice].oscillator.partials = harmonicWeights
       .slice(0, this.context.state.numHarmonics + 1)
       .map((weight, index) => {
         return this.getFilterCoeficients(freq * (index + 1)) * weight;
@@ -796,7 +802,7 @@ class SoundMaking extends Component {
       for (let i = 0; i < NUM_VOICES; i++) {
         let freq = this.synths[i].frequency.value;
         this.synths[i].oscillator.type = "custom";
-        this.synths[i].oscillator.partials = this.context.state.harmonicWeights
+        this.synths[i].oscillator.partials = harmonicWeights
           .slice(0, this.context.state.numHarmonics + 1)
           .map((weight, index) => {
             return this.getFilterCoeficients(freq * (index + 1)) * weight;

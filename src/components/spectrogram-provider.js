@@ -12,7 +12,7 @@ class SpectrogramProvider extends Component {
     microphoneGain: 50,
     timbre: 'Sine',
     numHarmonics: 0,   
-    harmonicWeights: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    // harmonicWeights: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     drawFilter: false,
     filterHeights: null,
     filterCanvasWidth: 0,
@@ -118,7 +118,7 @@ class SpectrogramProvider extends Component {
           } else {
             value = Number(data.value);
           }
-          if(!isNaN(value) && value > -1 && value < 20){
+          if(!isNaN(value) && value > -1 && value < 100){
             this.setState({numHarmonics: value});
           }            
         },
