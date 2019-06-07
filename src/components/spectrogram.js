@@ -84,13 +84,21 @@ class Spectrogram extends Component {
   startSpectrogram = () => {
     if (!this.context.state.isStarted) {
       audioContext = new(window.AudioContext || window.webkitAudioContext)();
+      
       analyser = audioContext.createAnalyser();
       gainNode = audioContext.createGain();
       analyser.minDecibels = -100;
       analyser.maxDecibels = -20;
       analyser.smoothingTimeConstant = 0;
       analyser.fftSize = fftSize;
-      if (navigator.mozGetUserMedia) {
+      if (navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({
+            audio: true
+          }, this.onStream.bind(this), this.onStreamError.bind(this))
+          // .then(this.onStream.bind(this))
+          // .catch(this.onStreamError.bind(this));
+      }
+      else if (navigator.mozGetUserMedia) {
         navigator.mozGetUserMedia({
           audio: true
         }, this.onStream.bind(this), this.onStreamError.bind(this));
