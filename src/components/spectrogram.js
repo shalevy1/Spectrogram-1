@@ -94,9 +94,9 @@ class Spectrogram extends Component {
       if (navigator.mediaDevices.getUserMedia) {
         navigator.mediaDevices.getUserMedia({
             audio: true
-          }, this.onStream.bind(this), this.onStreamError.bind(this))
-          // .then(this.onStream.bind(this))
-          // .catch(this.onStreamError.bind(this));
+          })
+          .then(this.onStream.bind(this))
+          .catch(this.onStreamError.bind(this));
       }
       else if (navigator.mozGetUserMedia) {
         navigator.mozGetUserMedia({
