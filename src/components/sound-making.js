@@ -13,7 +13,7 @@ let harmonicWeights = new Array(99);
 for(let i=0; i<99; i++){
   harmonicWeights[i] = 1;
 }
-// Main sound-making class. Can handle click and touch inputs
+  // Main sound-making class. Can handle click and touch inputs
 class SoundMaking extends Component {
   constructor(props) {
     super();
@@ -40,6 +40,8 @@ class SoundMaking extends Component {
   // To view signal flow, check out signal_flow.png
   componentDidMount() {
     Tone.context = this.props.audioContext;
+    Tone.context.lookAhead = 0;
+
     // Array to hold synthesizer objects. Implemented in a circular way
     // so that each new voice (touch input) is allocated, it is appended to the
     // array until the array is full and it then appends the next voice to array[0]
