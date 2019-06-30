@@ -4,7 +4,7 @@ import "../styles/sound-making.css";
 import {SpectrogramContext} from './spectrogram-provider';
 
 import generateScale from '../util/generateScale';
-import { getFreq, getGain, getTempo, freqToIndex, getMousePos, convertToLog, midiToFreq, gainToLinear } from "../util/conversions";
+import { getFreq, getGain, getTempo, freqToIndex, getMousePos, convertToLog, midiToFreq, gainToLinear, getHarmonicWeightInExpScale } from "../util/conversions";
 // import WebMidi from 'webmidi';
 const NUM_VOICES = 6;
 const RAMPVALUE = 0.2;
@@ -13,10 +13,14 @@ let harmonicWeights = new Array(99);
 for(let i=0; i<99; i++){
   harmonicWeights[i] = 1;
 }
+
+const soundMakingfftSize = 8192;
+
   // Main sound-making class. Can handle click and touch inputs
 class SoundMaking extends Component {
   constructor(props) {
-    super();
+    super(props);
+    this.props.analyser.fftSize = soundMakingfftSize;
     this.onMouseDown = this.onMouseDown.bind(this);
     this.onMouseUp = this.onMouseUp.bind(this);
     this.onMouseMove = this.onMouseMove.bind(this);
@@ -367,6 +371,7 @@ class SoundMaking extends Component {
           return this.getFilterCoeficients(freq * (index + 1)) * weight;
         });
       this.drawHarmonics(index, freq, pos.x);
+      // console.log(this.synths[index].oscillator.partials);
     }
   }
 
@@ -480,6 +485,9 @@ class SoundMaking extends Component {
             .map((weight, index) => {
               return this.getFilterCoeficients(freq * (index + 1)) * weight;
             });
+          // Potential fix to fundamental frequency also affected by the filter
+          // this.synths[newVoice].volume.value = getGain(xPercent*this.synths[newVoice].oscillator.partials[0]);
+          // console.log(this.synths[newVoice].oscillator.partials);
 
         } else {
           for (let i = 0; i < e.touches.length; i++) {
@@ -588,6 +596,8 @@ class SoundMaking extends Component {
             .map((weight, index) => {
               return this.getFilterCoeficients(freq * (index + 1)) * weight;
             });
+          // console.log("Volume: " + getGain(xPercent));
+          // console.log("partials: " + this.synths[index].oscillator.partials);
       }
 
       //Redraw Labels
@@ -783,17 +793,17 @@ class SoundMaking extends Component {
           this.synths[item.id].triggerRelease();
           this.checkHeldFreq(item.id);
           arr[index] = {};
-          } else {
-            let pos = {
-              x: (1 - item.xPercent) * width,
-              y: (1 - item.yPercent) * height
-            }
-             let freq = getFreq(item.yPercent, resolutionMin, resolutionMax);
+        } else {
+          let pos = {
+            x: (1 - item.xPercent) * width,
+            y: (1 - item.yPercent) * height
+          }
+            let freq = getFreq(item.yPercent, resolutionMin, resolutionMax);
           this.drawHarmonics(index, Math.round(freq), pos.x);  
-        this.label(item.label, pos.x, pos.y);
+          this.label(item.label, pos.x, pos.y, 1);
         }
-       }
-      });      
+      }
+    });      
     this.drawPitchBendButton(this.state.pitchButtonPressed);
   }
 
@@ -852,13 +862,15 @@ class SoundMaking extends Component {
     for(let i = 0; i < this.context.state.numHarmonics + 1; i++){
       let freq = fundamental * (i+1);
       let pos = {
-        x: this.synths[index].oscillator.partials[i] * xPos,
+        // Not needed anymore, since opacity essentially uses this with slight adjustments
+        // x: this.synths[index].oscillator.partials[i] * xPos,
         y: freqToIndex(freq, resolutionMax, resolutionMin, height)
       }
+      let opacity = this.synths[index].oscillator.partials[i]*((xPos+100) / width);
       if(i == 0){
-      this.label(freq, xPos, pos.y);
+      this.label(freq, xPos, pos.y, opacity);
       } else {
-      this.label("", pos.x, pos.y);
+      this.label("", xPos, pos.y, opacity);
       }
     }
   }
@@ -937,7 +949,7 @@ class SoundMaking extends Component {
   }
 
   // Helper method that generates a label for the frequency or the scale note
-  label(freq, x, y) {
+  label(freq, x, y, opacity) {
     const offset = 25;
     const scaleOffset = 10;
     this.ctx.font = '20px Inconsolata';
@@ -962,12 +974,14 @@ class SoundMaking extends Component {
     const startingAngle = 0;
     const endingAngle = 2 * Math.PI;
     const radius = 10;
-    const color = 'rgb(255, 255, 0)';
+    const color = 'rgba(255, 255, 0, '+opacity+')';
+    const outline = 'rgba(0, 0, 0, '+opacity+')';
     this.ctx.beginPath();
-    this.ctx.arc(x, y, radius, startingAngle, endingAngle);
+    this.ctx.ellipse(x, y, radius, radius/2, 0, startingAngle, endingAngle);
     this.ctx.fillStyle = color;
     this.ctx.fill();
-    this.ctx.stroke();
+    this.ctx.strokeStyle = outline;
+    this.ctx.stroke();    
     }
   }
 

@@ -3,7 +3,7 @@ import {SpectrogramContext} from './spectrogram-provider';
 
 import EffectModule from './effect-module';
 
-import {Segment, Menu, Dropdown, Checkbox, Button, Icon, Transition, Pagination} from 'semantic-ui-react';
+import {Segment, Menu, Dropdown, Checkbox, Button, Icon, Transition} from 'semantic-ui-react';
 
 import "../styles/sound-controls.css";
 // Using an ES6 transpiler like Babel
@@ -160,8 +160,18 @@ class SoundControls extends Component {
                       className="harmonics-slider"/>
                       {/* {context.state.numHarmonics} */}
                     <div>
-                      <Button onClick={context.handleSustainToggle} className="sustain-button">Sustain</Button> 
-                      <Button onClick={context.handleToggleDrawFilter} className="toggle-button">Draw Filter</Button>
+                      <Button
+                        onClick={context.handleSustainToggle}
+                        className="sustain-button" 
+                        toggle
+                        active={context.state.sustain}
+                      >Sustain</Button> 
+                      <Button 
+                        onClick={context.handleToggleDrawFilter}
+                        className="drawFilter-button"
+                        toggle
+                        active={context.state.drawFilter}
+                      >Draw Filter</Button>
                     </div>
                     
                       {/* <Dropdown
@@ -294,6 +304,8 @@ class SoundControls extends Component {
                           id="edit-scales-button"
                           onClick={context.handleEditScalesChange}
                           disabled={!context.state.isStarted}
+                          toggle
+                          active={context.state.editScales}
                         >Edit</Button>
                         {/* </div> */}
                       {/* </Menu.Item> */}

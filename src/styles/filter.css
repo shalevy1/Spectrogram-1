@@ -1,8 +1,36 @@
 .filter-canvas {
-    z-index: 50;
-    width: 30%;
-    position: absolute;
-    top: 100%;
+    z-index: 51;
+    position: relative;
+    /* width: 33vw;
+    height: 33vh;
+    margin: 1vh 1vw;
+    position: absolute; */
+    top: 0%;
     background-color: lightblue;
+    image-rendering: -moz-crisp-edges;    /* Firefox */
+    image-rendering: -webkit-crisp-edges; /* Webkit (Safari) */
+    image-rendering: pixelated;           /* Chrome */
+}
 
+/* .axesFilter-canvas {
+    width: 33vw;
+    height: 33vh;
+    margin: 1vh 1vw;
+    justify-self: right;
+    position: absolute;
+    z-index: 51;
+    top: 0%;
+    justify-self: space-around;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-crisp-edges;
+    image-rendering: pixelated;
+} */
+
+.edit-filter-container {
+    width: 35vw;
+    height: 35vh;
+    display: flex!important;
+    justify-content: space-around;
+    flex-direction: column;
+    z-index: 50;
 }

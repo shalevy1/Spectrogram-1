@@ -84,4 +84,9 @@ function getColorIndicesForCoord(x, y, width) {
   return [red, red + 1, red + 2, red + 3];
 }
 
-export {convertToLog, convertToLinear, getMousePos, getFreq, getGain, calculateNewMax, calculateNewMin, freqToIndex, getTempo, midiToFreq, gainToLinear, getColorIndicesForCoord}
+function getHarmonicWeightInExpScale(weight) {
+  let expval = (Math.exp(weight*Math.log(1000)))/1000;
+  return expval;
+}
+
+export {convertToLog, convertToLinear, getMousePos, getFreq, getGain, calculateNewMax, calculateNewMin, freqToIndex, getTempo, midiToFreq, gainToLinear, getColorIndicesForCoord, getHarmonicWeightInExpScale}

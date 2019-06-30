@@ -146,6 +146,7 @@ class SpectrogramProvider extends Component {
           }
           return max;
         },
+        // handleResetFilter: () => {},
         handleSustainToggle: ()=> this.setState({sustain: !this.state.sustain}),
         handleQuantizeChange: () =>this.setState({quantize: !this.state.quantize}),
         handleAttackChange: value => {

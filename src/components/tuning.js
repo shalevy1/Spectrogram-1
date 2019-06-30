@@ -23,10 +23,14 @@ let options = {
     release: release
   }
 };
+
+const tuningfftSize = 8192*4;
+
 class Tuning extends Component {
 
   constructor(props) {
     super(props);
+    this.props.analyser.fftSize = tuningfftSize;
     this.onMouseDown = this.onMouseDown.bind(this);
     this.onMouseMove = this.onMouseMove.bind(this);
     this.onMouseUp = this.onMouseUp.bind(this);
