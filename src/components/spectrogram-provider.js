@@ -144,7 +144,8 @@ class SpectrogramProvider extends Component {
               max = val;
             }
           }
-          return max;
+          return convertToLog(max, 0, 1, 0.001, 1);
+          // return max;
         },
         handleSustainToggle: ()=> this.setState({sustain: !this.state.sustain}),
         handleQuantizeChange: () =>this.setState({quantize: !this.state.quantize}),
