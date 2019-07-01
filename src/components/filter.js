@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {SpectrogramContext} from './spectrogram-provider';
-import {Segment} from 'semantic-ui-react';
+import {Segment, Button} from 'semantic-ui-react';
 import { getMousePos, getFreq } from "../util/conversions";
 import "../styles/filter.css";
 // import AxesFilterCanvas from './axesFilterCanvas';
@@ -12,7 +12,56 @@ class Filter extends Component {
         super(props);
         this.state = {mouseDown: false};
         // this.axesRef = React.createRef();
+        // this.handleResetFilter = this.handleResetFilter.bind(this);
     }
+
+    // Filter Presets/Resets
+    filterReset() {
+        this.heights = new Array(this.canvas.height);
+        this.ctx.fillStyle = '#56caff';
+        for(let i = 0; i < this.heights.length; i++){
+            this.heights[i] = this.canvas.width;
+            this.ctx.fillRect(0, i, this.canvas.width, 1);
+        }
+        this.context.setFilter(this.heights, this.canvas.width, this.canvas.height);
+        this.renderAxesLabels();
+    }
+    highBypass() {
+        this.heights = new Array(this.canvas.height);
+        for(let i = 0; i < this.heights.length; i++){
+            this.ctx.fillStyle = "black";
+            this.ctx.fillRect(0, i, this.canvas.width, 1); // Clears canvas for redraw of label
+            this.ctx.fillStyle = '#56caff';
+            
+            // let amt = ( (Math.tan(3*(i/this.heights.length)-1.51))/30 )+0.5;
+            let curve = 50;
+            let rect = curve/(curve+Math.exp( curve*(i/this.heights.length)-curve/3 ));
+            rect = rect*this.canvas.width;
+
+            this.heights[i] = rect;
+            this.ctx.fillRect(0, i, rect, 1);
+        }
+        this.context.setFilter(this.heights, this.canvas.width, this.canvas.height);
+        this.renderAxesLabels();
+    }
+    lowBypass() {
+        this.heights = new Array(this.canvas.height);
+        for(let i = 0; i < this.heights.length; i++){
+            this.ctx.fillStyle = "black";
+            this.ctx.fillRect(0, i, this.canvas.width, 1); // Clears canvas for redraw of label
+            this.ctx.fillStyle = '#56caff';
+            
+            let curve = 50;
+            let rect = -1*curve / (curve+Math.exp( curve*(i/this.heights.length)-curve/3 )) + 1;
+            rect = rect*this.canvas.width;
+
+            this.heights[i] = rect;
+            this.ctx.fillRect(0, i, rect, 1);
+        }
+        this.context.setFilter(this.heights, this.canvas.width, this.canvas.height);
+        this.renderAxesLabels();
+    }
+    
     componentDidMount(){
         this.ctx = this.canvas.getContext('2d');
 
@@ -155,6 +204,8 @@ class Filter extends Component {
             // Never show 0 Hz.
             let resolutionMax = 20000;
             let resolutionMin = 20;
+            // let resolutionMax = this.context.state.resolutionMax;
+            // let resolutionMin = this.context.state.resolutionMin;
             let freq = Math.max(1, getFreq(percent, resolutionMin, resolutionMax));
             this.ctx.font = '12px Inconsolata';
 
@@ -190,12 +241,21 @@ class Filter extends Component {
                     ref={this.axesRef}
                     /> */}
 
-                    {/* <div className="vert">
+                    <div className="vert">
+                        Filter Presets:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         <Button
-                            onClick={context.handleResetFilter}
-                            id="filterReset"
+                            id="FilterPresets"
+                            onClick={()=>this.filterReset()}
                         >Reset</Button>
-                    </div> */}
+                        <Button
+                            id="FilterPresets"
+                            onClick={()=>this.highBypass()}
+                        >High-Bypass</Button>
+                        <Button
+                            id="FilterPresets"
+                            onClick={()=>this.lowBypass()}
+                        >Low-Bypass</Button>
+                    </div>
                 </Segment>
             </React.Fragment>
         )

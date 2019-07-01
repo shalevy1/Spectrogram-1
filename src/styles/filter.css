@@ -34,3 +34,9 @@
     flex-direction: column;
     z-index: 50;
 }
+
+#FilterPresets {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    padding: 5.5px 10.5px;    
+}

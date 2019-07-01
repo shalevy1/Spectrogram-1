@@ -501,9 +501,6 @@ class SoundMaking extends Component {
             this.bendStartFreqs[newVoice] = freq;
             this.bendStartVolumes[newVoice] = newGain;
           }
-          // Potential fix to fundamental frequency also affected by the filter
-          // this.synths[newVoice].volume.value = getGain(xPercent*this.synths[newVoice].oscillator.partials[0]);
-          // console.log(this.synths[newVoice].oscillator.partials);
         } else {
           for (let i = 0; i < e.touches.length; i++) {
             let pos = getMousePos(this.canvas, e.touches[i]);
@@ -900,9 +897,9 @@ class SoundMaking extends Component {
       }
       let opacity = this.synths[index].oscillator.partials[i]*((xPos+100) / width);
       if(i == 0){
-      this.label(freq, xPos, pos.y, opacity);
+        this.label(freq, xPos, pos.y, opacity);
       } else {
-      this.label("", xPos, pos.y, opacity);
+        this.label("", xPos, pos.y, opacity);
       }
     }
   }
@@ -1013,7 +1010,7 @@ class SoundMaking extends Component {
     this.ctx.fillStyle = color;
     this.ctx.fill();
     this.ctx.strokeStyle = outline;
-    this.ctx.stroke();    
+    this.ctx.stroke();  
     }
   }
 

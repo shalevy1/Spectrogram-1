@@ -151,11 +151,12 @@ class SoundControls extends Component {
 
                 {/** Timbre **/}
                 {/* <Menu.Item className="vert"> */}
-                  <div className="menu-header">Harmonics</div>
+                  <div className="menu-header">Harmonics: {context.state.numHarmonics}</div>
                       <Slider
                       min={0}
-                      max={99}
-                      value={context.state.numHarmonics}
+                      max={1000}
+                      value={context.state.harmonicsSliderValue}
+                      tooltip={false}
                       onChange={context.handleHarmonicsChange}
                       className="harmonics-slider"/>
                       {/* {context.state.numHarmonics} */}
