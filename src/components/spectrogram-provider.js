@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {convertToLog, convertToLinear, getColorIndicesForCoord} from "../util/conversions";
+import {convertToLog, convertToLinear, getColorIndicesForCoord, convertHarmonicScaleToLog, scaleFilter} from "../util/conversions";
 // React new Context API
 // Create Context
 export const SpectrogramContext = React.createContext();
@@ -13,6 +13,7 @@ class SpectrogramProvider extends Component {
     timbre: 'Sine',
     numHarmonics: 0,   
     // harmonicWeights: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    harmonicsSliderValue: 0,
     drawFilter: false,
     filterHeights: null,
     filterCanvasWidth: 0,
@@ -112,13 +113,15 @@ class SpectrogramProvider extends Component {
           this.setState({timbre: newTimbre});
         },
         handleHarmonicsChange: (e, data)=>{
-          let value;
+          let value, sliderval;
           if(!isNaN(e)){
-            value = Number(e);
+            sliderval = Number(e);
+            value = Math.round(convertHarmonicScaleToLog(Number(e), 1000));
           } else {
-            value = Number(data.value);
+            value = convertHarmonicScaleToLog(Number(data.value), 1000);
           }
-          if(!isNaN(value) && value > -1 && value < 100){
+          if(!isNaN(value) && value > -1 && value <= 100){
+            this.setState({harmonicsSliderValue: sliderval});
             this.setState({numHarmonics: value});
           }            
         },
@@ -144,10 +147,10 @@ class SpectrogramProvider extends Component {
               max = val;
             }
           }
-          // return convertToLog(max, 0, 1, 0.001, 1);
-          return max;
+          // return convertToLog(max, 0, 1, 0.001, 1));
+          return scaleFilter(max, 5);
+          // return max;
         },
-        // handleResetFilter: () => {},
         handleSustainToggle: ()=> this.setState({sustain: !this.state.sustain}),
         handleQuantizeChange: () =>this.setState({quantize: !this.state.quantize}),
         handleAttackChange: value => {

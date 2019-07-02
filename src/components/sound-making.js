@@ -662,9 +662,9 @@ class SoundMaking extends Component {
       }
       let opacity = this.synths[index].oscillator.partials[i]*((xPos+100) / width);
       if(i == 0){
-      this.label(freq, xPos, pos.y, opacity);
+        this.label(freq, xPos, pos.y, opacity);
       } else {
-      this.label("", xPos, pos.y, opacity);
+        this.label("", xPos, pos.y, opacity);
       }
     }
   }
@@ -770,7 +770,7 @@ class SoundMaking extends Component {
     this.ctx.fillStyle = color;
     this.ctx.fill();
     this.ctx.strokeStyle = outline;
-    this.ctx.stroke();    
+    this.ctx.stroke();  
     }
   }
 

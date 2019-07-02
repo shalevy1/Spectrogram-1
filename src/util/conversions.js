@@ -84,9 +84,36 @@ function getColorIndicesForCoord(x, y, width) {
   return [red, red + 1, red + 2, red + 3];
 }
 
+// dont think this is being used
 function getHarmonicWeightInExpScale(weight) {
   let expval = (Math.exp(weight*Math.log(1000)))/1000;
   return expval;
 }
 
-export {convertToLog, convertToLinear, getMousePos, getFreq, getGain, calculateNewMax, calculateNewMin, freqToIndex, getTempo, midiToFreq, gainToLinear, getColorIndicesForCoord, getHarmonicWeightInExpScale}
+function convertHarmonicScaleToLog(value, numharmonics){
+  // value = Math.round(value)/10;
+  // let b = 2;
+  // let a = value /  Math.pow(Math.E, b);
+  // let y = a *Math.pow(Math.E, b*value);
+  // console.log("input:" + value + ", conversion:" + y);
+  // return y;
+  // let factor = Math.log(1000*numharmonics)/numharmonics;
+
+  // let val = Math.exp(value*factor)/1000;
+
+
+  let val = Math.pow(value, 3)/Math.pow(numharmonics,2);
+  val = Math.round(val)/10;
+  // console.log("input:" + value + ", conversion:" + val);
+  return val;
+}
+
+function scaleFilter(value, coefficient) {
+  let b = coefficient;
+  let a = value /  Math.pow(Math.E, b);
+  let y = a *Math.pow(Math.E, b*value);
+  // console.log(y);
+  return y;
+}
+
+export {convertToLog, convertToLinear, getMousePos, getFreq, getGain, calculateNewMax, calculateNewMin, freqToIndex, getTempo, midiToFreq, gainToLinear, getColorIndicesForCoord, getHarmonicWeightInExpScale, convertHarmonicScaleToLog, scaleFilter}
