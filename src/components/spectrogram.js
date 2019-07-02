@@ -130,6 +130,7 @@ class Spectrogram extends Component {
 
   onStreamError(e) {
     console.error(e);
+    console.log("Microphone has not been enabled");
   }
 
   // Continuous render of the graph (if started) using ReactAnimationFrame plugin
@@ -440,7 +441,7 @@ class Spectrogram extends Component {
               You can draw on the canvas to make sound!</p>
             }
 
-            </div>
+          </div>
             {/* {this.state.showAddToHomeScreen&& */}
               {/* <button onClick={this.addToHomeScreen}>Add to homescreen?</button> */}
             {/* } */}

@@ -241,8 +241,8 @@ class Filter extends Component {
                     ref={this.axesRef}
                     /> */}
 
-                    <div className="vert">
-                        Filter Presets:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <div className="vert no-padding">
+                        Presets:&nbsp;&nbsp;&nbsp;&nbsp;
                         <Button
                             id="FilterPresets"
                             onClick={()=>this.filterReset()}
