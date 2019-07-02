@@ -8,7 +8,7 @@ export const SpectrogramContext = React.createContext();
 class SpectrogramProvider extends Component {
   //All Controls
   state = {
-    soundOn: false,
+    soundOn: true,
     microphoneGain: 50,
     timbre: 'Sine',
     numHarmonics: 0,   
