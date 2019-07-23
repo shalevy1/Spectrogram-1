@@ -30,7 +30,8 @@ class SoundMaking extends Component {
       feedback: false,
       amOn: false,
       fmOn: false,
-      pitchButtonPressed:false
+      pitchButtonPressed:false,
+      reverbDecay: 0
     }
 
   }
@@ -117,6 +118,7 @@ class SoundMaking extends Component {
     this.masterVolume.mute = !this.context.state.soundOn;
     // Tone.Transport.start();
     
+    this.setState({reverbDecay: this.context.state.reverbDecay * 20 + 0.1})
     this.ctx = this.canvas.getContext('2d');
     if(this.context.state.noteLinesOn){
       this.renderNoteLines();
@@ -172,19 +174,25 @@ class SoundMaking extends Component {
       if(this.reverbVolume.mute){
         this.reverbVolume.mute = false;
       }
-      this.masterVolume.disconnect(this.reverb);
-      this.reverb = null;
+      // this.masterVolume.disconnect(this.reverb);
+      // this.reverb = null;
       if(iOS){
         this.reverb = new Tone.JCReverb(this.context.state.reverbDecay*0.9);
         let m = new Tone.Mono();
         this.reverb.connect(m);
         m.connect(this.reverbVolume);
         
-      } else{ 
-        this.reverb = new Tone.Reverb(this.context.state.reverbDecay*20+0.1); // Reverb unit. Runs in parallel to masterVolume
-        this.reverb.generate().then(()=>{
-          this.reverb.connect(this.reverbVolume);
-        });
+      } else {
+        if (this.state.reverbDecay !== this.context.state.reverbDecay * 20 + 0.1) {
+          this.masterVolume.disconnect(this.reverb);
+          this.reverb = null;
+          console.log("HI")
+          this.reverb = new Tone.Reverb(this.context.state.reverbDecay*20+0.1); // Reverb unit. Runs in parallel to masterVolume
+          this.reverb.generate().then(()=>{
+            this.reverb.connect(this.reverbVolume);
+          });
+          this.setState({ reverbDecay: this.context.state.reverbDecay * 20 + 0.1 })
+        }
       }
       this.masterVolume.connect(this.reverb)
     } else if(!this.context.state.reverbOn && !this.reverbVolume.mute) {
