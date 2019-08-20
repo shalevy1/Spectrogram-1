@@ -1,8 +1,11 @@
 import React, { Component } from 'react';
 import {convertToLog, convertToLinear, getColorIndicesForCoord, convertHarmonicScaleToLog, scaleFilter} from "../util/conversions";
+import generateScale from '../util/generateScale';
+import {scaleOptions} from '../util/dropdownOptions';
 // React new Context API
 // Create Context
 export const SpectrogramContext = React.createContext();
+const noteNameScale = ['A', 'A#/Bb', 'B', 'C', 'C#/Db', 'D', 'D#/Eb', 'E', 'F', 'F#/Gb', 'G', 'G#/Ab'];
 
 // Then create provider component
 class SpectrogramProvider extends Component {
@@ -24,6 +27,9 @@ class SpectrogramProvider extends Component {
     musicKey: {name: 'C', value: 0 },
     accidental: {name: ' ', value: 0},
     scale: {name: 'Major', value: 0},
+    customScale: [false,false,false,false,false,false,false,false,false,false,false,false],
+    scaleNotes: ['C', 'C#/Db', 'D', 'D#/Eb', 'E', 'F', 'F#/Gb', 'G', 'G#/Ab', 'A', 'A#/Bb', 'B'],
+    scaleOptionsList: scaleOptions,
     outputVolume: 50,
     attack: 0.005,
     release: 1,
@@ -41,7 +47,11 @@ class SpectrogramProvider extends Component {
     freqControls: false, // Graph Limit controls toggle
     graphPreset: 'default',
     headphoneMode: true,
-    microphone: true,
+    microphone: false,
+    startMicrophone: false,
+    modal: false,
+    instr: true,
+    micPermission: false,
     effectValue: "notset",
     reverbOn: false,
     reverbDecay: 0.5,
@@ -49,10 +59,10 @@ class SpectrogramProvider extends Component {
     delayTime: 0.25,
     delayFeedback: 0.25,
     amOn: false, // Amplitude Modulation
-    amRate: 0.5,
-    amLevel: 0.5,
+    amRate: 0.15,
+    amLevel: 1,
     fmRate: 0.5,
-    fmLevel: 0.5,
+    fmLevel: 0.3,
     editScales: false,
     quantize: false,
     midiEnabled: false,
@@ -79,6 +89,14 @@ class SpectrogramProvider extends Component {
     return (
       <SpectrogramContext.Provider value={{
         state: this.state,
+        handleModalToggle: () => {
+          this.setState({modal: !this.state.modal});
+          console.log("Modal closing: " + this.state.modal);
+        },
+        handleInstructionsClose: () => {
+          this.setState({instr: false});
+        },
+        handleMicPermissionToggle: (val) => this.setState({micPermission: val}),
         handleGainChange: value => {
           if(this.state.isStarted){
             this.setState({microphoneGain: value});
@@ -94,7 +112,7 @@ class SpectrogramProvider extends Component {
         },
         handleScaleToggle: () => {
           if(this.state.scaleOn){
-              this.setState({scaleOn: false, noteLinesOn: false});
+              this.setState({scaleOn: false, noteLinesOn: false, editScales: false});
               this.setState({scaleOptionsShow: false});
           } else {
               this.setState({scaleOn: true, noteLinesOn: true});
@@ -125,7 +143,12 @@ class SpectrogramProvider extends Component {
             this.setState({numHarmonics: value});
           }            
         },
-        handleToggleDrawFilter: () => this.setState({drawFilter: !this.state.drawFilter}),
+        handleToggleDrawFilter: () => {
+          if (this.state.editScales && !this.state.drawFilter) {
+            this.setState({editScales: false});
+          }
+          this.setState({drawFilter: !this.state.drawFilter});
+        },
         setFilter: (heights, filterWidth, filterHeight) =>{
           this.setState({filterHeights: heights, filterCanvasWidth: filterWidth, filterCanvasHeight: filterHeight});
           if(this.state.sustain){
@@ -167,6 +190,36 @@ class SpectrogramProvider extends Component {
           let newKeyName = data.options[data.value].text;
           let newKeyValue = data.options[data.value].index;
           this.setState({musicKey: {name: newKeyName, value: newKeyValue}});
+
+          // Adjust text labels for edit scales menu
+          let scaleNotes = [0,0,0,0,0,0,0,0,0,0,0,0];
+          const NUM_NOTES = 12;
+          var idx = noteNameScale.indexOf(newKeyName);
+          console.log(idx, noteNameScale[idx]);
+          for (let j = 0; j < NUM_NOTES; j++) {
+            // console.log(j, idx, noteNameScale[idx]);
+            scaleNotes[j] = noteNameScale[idx%12];
+            idx++;
+          }
+          this.setState({scaleNotes: scaleNotes});
+
+          // Adjust dropdown options text for scale type 6 up to 11
+          let normalScale = this.state.scaleOptionsList.slice(0,6);
+          const PENT_START_IDX = 6;
+          const PENT_END_IDX = 12;
+          for (let value = PENT_START_IDX; value < PENT_END_IDX; value++) {
+            let s = generateScale(newKeyValue, value);
+            let text = s.scaleNames.join(', ');
+            if (value === 6) {
+              text = "Major Pentatonic: " + text;
+            }
+            else if (value === 7) {
+              text = "Minor Pentatonic: " + text;
+            }
+            normalScale.push({text,value});
+          }
+          // console.log(normalScale);
+          this.setState({scaleOptionsList: normalScale});
         },
         // handleAccidentalChange: (e, data) => {
         //   let newAccidentalName = data.options[data.value].text;
@@ -177,13 +230,16 @@ class SpectrogramProvider extends Component {
           let newScaleName = data.options[data.value].text;
           let newScaleValue = data.value;
           this.setState({scale: {name: newScaleName, value: newScaleValue}});
+          console.log(this.state.scale);
         },
         handleScaleDropdownOpen: () => this.setState({scaleDropdown: true}),
         handleScaleDropdownClose: () => this.setState({scaleDropdown: false}),
         handleScaleTypeDropdownOpen: () => this.setState({scaleTypeDropdown: true}),
         handleScaleTypeDropdownClose: () => this.setState({scaleTypeDropdown: false}),
 
+        handleCustomScaleEdit: data => this.setState({}),
         handleScaleEdit: data => this.setState({scale: {name: data.name, value: data.value}}),
+        handleScaleNotesEdit: data => this.setState({scaleNotes: data.noteList}),
         handleTuningModeOn: () => this.setState({tuningMode: true, noteLinesOn: true, reverbOn: false, delayOn: false}),
         handleTuningModeOff: () => {
           this.setState({tuningMode: false});
@@ -296,7 +352,18 @@ class SpectrogramProvider extends Component {
           }
         },
         handleHeadphoneModeToggle: () => this.setState({headphoneMode: !this.state.headphoneMode}),
-        handleMicrophoneToggle: () => this.setState({microphone: !this.state.microphone}),
+        handleMicrophoneToggle: () => {
+          // First time microphone activated
+          if (!this.state.startMicrophone && !this.state.microphone) {
+            this.setState({startMicrophone: true});
+          }
+          // Toggle modal with instructions to manually allow microphone permissions if initially rejected
+          if (this.state.startMicrophone && !this.state.micPermission && !this.state.microphone) {
+            this.setState({modal: !this.state.modal});
+            console.log("Modal opening: " + this.state.modal);
+          }
+          this.setState({microphone: !this.state.microphone})
+        },
         handleEffectChoiceChange: (choice) => {
           this.setState({reverbSwitch: false});
           this.setState({delaySwitch: false});
@@ -398,7 +465,12 @@ class SpectrogramProvider extends Component {
             this.setState({fmLevel: Math.round(value*100)/100});
           }
         },
-        handleEditScalesChange: () => this.setState({editScales: !this.state.editScales}),
+        handleEditScalesChange: () => {
+          if (this.state.drawFilter && !this.state.editScales) {
+            this.setState({drawFilter: false});
+          }
+          this.setState({editScales: !this.state.editScales});
+        },
         handleMIDIEnabled: () => this.setState({midiEnabled: true}),
         handleMIDIChange: () => this.setState({midi: !this.state.midi}),
         start: ()=> this.setState({isStarted: true}),

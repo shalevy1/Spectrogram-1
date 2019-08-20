@@ -39,6 +39,10 @@ class MyMenu extends Component {
         if (name !== this.state.activeItem) {
           pane = <TuningControls closeMenu={this.closeMenu}/>
           this.props.handleTuningModeOn();
+          // turn on microphone
+          if (!this.props.microphone) {
+            this.props.handleMicrophoneToggle();
+          }
           editScales = true;
         } else {
           name = null;

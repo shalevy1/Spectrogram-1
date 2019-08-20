@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {SpectrogramContext} from './spectrogram-provider';
 
-import {Segment, Menu, Dropdown, Checkbox} from 'semantic-ui-react';
+import {Segment, Menu, Dropdown, /*Checkbox*/} from 'semantic-ui-react';
 import "../styles/tuning-controls.css";
 // Using an ES6 transpiler like Babel
 // import Slider from 'react-rangeslider';

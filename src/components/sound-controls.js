@@ -254,7 +254,7 @@ class SoundControls extends Component {
                       >Note Lines</Button>
                     </div>
                 </Menu.Item>
-                <Menu.Item className="vert">
+                <Menu.Item className="vert no-padding">
                   <br></br>
                   <div className={context.state.scaleOptionsShow ? '' : 'hidden'}>
                     <Menu.Menu className="vert scale-adjust">
@@ -282,7 +282,7 @@ class SoundControls extends Component {
                           // text='Scale'
                           // placeholder='Scale'
                           defaultValue={0}
-                          options={scaleOptions}
+                          options={context.state.scaleOptionsList}
                           onChange={context.handleScaleChange}
                           disabled={!context.state.isStarted}
                           // scrolling={false}

@@ -89,22 +89,26 @@ export default function generateScale(startFreq, type) {
     //   scalePattern = [0, 2, 4, 6, 7, 10];
     //   break;
     case 7:
+      // Minor Pentatonic
+      scalePattern = [0, 2, 3, 7, 10];
+      break;
+    case 8:
       // Pentatonic 2
       scalePattern = [0, 4, 5, 7, 11];
       break;
-    case 8:
+    case 9:
       // Pentatonic 3
       scalePattern = [0, 5, 7, 8, 10];
       break;
-    case 9:
+    case 10:
       // Pentatonic 4
       scalePattern = [0, 1, 5, 7, 10];
       break;
-    case 10:
+    case 11:
       //mondongo
       scalePattern = [0, 4, 5, 6, 8, 10];
       break;
-    case 11:
+    case 12:
       // Arp
       scalePattern = [0, 4, 7];
       break;
