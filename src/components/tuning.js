@@ -381,7 +381,7 @@ class Tuning extends Component {
           } else if (s.scaleNames[i] === s.scaleNames[0]) {
             this.ctx.fillStyle = '#ABE2FB';
           } else {
-            this.ctx.fillStyle = 'white';
+            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
           }
           this.ctx.fillRect(0, index, width, 1.5);
           freq = freq * 2;

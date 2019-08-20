@@ -15,6 +15,9 @@ import {SpectrogramContext} from './spectrogram-provider';
 import Logo from '../headphoneSlash.svg';
 import Logo2 from '../midi-red.svg';
 import Logo3 from '../midi-grey.svg';
+import MicPerm1 from '../Microphone Permissions 1.png';
+import MicPerm2 from '../Microphone Permissions 2.png';
+import MicPerm3 from '../Microphone Permissions 3.png';
 
 import WebMidi from 'webmidi';
 
@@ -44,19 +47,22 @@ class Spectrogram extends Component {
       musicKey: {name: 'C', value: 0 },
       accidental: {name: ' ', value: 0},
       scale: {name: 'Major', value: 0},
-      microphone: true,
+      microphone: false,
       frequencyLabel: '',
       noteLinesRendered: false,
       midi: false,
       sustainOn: false,
       numHarmonics: 1,
-      filterSustainChanged: false
+      filterSustainChanged: false,
+      instr: true,
       // deferredPrompt: null,
       // showAddToHomeScreen: false
     }
   }
   componentDidMount() {
     window.addEventListener("resize", this.handleResize);
+    window.addEventListener("load", this.startSpectrogram);
+
     this.ctx = this.canvas.getContext('2d');
     this.tempCanvas = document.createElement('canvas');
     WebMidi.enable((err) => {
@@ -91,31 +97,57 @@ class Spectrogram extends Component {
       analyser.maxDecibels = -20;
       analyser.smoothingTimeConstant = 0;
       analyser.fftSize = fftSize;
-      if (navigator.mediaDevices.getUserMedia) {
-        navigator.mediaDevices.getUserMedia({
-            audio: true
-          })
-          .then(this.onStream.bind(this))
-          .catch(this.onStreamError.bind(this));
-      }
-      else if (navigator.mozGetUserMedia) {
-        navigator.mozGetUserMedia({
-          audio: true
-        }, this.onStream.bind(this), this.onStreamError.bind(this));
-      } else if (navigator.webkitGetUserMedia) {
-        navigator.webkitGetUserMedia({
-          audio: true
-        }, this.onStream.bind(this), this.onStreamError.bind(this));
-      }
+            
+      // Prompt for microphone. Has been moved down to within onAnimationFrame
+      // if (navigator.mediaDevices.getUserMedia) {
+      //   navigator.mediaDevices.getUserMedia({
+      //       audio: true
+      //     })
+      //     .then(this.onStream.bind(this))
+      //     .catch(this.onStreamError.bind(this));
+      // }
+      // else if (navigator.mozGetUserMedia) {
+      //   navigator.mozGetUserMedia({
+      //     audio: true
+      //   }, this.onStream.bind(this), this.onStreamError.bind(this));
+      // } else if (navigator.webkitGetUserMedia) {
+      //   navigator.webkitGetUserMedia({
+      //     audio: true
+      //   }, this.onStream.bind(this), this.onStreamError.bind(this));
+      // }
+
       // Calls the start function which lets the controls know it has started
       this.context.start();
       this.renderFreqDomain();
+      
+      // Start timeout for instructions to close
+      this.setState({instr: false});
+      setTimeout(this.handleInstructionsClose, 5000);
+
     } //else {
     //   this.context.menuClose();
     // }
     
   }
 
+  requestMicrophoneAccess = () => {
+    if (navigator.mediaDevices.getUserMedia) {
+      navigator.mediaDevices.getUserMedia({
+          audio: true
+        })
+        .then(this.onStream.bind(this))
+        .catch(this.onStreamError.bind(this));
+    }
+    else if (navigator.mozGetUserMedia) {
+      navigator.mozGetUserMedia({
+        audio: true
+      }, this.onStream.bind(this), this.onStreamError.bind(this));
+    } else if (navigator.webkitGetUserMedia) {
+      navigator.webkitGetUserMedia({
+        audio: true
+      }, this.onStream.bind(this), this.onStreamError.bind(this));
+    }
+  }
 
 // Sets up the microphone stream after the Spectrogram is started
 // It connects the graph by connecting the microphone to gain and gain to
@@ -126,18 +158,28 @@ class Spectrogram extends Component {
     input.connect(gainNode);
     gainNode.connect(analyser);
     gainNode.gain.setTargetAtTime(1, audioContext.currentTime, 0.01);
+    this.context.handleMicPermissionToggle(true);
   }
 
   onStreamError(e) {
     console.error(e);
+    console.log("Microphone has not been enabled. Please enable the microphone.");
+    this.context.handleMicPermissionToggle(false);
+    this.handleModalToggle();
   }
 
   // Continuous render of the graph (if started) using ReactAnimationFrame plugin
   onAnimationFrame = (time) => {
     if (this.context.state.isStarted) {
       this.renderFreqDomain();
+      // Resume audioContext if suspended for whatever reason
+      if (audioContext.state != "running") {
+        audioContext.resume().then(() => {
+          console.log('Playback resumed successfully');
+        });
+      }
       if(this.soundMakingRef.current){
-        if(this.context.state.noteLinesOn && !this.state.noteLinesRendered){
+          if(this.context.state.noteLinesOn && !this.state.noteLinesRendered){
             this.soundMakingRef.current.renderNoteLines();
             this.soundMakingRef.current.drawPitchBendButton(false);
             this.setState({noteLinesRendered: true});
@@ -149,7 +191,7 @@ class Spectrogram extends Component {
           if(!this.context.state.noteLinesOn){
             this.setState({noteLinesRendered: false});
           }
-          if(this.context.state.soundOn && this.context.state.sustain && (this.context.state.numHarmonics != this.state.numHarmonics) || this.context.state.filterSustainChanged != this.state.filterSustainChanged){
+          if(this.context.state.soundOn && this.context.state.sustain && (this.context.state.numHarmonics !== this.state.numHarmonics) || (this.context.state.filterSustainChanged !== this.state.filterSustainChanged)){
             this.soundMakingRef.current.sustainChangeTimbre();
             this.setState({numHarmonics: this.context.state.numHarmonics, filterSustainChanged: this.context.state.filterSustainChanged});
           }
@@ -198,28 +240,42 @@ class Spectrogram extends Component {
         this.setState({scale: this.context.state.scale, musicKey: this.context.state.musicKey, accidental: this.context.state.accidental});
       }
 
-        let gain = convertToLog(this.context.state.microphoneGain, 1, 100, 0.01, 500);
-        if (gain !== gainNode.gain.value) {
-          gainNode.gain.setTargetAtTime(gain, audioContext.currentTime, 0.01);
-        }
+      let gain = convertToLog(this.context.state.microphoneGain, 1, 100, 0.01, 500);
+      if (gain !== gainNode.gain.value) {
+        gainNode.gain.setTargetAtTime(gain, audioContext.currentTime, 0.01);
+      }
       // Turn on/off the microphone by calling audioTrack.stop() and then restarting the stream
       // This checks the readyState of the audioTrack for status of the microphone
-      if(!this.context.state.microphone && audioTrack.readyState === "live"){
-        audioTrack.stop();
-        this.setState({microphone: !this.state.microphone});
-      } else if(audioTrack && this.context.state.microphone && audioTrack.readyState === "ended" && !this.state.microphone) {
-        if (navigator.mozGetUserMedia) {
-          navigator.mozGetUserMedia({
-            audio: true
-          }, this.onStream.bind(this), this.onStreamError.bind(this));
-        } else if (navigator.webkitGetUserMedia) {
-          navigator.webkitGetUserMedia({
-            audio: true
-          }, this.onStream.bind(this), this.onStreamError.bind(this));
-        }
 
-        this.setState({microphone: !this.state.microphone});
+      // First section is for microphone has not been set up yet
+      if (!audioTrack && this.context.state.startMicrophone && !this.state.microphone) {
+        console.log("try setting up the mic...");
+
+        // ask for permission and set up mic
+        this.requestMicrophoneAccess();
+
+        this.setState({microphone: true});
       }
+      else if (audioTrack && this.context.state.startMicrophone) {
+        if(!this.context.state.microphone && audioTrack.readyState === "live"){
+          audioTrack.stop();
+          this.setState({microphone: !this.state.microphone});
+        } else if((audioTrack && this.context.state.microphone && audioTrack.readyState === "ended" && !this.state.microphone) ) {
+
+          if (navigator.mozGetUserMedia) {
+            navigator.mozGetUserMedia({
+              audio: true
+            }, this.onStream.bind(this), this.onStreamError.bind(this));
+          } else if (navigator.webkitGetUserMedia) {
+            navigator.webkitGetUserMedia({
+              audio: true
+            }, this.onStream.bind(this), this.onStreamError.bind(this));
+          }
+
+          this.setState({microphone: !this.state.microphone});
+        }
+      }
+
       if(this.context.state.midi && !this.state.midi){
         try {
           let input = WebMidi.inputs[0];
@@ -320,6 +376,13 @@ class Spectrogram extends Component {
         this.soundMakingRef.current.renderNoteLines();
     }
   }
+    
+  // Toggle modal window (instructions to allow microphone)
+  handleModalToggle=()=>this.context.handleModalToggle();
+  // Close instructions
+  handleInstructionsClose=()=> {
+    this.context.handleInstructionsClose();
+  }
 
   // addToHomeScreen = () =>{
   //   this.state.deferredPrompt.prompt();
@@ -352,15 +415,17 @@ class Spectrogram extends Component {
     return (
       <SpectrogramContext.Consumer>
       {(context) => (
-        <div onClick={this.startSpectrogram} >
-          <canvas width={context.state.width} height={context.state.height} onKeyPress = {this.onKeyPress} ref={(c) => {
+        <div>
+          <canvas className="bg-black" width={context.state.width} height={context.state.height} onKeyPress = {this.onKeyPress} ref={(c) => {
             this.canvas = c;
           }}/>
           <link rel="preload" href="../midi-red.svg"/>
           <link rel="preload" href="../midi-grey.svg"/>
           <link rel="preload" href="../headphoneSlash.svg"/>
 
-
+          <link rel="preload" href="../Microphone Permissions 1.png"/>
+          <link rel="preload" href="../Microphone Permissions 2.png"/>
+          <link rel="preload" href="../Microphone Permissions 3.png"/>
 
           {context.state.isStarted &&
             <React.Fragment>
@@ -376,8 +441,8 @@ class Spectrogram extends Component {
             ref={this.frequencyRangeRef}
             />} */}
             <Button icon onClick={context.handlePause} className="pause-button">
-            {!context.state.speed  ?  <Icon fitted name="circle outline" color="red"/> :
-              <Icon fitted name="circle" color="red"/>}
+            {!context.state.speed  ?  <Icon fitted name="play" color="red"/> :
+              <Icon fitted name="pause" color="red"/>}
             </Button>
             <Button icon onClick={this.handleHeadphoneModeToggle} className="headphone-mode-button" style={headphoneStyle}>
               {context.state.headphoneMode ? <Icon fitted name="headphones" color="red"/>:
@@ -389,7 +454,7 @@ class Spectrogram extends Component {
             </Button>
             <Button 
             className="info-button" 
-            href = "https://github.com/ListeningToWaves/Spectrogram"
+            href = "https://listeningtowaves.com/sound-exploration"
               target = "_blank"
               rel = "noopener noreferrer" >              
             <Icon name="info" color="red" className="info-button-icon"/>
@@ -433,14 +498,67 @@ class Spectrogram extends Component {
           </React.Fragment>
           }
           {/* Intro Instructions */}
-          <div className="instructions">
-            {!context.state.isStarted
-              ? <p className="flashing">Click or tap anywhere on the canvas to start the spectrogram</p>
-              : <p>Great! Be sure to allow use of your microphone.
-              You can draw on the canvas to make sound!</p>
-            }
-
+          {context.state.instr ? 
+            <div>
+              <div id="outside-instr" onClick={this.handleInstructionsClose}></div>
+              <div id="instructions-bg" className={!this.state.instr ? "closing" : ""}>
+                <div id="close-instr" onClick={this.handleInstructionsClose}>
+                  <Icon fitted link color="red" name="close"/>
+                </div>
+                <div id="instructions">
+                  {!context.state.isStarted
+                    ? <p className="flashing">Loading... Please wait...</p>
+                    : <p>Welcome to the Spectrogram! You can draw on the screen to make sound!
+                      To allow microphone use, click or tap the microphone button 
+                      on the top left corner.</p>
+                    // ? <p className="flashing">Click or tap anywhere on the canvas to start the spectrogram</p>
+                    // : <p>Great! Be sure to allow use of your microphone.
+                    // You can draw on the canvas to make sound!</p>
+                  }
+                </div>
+              </div>
             </div>
+          : <div/>
+          }
+          
+          {context.state.modal ? 
+            <div className="modal">
+              <div className="row">
+                <div className="column">
+                  <div className="header">
+                    <div className="title">To Use the Live Spectrogram:
+                      <br></br><br></br>
+                      <Icon name="info circle" color="red"/>
+                      <div className="subtitle">You will need to allow microphone access!</div>
+                      <Icon size="big" name="long arrow alternate right" color="black"/>
+                    </div>
+                    <Button
+                      className="modalBtn"
+                      onClick={this.handleModalToggle}
+                    >Close</Button>
+                  </div>
+                </div>
+                {/* <div class="step"> */}
+                  <div className="column">
+                    <p><b>1)</b> Look for the lock or info icon on the top left of the page, directly to the left of your browser's address bar.</p>
+                    <img className="img" src={MicPerm1}></img>
+                  </div>
+                {/* </div> */}
+                <div className="step">
+                  <div className="row">
+                    <p><b>2)</b> Click on the icon, then locate the "Microphone" field in the menu.</p>
+                    <img className="img" src={MicPerm2}></img>
+                  </div>
+                </div>
+                {/* <div class="step"> */}
+                  <div className="column">
+                    <p><b>3)</b> Click on the field corresponding to Microphone, then select "Allow" in the dropdown options.</p>
+                    <img className="img" src={MicPerm3}></img>
+                  </div>
+                {/* </div> */}
+              </div>
+            </div>
+          : null }
             {/* {this.state.showAddToHomeScreen&& */}
               {/* <button onClick={this.addToHomeScreen}>Add to homescreen?</button> */}
             {/* } */}

@@ -54,6 +54,8 @@ class SpectrogramContainer extends Component {
       handleSoundToggle={context.handleSoundToggle}
       isStarted={context.state.isStarted}
       tuningMode={context.state.tuningMode}
+      microphone={context.state.microphone}
+      handleMicrophoneToggle={context.handleMicrophoneToggle}
       handleTuningModeOn={context.handleTuningModeOn}
       handleTuningModeOff={context.handleTuningModeOff}
       handleFreqControls={context.handleFreqControls}

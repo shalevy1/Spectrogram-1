@@ -1,172 +1,266 @@
-  .instructions {
-    margin: 0 auto;
-    font-family: 'Inconsolata';
-    font-size: 24px;
-    z-index: 1;
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    top: 50%;
-    user-select: none;
-  }
 
-  .flashing {
-    animation: blinker 1.5s linear infinite;
-  }
+.bg-black {
+  background-color: #000000;
+}
+#instructions-bg {
+  background-color: rgba(255,255,255,0.2);
+  font-family: 'Inconsolata';
+  font-size: 20px;
+  position: absolute;
+  width: auto;
+  height: auto;
+  margin: 0 auto;
+  border-radius: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 50%;
+  z-index: 99;
+  user-select: none;
+}
+#instructions {
+  font-family: 'Inconsolata';
+  font-size: 24px;
+  color: #ffffff;
+  margin: 0 12px 12px 12px;
+}
+#close-instr {
+  text-align: right;
+}
+#outside-instr {
+  background: rgb(255, 12, 12);
+  position: absolute;
+  opacity: 0;
+  z-index: 98;
+  width: 100vw;
+  height: 100vh;
+  transform: translateX(-50%);
+}
+.closing {
+  animation: fadeout-instr 5s;
+  animation-iteration-count: 1;
+}
 
-  @keyframes blinker {
-    50% {
-      opacity: 0;
-    }
-  }
+.flashing {
+  animation: blinker 1.5s;
+}
 
-  .pause-button {
-    position: absolute;
-    left: 0%;
-    top: 11%;
-    margin: 2px 2px!important;
-    min-width: 3.1%;
-    max-width: 4%;
-    z-index: 21;
-    /* opacity: 0.5; */
-    border: 2px solid #ABE2FB!important;
-    background-color: #ABE2FB!important;
-    border-radius: 3rem!important;
-  }
-
-  .headphone-mode-button {
-    position: absolute;
-    left: 4%;
-    top: 11%;
-    margin: 2px 2px!important;
-    min-width: 3%;
-    z-index: 21;
-    background-color: #ABE2FB!important;
-    /* opacity: 0.5; */
-    border: 2px solid #ABE2FB!important;
-    border-radius: 3rem!important;
-  }
-  .headphone-slash-icon {
-    height: .85714286em;
-    width: 1.18em;
-  }
-
-  .midi-logo {
-    height: 1.2em;
-    width: 1.25em;
-    /* height: 1.15em; */
-    /* width: 1.15em; */
-  }
-
-  .microphone-mode-button {
-    position: absolute;
-    left: 8%;
-    top: 11%;
-    margin: 2px 2px!important;
-    min-width: 3%;
-    z-index: 21;
-    /* opacity: 0.5; */
-    border: 2px solid #ABE2FB!important;
-    border-radius: 3rem!important;
-    background-color: #ABE2FB!important;
-
-  }
-
-  .color-map-container {
-    width: 15%;
-    position: absolute;
-    right: 15%;
-    bottom: 0%;
-    padding: 2px;
-    z-index: 21;
-    user-select: none;
-    font-family: 'Lato';
-    /* font-size: 16px; */
-    /* font-family: "Lato,'Helvetica Neue',Arial,Helvetica,sans-serif"; */
-  }
-
-  .color-map {
-    border: 1px solid white;
-    background: linear-gradient(to right, black 15%, blue 30%, green, red);
-    width: 100%;
-    height: 1em;
-    position: relative;
-  }
-
-  .color-map-text {
-    color: white;
-    display: flex;
-    justify-content: center;
-    font-family: 'Lato';
-    /* background-color: black; */
-  }
-
-  .color-map-labels {
-    color: white;
-    display: flex;
-    justify-content: space-between;
-    font-family: 'Lato';
-    position: absolute;
-    left: 0%;
-    top: 50%;
-    width: 100%;
-    padding: 0px 5px;
-    z-index: 10;
-    font-size: 0.75em;
-    /* background-color: black; */
-  }
-
-  .scales-snackbar {
-    z-index: 60;
-    position: fixed!important;
-    bottom: 0;
-    left: 50%;
-    margin: 0!important;
-    padding: 2vh!important;
-    display: flex;
-    align-items: center;
-    user-select: none;
+@keyframes blinker {
+  50% {
     opacity: 0;
-    transform: translateX(-50%);
-    animation: fades 1s ease-in-out 0.2s alternate;
-    animation-duration: 2s;
   }
+}
 
-  @keyframes fades {
-    50% {
-      opacity: 1;
-    }
-  }
+@keyframes fadeout-instr {
 
-  .info-button {
-    position: absolute;
-    left: 16%;
-    top: 11%;
-    margin: 2px 2px!important;
-    min-width: 3%;
-    z-index: 21;
-    background-color: #ABE2FB!important;
-    /* opacity: 0.5; */
-    border: 2px solid #ABE2FB!important;
-    border-radius: 3rem!important;
-    padding: 11px!important;
-  }
-  .info-button-icon {
-    margin: 0px!important;
-  }
+  60% { opacity: 1; }
+  100% { opacity: 0; }
+}
 
-  .midi-button {
-    position: absolute;
-    left: 12%;
-    top: 11%;
-    margin: 2px 2px!important;
-    min-width: 3%;
-    z-index: 21;
-    background-color: #ABE2FB!important;
-    /* opacity: 0.5; */
-    border: 2px solid #ABE2FB!important;
-    border-radius: 3rem!important;
-    padding: 0.6714rem 0.75714rem!important;
-    /* padding: 2px!important; */
-    /* height: 50px; */
+/* Instructions for microphone styling */
+.modal{
+  background-color: white;
+  position: absolute;
+  z-index: 100;
+  width: auto;
+  height: auto;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 12%;
+  border-radius: 10px;
+  -webkit-box-shadow: 3px 3px 5px 3px rgba(0,0,0,0.75);
+  -moz-box-shadow: 3px 3px 5px 3px rgba(0,0,0,0.75);
+  box-shadow: 3px 3px 5px 3px rgba(0,0,0,0.75);
+  display: flex;
+  flex-direction: column;
+  word-wrap: break-word;
+}
+.modal .row {
+  padding: 4px 4px 4px 4px;
+  display: flex;
+  flex-direction: row;
+}
+.modal .column {
+  padding: 4px 4px 4px 4px;
+  display: flex;
+  flex-direction: column;
+}
+.modal .header {
+  position: relative;
+  height: 100%;
+  margin: 3%;
+}
+.modal .title {
+  width: 12rem;
+  font-size: 1.5rem;
+}
+.modal .title .subtitle {
+  width: 12rem;
+  font-size: 1.25rem;
+}
+.modal .modalBtn {
+  position: absolute;
+  width: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  /* margin: 3%; */
+  bottom: 0%;
+}
+.modal .step {
+  width: 33vw;
+}
+.modal .img {
+  margin: auto;
+  max-height: auto;
+  width: 20vw;
+}
+
+.pause-button {
+  position: absolute;
+  left: 0%;
+  top: 11%;
+  margin: 2px 2px!important;
+  min-width: 3.1%;
+  max-width: 4%;
+  z-index: 21;
+  /* opacity: 0.5; */
+  border: 2px solid #ABE2FB!important;
+  background-color: #ABE2FB!important;
+  border-radius: 3rem!important;
+}
+
+.headphone-mode-button {
+  position: absolute;
+  left: 4%;
+  top: 11%;
+  margin: 2px 2px!important;
+  min-width: 3%;
+  z-index: 21;
+  background-color: #ABE2FB!important;
+  /* opacity: 0.5; */
+  border: 2px solid #ABE2FB!important;
+  border-radius: 3rem!important;
+}
+.headphone-slash-icon {
+  height: .85714286em;
+  width: 1.18em;
+}
+
+.midi-logo {
+  height: 1.2em;
+  width: 1.25em;
+  /* height: 1.15em; */
+  /* width: 1.15em; */
+}
+
+.microphone-mode-button {
+  position: absolute;
+  left: 8%;
+  top: 11%;
+  margin: 2px 2px!important;
+  min-width: 3%;
+  z-index: 21;
+  /* opacity: 0.5; */
+  border: 2px solid #ABE2FB!important;
+  border-radius: 3rem!important;
+  background-color: #ABE2FB!important;
+
+}
+
+.color-map-container {
+  width: 15%;
+  position: absolute;
+  right: 15%;
+  bottom: 0%;
+  padding: 2px;
+  z-index: 21;
+  user-select: none;
+  font-family: 'Lato';
+  /* font-size: 16px; */
+  /* font-family: "Lato,'Helvetica Neue',Arial,Helvetica,sans-serif"; */
+}
+
+.color-map {
+  border: 1px solid white;
+  background: linear-gradient(to right, black 15%, blue 30%, green, red);
+  width: 100%;
+  height: 1em;
+  position: relative;
+}
+
+.color-map-text {
+  color: white;
+  display: flex;
+  justify-content: center;
+  font-family: 'Lato';
+  /* background-color: black; */
+}
+
+.color-map-labels {
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  font-family: 'Lato';
+  position: absolute;
+  left: 0%;
+  top: 50%;
+  width: 100%;
+  padding: 0px 5px;
+  z-index: 10;
+  font-size: 0.75em;
+  /* background-color: black; */
+}
+
+.scales-snackbar {
+  z-index: 60;
+  position: fixed!important;
+  bottom: 0;
+  left: 50%;
+  margin: 0!important;
+  padding: 2vh!important;
+  display: flex;
+  align-items: center;
+  user-select: none;
+  opacity: 0;
+  transform: translateX(-50%);
+  animation: fades 1s ease-in-out 0.2s alternate;
+  animation-duration: 2s;
+}
+
+@keyframes fades {
+  50% {
+    opacity: 1;
   }
+}
+
+.info-button {
+  position: absolute;
+  left: 16%;
+  top: 11%;
+  margin: 2px 2px!important;
+  min-width: 3%;
+  z-index: 21;
+  background-color: #ABE2FB!important;
+  /* opacity: 0.5; */
+  border: 2px solid #ABE2FB!important;
+  border-radius: 3rem!important;
+  padding: 11px!important;
+}
+.info-button-icon {
+  margin: 0px!important;
+}
+
+.midi-button {
+  position: absolute;
+  left: 12%;
+  top: 11%;
+  margin: 2px 2px!important;
+  min-width: 3%;
+  z-index: 21;
+  background-color: #ABE2FB!important;
+  /* opacity: 0.5; */
+  border: 2px solid #ABE2FB!important;
+  border-radius: 3rem!important;
+  padding: 0.6714rem 0.75714rem!important;
+  /* padding: 2px!important; */
+  /* height: 50px; */
+}

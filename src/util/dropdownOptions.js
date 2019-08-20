@@ -39,7 +39,7 @@ const scaleOptions = [
     value: 3
   },
   {
-    text: "Flemenco/Harmonic Major",
+    text: "Harmonic Major",
     value: 4
   },
   {
@@ -47,24 +47,28 @@ const scaleOptions = [
     value: 5
   },
   {
-    text: "Major Pentatonic",
+    text: "Major Pentatonic: C, D, E, G, A",  // Major Pentatonic
     value: 6
   },
   {
-    text: "Pentatonic 2",
+    text: "Minor Pentatonic: C, D, D#/Eb, G, A#/Bb",  // Minor Pentatonic
     value: 7
   },
   {
-    text: "Pentatonic 3",
+    text: "C, E, F, G, B",                    // Pentatonic 2
     value: 8
   },
   {
-    text: "Pentatonic 4",
+    text: "C, F, G, G#/Ab, A#/Bb",            // Pentatonic 3
     value: 9
   },
   {
-    text: "Pentatonic 4",
+    text: "C, C#/Db, F, G, A#/Bb",            // Pentatonic 4
     value: 10
+  },
+  {
+    text: "C, E, F, F#/Gb, G#/Ab, A#/Bb",     // Pentatonic 5
+    value: 11
   },
   // {
   //   text: "Major Arp",

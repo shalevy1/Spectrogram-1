@@ -1,7 +1,7 @@
 ﻿# Web Spectrogram
 An insanely interactive live-input spectrogram with sound creation built in. 
 
-Click [here](https://listeningtowaves.github.io/Spectrogram/) to view the live demo. 
+Click [here](https://spectrogram.sciencemusic.org/) to view the live demo. 
 
 
 ![Spectrogram default view](https://lh3.googleusercontent.com/57iLjVbwBOKjZpW-XJ6qe4S9uNAXCqPGH4P8_qnpqsxXODqqTL17dEFAGjssYW6NVuOLzB6p81dv "Spectrogram" )

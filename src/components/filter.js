@@ -6,11 +6,16 @@ import "../styles/filter.css";
 // import AxesFilterCanvas from './axesFilterCanvas';
 
 const range = 10;
+const updateTime = 200;   // Time between each update while drawing on canvas
 
 class Filter extends Component {
     constructor(props){
         super(props);
-        this.state = {mouseDown: false};
+        this.state = {
+            mouseDown: false,
+            touchDown: false,   //touchDown used for timed filter update
+        };
+        this.filtertimedupdate = this.filtertimedupdate.bind(this);
         // this.axesRef = React.createRef();
         // this.handleResetFilter = this.handleResetFilter.bind(this);
     }
@@ -65,7 +70,7 @@ class Filter extends Component {
     componentDidMount(){
         this.ctx = this.canvas.getContext('2d');
 
-        let dpi = window.devicePixelRatio;
+        // let dpi = window.devicePixelRatio;
 
         this.heights = new Array(this.canvas.height);
         // Load From Previous
@@ -86,6 +91,7 @@ class Filter extends Component {
         }
         // this.axesRef.current.renderAxesLabels();
         this.renderAxesLabels();
+        window.setInterval(this.filtertimedupdate, updateTime);
     }
 
     onMouseDown = e =>{
@@ -151,6 +157,7 @@ class Filter extends Component {
                 this.heights[Math.round(pos.y + i)] = pos.x;
             }
             this.renderAxesLabels();
+            this.setState({touchDown: true}); 
         }
     }
 
@@ -173,6 +180,7 @@ class Filter extends Component {
 
     onTouchEnd = e => {
         // this.renderAxesLabels();
+        this.setState({touchDown: false});
         this.context.setFilter(this.heights, this.canvas.width, this.canvas.height);
     }
 
@@ -222,6 +230,13 @@ class Filter extends Component {
         }
     }
 
+    filtertimedupdate = e => {
+        if (this.state.mouseDown || this.state.touchDown) {
+            // console.log("filter set (timed)");
+            this.context.setFilter(this.heights, this.canvas.width, this.canvas.height);
+        }
+    }
+
     render(){
         return (
             <React.Fragment>
@@ -241,8 +256,8 @@ class Filter extends Component {
                     ref={this.axesRef}
                     /> */}
 
-                    <div className="vert">
-                        Filter Presets:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <div className="vert no-padding">
+                        Presets:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         <Button
                             id="FilterPresets"
                             onClick={()=>this.filterReset()}

@@ -16,7 +16,7 @@ class EditScales extends Component {
     super();
     this.state = {
       scale: [false,false,false,false,false,false,false,false,false,false,false,false],
-      scaleName: ""
+      scaleName: "",
     }
   }
 
@@ -41,6 +41,11 @@ class EditScales extends Component {
     let scale = this.state.scale;
     scale[i] = !scale[i];
     this.setState({scale: scale});
+
+    let customized = this.context.state.customScale;
+    customized[i] = !customized[i];
+    this.context.handleCustomScaleEdit({customScale: customized});
+    
     let s = [];
     for(let i = 0; i < scale.length; i++){
       if(scale[i]){
@@ -56,13 +61,17 @@ class EditScales extends Component {
     var notes = [];
     let className;
     for (let i = NUM_TONES-1; i >= 0; i--) {
-      if(this.state.scale[i]){
-        className = "note activeNote";
+      if (i === 0) {
+        className = "root";
       } else {
         className = "note";
       }
+      if (this.state.scale[i])
+        className = className + " activeNote";
+      if (this.context.state.customScale[i])
+        className = className + " custom";
 
-      notes.push(<span className={className} key={i} onClick={()=>this.handleScaleToggle(i)}> {i+1} </span>);
+      notes.push(<span className={className} key={i} onClick={()=>this.handleScaleToggle(i)}>{this.context.state.scaleNotes[i]}</span>);
     }
     return notes;
   }
