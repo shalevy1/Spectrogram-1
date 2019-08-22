@@ -25,7 +25,7 @@ class SpectrogramProvider extends Component {
     scaleOn: false,
     noteLinesOn: false,
     musicKey: {name: 'C', value: 0 },
-    accidental: {name: ' ', value: 0},
+    accidental: {name: ' ', value: 0}, // 2 for b, 1 for #
     scale: {name: 'Major', value: 0},
     customScale: [false,false,false,false,false,false,false,false,false,false,false,false],
     scaleNotes: ['C', 'C#/Db', 'D', 'D#/Eb', 'E', 'F', 'F#/Gb', 'G', 'G#/Ab', 'A', 'A#/Bb', 'B'],
@@ -82,6 +82,7 @@ class SpectrogramProvider extends Component {
     scaleOptionsShow: false,
     scaleDropdown: false,
     scaleTypeDropdown: false,
+    justIntonation: false,
   }
 
   //Functions that setState based on Controls
@@ -470,6 +471,14 @@ class SpectrogramProvider extends Component {
             this.setState({drawFilter: false});
           }
           this.setState({editScales: !this.state.editScales});
+        },
+        handleJustIntonationChange: () => {
+          // Maybe need to test filter with just intonation
+          // if (this.state.drawFilter && !this.state.editScales) {
+          //   this.setState({drawFilter: false});
+          // }
+          this.setState({justIntonation: !this.state.justIntonation});
+          console.log("justIntonation is ON?:" + this.state.justIntonation);
         },
         handleMIDIEnabled: () => this.setState({midiEnabled: true}),
         handleMIDIChange: () => this.setState({midi: !this.state.midi}),

@@ -2,7 +2,7 @@
 * name: generateScale
 * params: startFreq: currentFreq to snap, type: which scale
 */
-export default function generateScale(startFreq, type) {
+export default function generateScale(startFreq, type, justIntonation) {
   var scaleNames = [];
   var scale = [];
   var scalePattern = [];
@@ -117,17 +117,18 @@ export default function generateScale(startFreq, type) {
       // Custom
       scalePattern = type;
 
-
   }
+
   for (var i = 0; i < scalePattern.length; i++) {
     var currentF = Number(startFreq) + scalePattern[i];
     scale.push(tuning_ * Math.pow(Math.pow(2, 1 / 12), currentF));
     scaleNames.push(notes[currentF % 12]);
   }
+
   let s = {
-    scale: scale,
-    scaleNames: scaleNames,
-    scalePattern: scalePattern
+    scale: scale, // arr of freqs of the lowest octave
+    scaleNames: scaleNames,// arr of names, ex [C. D, ...]
+    scalePattern: scalePattern// ex. [0, 2, 4]
   }
   return s;
 }
