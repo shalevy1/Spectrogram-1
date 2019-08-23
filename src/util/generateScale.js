@@ -126,16 +126,13 @@ export default function generateScale(startFreq, type, justIntonation) {
     if (justIntonation) {
       
       const justIntonationRatios = [1, 25/24, 9/8, 6/5, 5/4, 4/3, 45/32, 3/2, 8/5, 5/3, 9/5, 15/8];
-      scale.push(tuning_ * justIntonationRatios[currentF % 12]);
+      scale.push((tuning_ /  justIntonationRatios[(12 - startFreq)]) * justIntonationRatios[scalePattern[i]]); // may need to multiply tuning by 2 for A3 400Hz
 
     } else {
       scale.push(tuning_ * Math.pow(Math.pow(2, 1 / 12), currentF));
     }
     scaleNames.push(notes[currentF % 12]);
   }
-  console.log(scale)
-
-
 
   let s = {
     scale: scale, // arr of freqs of the lowest octave

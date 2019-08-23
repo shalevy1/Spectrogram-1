@@ -814,7 +814,6 @@ class SoundMaking extends Component {
           let freq = getFreq(item.yPercent, resolutionMin, resolutionMax);
           this.drawHarmonics(index, Math.round(freq), pos.x);
           this.label(item.label, pos.x, pos.y, 1);
-          console.log("here")
         }
       }
     });
@@ -1075,7 +1074,7 @@ class SoundMaking extends Component {
         } else {
           let name = s.scaleNames[i]+''+j;
           let index = freqToIndex(freq, resolutionMax, resolutionMin, height);
-          console.log(freq)
+          
           this.frequencies[name] = freq;
 
           // if(this.goldIndices.includes(index) && this.context.state.soundOn){
