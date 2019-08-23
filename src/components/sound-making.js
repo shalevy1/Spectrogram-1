@@ -814,6 +814,7 @@ class SoundMaking extends Component {
           let freq = getFreq(item.yPercent, resolutionMin, resolutionMax);
           this.drawHarmonics(index, Math.round(freq), pos.x);
           this.label(item.label, pos.x, pos.y, 1);
+          console.log("here")
         }
       }
     });
@@ -918,7 +919,7 @@ class SoundMaking extends Component {
             : newIndexedKey;
       }
       // Uses generateScale helper method to generate base frequency values
-      let s = generateScale(newIndexedKey, this.context.state.scale.value);
+      let s = generateScale(newIndexedKey, this.context.state.scale.value, this.context.state.justIntonation);
       let name = s.scale[0];
       let note = 0;
       let dist = 20000;
@@ -1062,6 +1063,7 @@ class SoundMaking extends Component {
 
     this.frequencies = {};
     // Uses generateScale helper method to generate base frequency values
+   
     let s = generateScale(newIndexedKey, this.context.state.scale.value,this.context.state.justIntonation);
     //Sweeps through scale object and draws frequency
     for (let i = 0; i < s.scale.length; i++) {
@@ -1073,6 +1075,7 @@ class SoundMaking extends Component {
         } else {
           let name = s.scaleNames[i]+''+j;
           let index = freqToIndex(freq, resolutionMax, resolutionMin, height);
+          console.log(freq)
           this.frequencies[name] = freq;
 
           // if(this.goldIndices.includes(index) && this.context.state.soundOn){
