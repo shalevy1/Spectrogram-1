@@ -31,7 +31,7 @@ class Filter extends Component {
         this.context.setFilter(this.heights, this.canvas.width, this.canvas.height);
         this.renderAxesLabels();
     }
-    highBypass() {
+    highPass() {
         this.heights = new Array(this.canvas.height);
         for(let i = 0; i < this.heights.length; i++){
             this.ctx.fillStyle = "black";
@@ -49,7 +49,7 @@ class Filter extends Component {
         this.context.setFilter(this.heights, this.canvas.width, this.canvas.height);
         this.renderAxesLabels();
     }
-    lowBypass() {
+    lowPass() {
         this.heights = new Array(this.canvas.height);
         for(let i = 0; i < this.heights.length; i++){
             this.ctx.fillStyle = "black";
@@ -264,12 +264,12 @@ class Filter extends Component {
                         >Reset</Button>
                         <Button
                             id="FilterPresets"
-                            onClick={()=>this.highBypass()}
-                        >High-Bypass</Button>
+                            onClick={()=>this.highPass()}
+                        >High-pass</Button>
                         <Button
                             id="FilterPresets"
-                            onClick={()=>this.lowBypass()}
-                        >Low-Bypass</Button>
+                            onClick={()=>this.lowPass()}
+                        >Low-pass</Button>
                     </div>
                 </Segment>
             </React.Fragment>
