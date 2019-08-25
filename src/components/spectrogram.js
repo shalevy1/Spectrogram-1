@@ -55,6 +55,7 @@ class Spectrogram extends Component {
       numHarmonics: 1,
       filterSustainChanged: false,
       instr: true,
+      justIntonation: false,
       // deferredPrompt: null,
       // showAddToHomeScreen: false
     }
@@ -170,7 +171,9 @@ class Spectrogram extends Component {
 
   // Continuous render of the graph (if started) using ReactAnimationFrame plugin
   onAnimationFrame = (time) => {
+    
     if (this.context.state.isStarted) {
+      
       this.renderFreqDomain();
       // Resume audioContext if suspended for whatever reason
       if (audioContext.state != "running") {
@@ -179,7 +182,9 @@ class Spectrogram extends Component {
         });
       }
       if(this.soundMakingRef.current){
+        
           if(this.context.state.noteLinesOn && !this.state.noteLinesRendered){
+            
             this.soundMakingRef.current.renderNoteLines();
             this.soundMakingRef.current.drawPitchBendButton(false);
             this.setState({noteLinesRendered: true});
@@ -215,9 +220,11 @@ class Spectrogram extends Component {
           this.axesRef.current.renderAxesLabels();
         }
         if(this.tuningRef.current){
+          
           this.tuningRef.current.renderNoteLines();
         }
         if(this.soundMakingRef.current && this.context.state.noteLinesOn){
+         
           this.soundMakingRef.current.removeNoteLines();
           this.soundMakingRef.current.renderNoteLines();
           this.soundMakingRef.current.drawPitchBendButton(false);
@@ -225,7 +232,8 @@ class Spectrogram extends Component {
 
         this.setState({resolutionMax: this.context.state.resolutionMax, resolutionMin: this.context.state.resolutionMin});
       }
-      if(this.context.state.scale !== this.state.scale || this.context.state.musicKey !== this.state.musicKey || this.context.state.accidental !== this.state.accidental){
+      if(this.context.state.scale !== this.state.scale || this.context.state.musicKey !== this.state.musicKey || this.context.state.accidental !== this.state.accidental || this.context.state.justIntonation !== this.state.justIntonation ){
+       
         if(this.tuningRef.current){
           this.tuningRef.current.renderNoteLines();
         }
@@ -233,11 +241,13 @@ class Spectrogram extends Component {
           // this.frequencyRangeRef.current.renderNoteLines();
         }
         if(this.soundMakingRef.current && this.context.state.noteLinesOn){
+          console.log("animatio frame")
           this.soundMakingRef.current.removeNoteLines();
           this.soundMakingRef.current.renderNoteLines();
           this.soundMakingRef.current.drawPitchBendButton(false);
         }
-        this.setState({scale: this.context.state.scale, musicKey: this.context.state.musicKey, accidental: this.context.state.accidental});
+        this.setState({scale: this.context.state.scale, musicKey: this.context.state.musicKey, accidental: this.context.state.accidental,
+        justIntonation: this.context.state.justIntonation});
       }
 
       let gain = convertToLog(this.context.state.microphoneGain, 1, 100, 0.01, 500);

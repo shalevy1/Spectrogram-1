@@ -308,6 +308,20 @@ class SoundControls extends Component {
                           toggle
                           active={context.state.editScales}
                         >Edit</Button>
+                        <br></br>
+
+                        <Button
+                          id = "just-button"
+                          onClick = {
+                            context.handleJustIntonationChange
+                          }
+                          disabled = {
+                            !context.state.isStarted
+                          } // TODO
+                          toggle  
+                          active={context.state.justIntonation}
+                        >Just Intonation </Button>
+
                         {/* </div> */}
                       {/* </Menu.Item> */}
                     </Menu.Menu>

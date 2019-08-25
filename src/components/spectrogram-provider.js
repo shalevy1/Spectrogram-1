@@ -25,7 +25,7 @@ class SpectrogramProvider extends Component {
     scaleOn: false,
     noteLinesOn: false,
     musicKey: {name: 'C', value: 0 },
-    accidental: {name: ' ', value: 0},
+    accidental: {name: ' ', value: 0}, // 2 for b, 1 for #
     scale: {name: 'Major', value: 0},
     customScale: [false,false,false,false,false,false,false,false,false,false,false,false],
     scaleNotes: ['C', 'C#/Db', 'D', 'D#/Eb', 'E', 'F', 'F#/Gb', 'G', 'G#/Ab', 'A', 'A#/Bb', 'B'],
@@ -82,6 +82,7 @@ class SpectrogramProvider extends Component {
     scaleOptionsShow: false,
     scaleDropdown: false,
     scaleTypeDropdown: false,
+    justIntonation: false,
   }
 
   //Functions that setState based on Controls
@@ -208,7 +209,7 @@ class SpectrogramProvider extends Component {
           const PENT_START_IDX = 6;
           const PENT_END_IDX = 12;
           for (let value = PENT_START_IDX; value < PENT_END_IDX; value++) {
-            let s = generateScale(newKeyValue, value);
+            let s = generateScale(newKeyValue, value, this.state.justIntonation);
             let text = s.scaleNames.join(', ');
             if (value === 6) {
               text = "Major Pentatonic: " + text;
@@ -230,7 +231,7 @@ class SpectrogramProvider extends Component {
           let newScaleName = data.options[data.value].text;
           let newScaleValue = data.value;
           this.setState({scale: {name: newScaleName, value: newScaleValue}});
-          console.log(this.state.scale);
+          
         },
         handleScaleDropdownOpen: () => this.setState({scaleDropdown: true}),
         handleScaleDropdownClose: () => this.setState({scaleDropdown: false}),
@@ -470,6 +471,15 @@ class SpectrogramProvider extends Component {
             this.setState({drawFilter: false});
           }
           this.setState({editScales: !this.state.editScales});
+        },
+        handleJustIntonationChange: () => {
+          // Maybe need to test filter with just intonation
+          // if (this.state.drawFilter && !this.state.editScales) {
+          //   this.setState({drawFilter: false});
+          // }
+          this.setState({justIntonation: !this.state.justIntonation});
+          // this.setState({noteLinesRendered:false});
+          
         },
         handleMIDIEnabled: () => this.setState({midiEnabled: true}),
         handleMIDIChange: () => this.setState({midi: !this.state.midi}),

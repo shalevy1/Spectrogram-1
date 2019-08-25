@@ -69,6 +69,12 @@
   font-size: 1rem;
   margin-bottom: 5px;
 }
+#just-button {
+  margin-top: 5px;
+  padding: 5.5px 21px;
+  font-size: 1rem;
+  margin-bottom: 5px;
+}
 
 .scale-choice {
   padding: 0.5em!important;

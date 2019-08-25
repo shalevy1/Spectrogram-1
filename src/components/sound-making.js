@@ -918,7 +918,7 @@ class SoundMaking extends Component {
             : newIndexedKey;
       }
       // Uses generateScale helper method to generate base frequency values
-      let s = generateScale(newIndexedKey, this.context.state.scale.value);
+      let s = generateScale(newIndexedKey, this.context.state.scale.value, this.context.state.justIntonation);
       let name = s.scale[0];
       let note = 0;
       let dist = 20000;
@@ -1062,7 +1062,8 @@ class SoundMaking extends Component {
 
     this.frequencies = {};
     // Uses generateScale helper method to generate base frequency values
-    let s = generateScale(newIndexedKey, this.context.state.scale.value);
+   
+    let s = generateScale(newIndexedKey, this.context.state.scale.value,this.context.state.justIntonation);
     //Sweeps through scale object and draws frequency
     for (let i = 0; i < s.scale.length; i++) {
       let freq = s.scale[i];
@@ -1073,18 +1074,19 @@ class SoundMaking extends Component {
         } else {
           let name = s.scaleNames[i]+''+j;
           let index = freqToIndex(freq, resolutionMax, resolutionMin, height);
+          
           this.frequencies[name] = freq;
 
           // if(this.goldIndices.includes(index) && this.context.state.soundOn){
           //   this.ctx.fillStyle = 'gold';
           // } else
           if(s.scalePattern[i] === 0){
-            this.ctx.fillStyle = '#ABE2FB';
+            this.ctx.fillStyle = '#ABE2FB';// blue line for key note
           }
           else {
-            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.5)'; // white line for other notes
           }
-          this.ctx.fillRect(0, index, width, 1);
+          this.ctx.fillRect(0, index, width, 1); // x, y, width,height
           freq = freq * 2;
         }
       }
