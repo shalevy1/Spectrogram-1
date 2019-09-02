@@ -11,7 +11,7 @@ import {withRouter} from "react-router-dom";
 // To include the default styles
 import 'react-rangeslider/lib/index.css';
 let options = [
-  {key: 'Signal GeneratorEXPERIMENTAL', text: 'Signal Generator', value: 'Signal Generator'},
+  {key: 'Signal Generator', text: 'Signal Generator', value: 'Signal Generator'},
   {key: 'Oscilloscope', text: 'Oscilloscope', value: 'Oscilloscope'},  
 ]
 
@@ -145,7 +145,7 @@ class MyMenu extends Component {
             </Dropdown>
           </Menu.Item>
           <Menu.Item name='tuning' active={activeItem === 'tuning'} onClick={this.handleItemClick} className="tab-item" style={tuningStyle}/>
-          <Menu.Item name='sound-making' active={activeItem === 'sound-making'} onClick={this.handleItemClick} className="tab-item" style={soundStyle}/>
+          <Menu.Item name='sound-makingEXPERIMENTAL' active={activeItem === 'sound-making'} onClick={this.handleItemClick} className="tab-item" style={soundStyle}/>
           {/*<Menu.Item name='advanced' active={activeItem === 'advanced'} onClick={this.handleItemClick} className="tab-item"/>*/}
 
           {/* Microphone Gain */}
