@@ -320,7 +320,9 @@ class SoundControls extends Component {
                           } // TODO
                           toggle  
                           active={context.state.justIntonation}
-                        >Just Intonation </Button>
+                        >
+                          Just Intonation 
+                        </Button>
 
                         {/* </div> */}
                       {/* </Menu.Item> */}
