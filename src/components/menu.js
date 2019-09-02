@@ -11,7 +11,7 @@ import {withRouter} from "react-router-dom";
 // To include the default styles
 import 'react-rangeslider/lib/index.css';
 let options = [
-  {key: 'Signal Generator', text: 'Signal Generator', value: 'Signal Generator'},
+  {key: 'Signal GeneratorEXPERIMENTAL', text: 'Signal Generator', value: 'Signal Generator'},
   {key: 'Oscilloscope', text: 'Oscilloscope', value: 'Oscilloscope'},  
 ]
 
